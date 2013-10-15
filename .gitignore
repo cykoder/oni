@@ -1,0 +1,8 @@
+bin/*
+lib/textures/
+obj/
+dist/*
+cert/*
+
+# This is private :o
+src/com/oniworks
