@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/3.7">
+  <id>com.oniengine</id>
+  <versionNumber>0.1</versionNumber>
+  <supportedProfiles>desktop extendedDesktop mobileDevice</supportedProfiles>
+  <filename>OniEngine</filename>
+  <name>OniEngine</name>
+  <copyright>Sam Hellawell</copyright>
+  <android>
+    <manifestAdditions><![CDATA[<manifest android:installLocation="auto">
+	<uses-sdk android:minSdkVersion="8" />
+	<uses-feature android:required="true" android:name="android.hardware.touchscreen.multitouch" />
+	<activity android:name=".GameActivity" android:label="@string/app_name">
+		<intent-filter>
+			<action android:name="android.intent.action.MAIN" />
+			<category android:name="android.intent.category.LAUNCHER" />
+			<category android:name="tv.ouya.intent.category.GAME" />
+		</intent-filter>
+	</activity>
+</manifest>]]></manifestAdditions>
+  </android>
+  <iPhone>
+    <InfoAdditions><![CDATA[<key>UIStatusBarStyle</key>
+<string>UIStatusBarStyleBlackOpaque</string>
+<key>UIRequiresPersistentWiFi</key>
+<string>NO</string>
+<key>UIPrerenderedIcon</key>
+<true />
+<key>UIApplicationExitsOnSuspend</key>
+<true />
+<key>UIDeviceFamily</key>
+<array>
+	<!-- iPhone support -->
+	<string>1</string>
+	<!-- iPad support -->
+	<!--<string>2</string>-->
+</array>]]></InfoAdditions>
+    <requestedDisplayResolution>high</requestedDisplayResolution>
+  </iPhone>
+  <initialWindow>
+    <title>OniEngine</title>
+    <content>OniEngine.swf</content>
+    <visible>true</visible>
+    <fullScreen>true</fullScreen>
+    <!--<autoOrients>false</autoOrients>-->
+    <!--<aspectRatio>landscape</aspectRatio>-->
+    <renderMode>direct</renderMode>
+    <!--<depthAndStencil>true</depthAndStencil>-->
+    <!-- required for 3D -->
+    <systemChrome>standard</systemChrome>
+    <transparent>false</transparent>
+    <aspectRatio>landscape</aspectRatio>
+    <autoOrients>false</autoOrients>
+  </initialWindow>
+  <icon>
+    <image48x48>icons/icon_48.png</image48x48>
+    <image57x57>icons/icon_57.png</image57x57>
+    <image72x72>icons/icon_72.png</image72x72>
+    <image114x114>icons/icon_114.png</image114x114>
+    <image144x144>icons/icon_144.png</image144x144>
+    <image512x512>icons/icon_512.png</image512x512>
+  </icon>
+  <!-- 
+	AIR options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	
+	AIR mobile options:
+	http://help.adobe.com/en_US/air/build/WSfffb011ac560372f-5d0f4f25128cc9cd0cb-7ffe.html
+	
+	iOS icons guidelines:
+	http://developer.apple.com/library/ios/#documentation/userexperience/conceptual/mobilehig/IconsImages/IconsImages.html
+	
+	Android manifest documentation:
+	http://developer.android.com/guide/topics/manifest/manifest-intro.html
+	-->
+  <description>Oni game engine for the Oni World game series</description>
+</application>
