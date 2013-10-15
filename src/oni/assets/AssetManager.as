@@ -26,6 +26,11 @@ package oni.assets
         private static var _sounds:Dictionary = new Dictionary();
 		
 		/**
+		 * Asset stores
+		 */
+		public static var AssetStoreSD:Class, AssetStoreHD:Class;
+		
+		/**
 		 * The class in which assets are stored
 		 */
 		public static var assetStore:Class;
