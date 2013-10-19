@@ -124,9 +124,7 @@ package starling.display
      */
     public class DisplayObject extends EventDispatcher
     {
-        // member
-		
-		public var noRender:Boolean = false;
+        // members
         
         private var mX:Number;
         private var mY:Number;
@@ -293,7 +291,7 @@ package starling.display
         public function hitTest(localPoint:Point, forTouch:Boolean=false):DisplayObject
         {
             // on a touch test, invisible or untouchable objects cause the test to fail
-            if (forTouch && (!mVisible || !mTouchable || noRender)) return null;
+            if (forTouch && (!mVisible || !mTouchable)) return null;
             
             // otherwise, check bounding box
             if (getBounds(this, sHelperRect).containsPoint(localPoint)) return this;
@@ -460,21 +458,21 @@ package starling.display
                 {
                     // optimization: no skewing / rotation simplifies the matrix math
                     
-                    if (rotation == 0.0)
+                    if (mRotation == 0.0)
                     {
                         mTransformationMatrix.setTo(mScaleX, 0.0, 0.0, mScaleY, 
-                            x - mPivotX * mScaleX, y - mPivotY * mScaleY);
+                            mX - mPivotX * mScaleX, mY - mPivotY * mScaleY);
                     }
                     else
                     {
-                        var cos:Number = Math.cos(rotation);
-                        var sin:Number = Math.sin(rotation);
+                        var cos:Number = Math.cos(mRotation);
+                        var sin:Number = Math.sin(mRotation);
                         var a:Number   = mScaleX *  cos;
                         var b:Number   = mScaleX *  sin;
                         var c:Number   = mScaleY * -sin;
                         var d:Number   = mScaleY *  cos;
-                        var tx:Number  = x - mPivotX * a - mPivotY * c;
-                        var ty:Number  = y - mPivotX * b - mPivotY * d;
+                        var tx:Number  = mX - mPivotX * a - mPivotY * c;
+                        var ty:Number  = mY - mPivotX * b - mPivotY * d;
                         
                         mTransformationMatrix.setTo(a, b, c, d, tx, ty);
                     }
@@ -484,15 +482,15 @@ package starling.display
                     mTransformationMatrix.identity();
                     mTransformationMatrix.scale(mScaleX, mScaleY);
                     MatrixUtil.skew(mTransformationMatrix, mSkewX, mSkewY);
-                    mTransformationMatrix.rotate(rotation);
-                    mTransformationMatrix.translate(x, y);
+                    mTransformationMatrix.rotate(mRotation);
+                    mTransformationMatrix.translate(mX, mY);
                     
                     if (mPivotX != 0.0 || mPivotY != 0.0)
                     {
                         // prepend pivot transformation
-                        mTransformationMatrix.tx = x - mTransformationMatrix.a * mPivotX
+                        mTransformationMatrix.tx = mX - mTransformationMatrix.a * mPivotX
                                                       - mTransformationMatrix.c * mPivotY;
-                        mTransformationMatrix.ty = y - mTransformationMatrix.b * mPivotX 
+                        mTransformationMatrix.ty = mY - mTransformationMatrix.b * mPivotX 
                                                       - mTransformationMatrix.d * mPivotY;
                     }
                 }
@@ -529,12 +527,12 @@ package starling.display
             
             if (isEquivalent(mSkewX, mSkewY))
             {
-                rotation = mSkewX;
+                mRotation = mSkewX;
                 mSkewX = mSkewY = 0;
             }
             else
             {
-                rotation = 0;
+                mRotation = 0;
             }
         }
         

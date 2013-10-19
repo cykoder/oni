@@ -339,7 +339,7 @@ package starling.display
             {
                 var child:DisplayObject = mChildren[i];
                 
-                if (!child.noRender && child.hasVisibleArea)
+                if (child.hasVisibleArea)
                 {
                     var filter:FragmentFilter = child.filter;
 
