@@ -197,7 +197,7 @@ package oni.screens
 				
 			for (var ness:int = 0; ness < 50; ness++)
 			{
-				entityManager.addEntity(new Prop("factory", "klankywanky"));
+				entityManager.addEntity(new Prop("factory", "klankywanky")).x=500;
 			}
 			
 			

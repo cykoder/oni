@@ -35,6 +35,9 @@ package oni.entities.scene
 		
 		public function Prop(atlas:String, name:String, physicsEnabled:Boolean=true) 
 		{
+			//Super
+			super(physicsEnabled);
+			
 			//Load physics data?
 			if (_physData == null) _physData = AssetManager.getJSON("physics_data");
 			
@@ -62,9 +65,6 @@ package oni.entities.scene
 			
 			//Check if we have physics data available, if not, disable physics
 			if (physicsEnabled && _physicsData == null) physicsEnabled = false;
-			
-			//Set physics enabled
-			this.enabled = physicsEnabled;
 			
 			//Set pivtor
 			this.pivotX = width / 2;

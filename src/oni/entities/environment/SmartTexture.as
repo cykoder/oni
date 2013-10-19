@@ -3,6 +3,7 @@ package oni.entities.environment
 	import oni.assets.AssetManager;
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
+	import oni.entities.PhysicsEntity;
 	import oni.Oni;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -28,7 +29,7 @@ package oni.entities.environment
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class SmartTexture extends Entity
+	public class SmartTexture extends PhysicsEntity
 	{
 		private var _texture:String;
 		
@@ -36,19 +37,13 @@ package oni.entities.environment
 		
 		private var _collisionData:Array;
 		
-		private var _physicsBody:Body;
-		
-		private var _physicsWorld:Space;
-		
-		private var _collidable:Boolean;
-		
-		public function SmartTexture(texture:String, collisionData:Array, collidable:Boolean=true)
+		public function SmartTexture(texture:String, collisionData:Array, physicsEnabled:Boolean=true)
 		{
+			//Super
+			super(physicsEnabled);
+			
 			//Set texture
 			_texture = texture;
-			
-			//Set collidble
-			_collidable = collidable;
 			
 			//Set touchable
 			this.touchable = true;
@@ -60,9 +55,6 @@ package oni.entities.environment
 			//Listen for collision update
 			addEventListener(Oni.UPDATE_DATA, _updateCollision);
 			
-			//Listen for added
-			addEventListener(Oni.ENTITY_ADD, _onAdded);
-			
 			//Update collision
 			dispatchEventWith(Oni.UPDATE_DATA, false, { collisionData: collisionData } );
 			
@@ -70,49 +62,47 @@ package oni.entities.environment
 			//addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
-		private function _onAdded(e:Event):void
+		override protected function _initPhysics(e:Event):void 
 		{
-			//Set physics world
-			_physicsWorld = e.data.physicsWorld;
-			
-			//Init physics
-			if(_collidable) _initPhysics();
-			
-			//Remove event listener
-			removeEventListener(Oni.ENTITY_ADD, _onAdded);
+			//Remove curernt physics body
+			if (_physicsBody != null)
+			{
+				_physicsBody.space = null;
+				_physicsBody.shapes.clear();
+				_physicsBody = null;
+			}
+				
+			//Super
+			super._initPhysics(e);
 		}
 		
-		private function _initPhysics():void
+		override protected function _createBody():void 
 		{
-			//Can only update if we have access to the world
-			if (_physicsWorld != null)
+			//Remove current physics body
+			if (_physicsBody != null)
 			{
-				//Remove curernt physics body
-				if (_physicsBody != null)
-				{
-					_physicsBody.space = null;
-					_physicsBody.shapes.clear();
-					_physicsBody = null;
-				}
-				
-				//Create a physics body
-				_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
-				
-				//Transform collision data into nape vertices
-				var vertices:Array = [];
-				for (var i:uint = 0; i < _collisionData.length; i++) vertices.push(new Vec2(_collisionData[i].x, _collisionData[i].y));
-				
-				//Create a poly list and add shapes
-				var polys:GeomPolyList = new GeomPoly(vertices).convexDecomposition();
-				polys.foreach(function (p:GeomPoly):void
-				{
-					_physicsBody.shapes.add(new Polygon(p));
-				});
-				polys.clear();
-				
-				//Set physics world
-				_physicsBody.space = _physicsWorld;
+				_physicsBody.space = null;
+				_physicsBody.shapes.clear();
+				_physicsBody = null;
 			}
+			
+			//Create a physics body
+			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
+				
+			//Transform collision data into nape vertices
+			var vertices:Array = [];
+			for (var i:uint = 0; i < _collisionData.length; i++) vertices.push(new Vec2(_collisionData[i].x, _collisionData[i].y));
+			
+			//Create a poly list and add shapes
+			var polys:GeomPolyList = new GeomPoly(vertices).convexDecomposition();
+			polys.foreach(function (p:GeomPoly):void
+			{
+				_physicsBody.shapes.add(new Polygon(p));
+			});
+			polys.clear();
+			
+			//Set physics world
+			_physicsBody.space = _physicsWorld;
 		}
 		
 		private function _updateCollision(e:Event):void
@@ -121,7 +111,7 @@ package oni.entities.environment
 			_collisionData = e.data.collisionData;
 			
 			//Init physics
-			if(_collidable) _initPhysics();
+			_createBody();
 			
 			//Get the textiures
 			var backgroundTexture:Texture = AssetManager.getTexture("smarttexture_" + _texture + "_background");

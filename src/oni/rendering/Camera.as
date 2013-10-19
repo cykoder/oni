@@ -30,7 +30,6 @@ package oni.rendering
 		
 		private function _onUpdate(e:Event):void
 		{
-				//dispatchEventWith(Oni.UPDATE_POSITION, false, { x:800, y:100, z:z } );
 			//Check if we should move
 			if (_holdX != -1 || _holdY != -1)
 			{

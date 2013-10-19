@@ -26,7 +26,7 @@ package oni.entities
 		
 		protected var _physicsWorld:Space;
 		
-		public function PhysicsEntity() 
+		public function PhysicsEntity(physicsEnabled:Boolean=true) 
 		{
 			//Not allowed to init this class directly fam
             if (Platform.debugEnabled && 
@@ -35,12 +35,33 @@ package oni.entities
                 throw new AbstractClassError();
             }
 			
+			//Set physics enabled
+			this.enabled = physicsEnabled;
+			
 			//Listen for added
 			addEventListener(Oni.ENTITY_ADD, _initPhysics);
 		}
 		
-		private function _initPhysics(e:Event):void
+		private function _onUpdate(e:Event):void
 		{
+			//Update physics data, if we have a body
+			if (_physicsBody != null)
+			{
+				//Set position
+				x = _physicsBody.position.x;
+				y = _physicsBody.position.y;
+				
+				//Set rotation
+				rotation = _physicsBody.rotation;
+			}
+		}
+		
+		protected function _initPhysics(e:Event):void
+		{
+			//Listen for update
+			if(_physicsBody != null) e.data.manager.removeEventListener(Oni.UPDATE, _onUpdate);
+			if(_physicsEnabled) e.data.manager.addEventListener(Oni.UPDATE, _onUpdate);
+			
 			//Set physics world
 			if(e.data.physicsWorld != null) _physicsWorld = e.data.physicsWorld;
 			
@@ -71,40 +92,52 @@ package oni.entities
 		
 		override public function set x(value:Number):void 
 		{
+			//Only update if new
+			if (super.x == value) return;
+			
+			//Set x for starling
 			super.x = value;
-			if(_physicsBody != null) _physicsBody.position.x = value;
-		}
-		
-		override public function get x():Number 
-		{
-			if (!_physicsBody) return super.x;
-			rotation = _physicsBody.rotation;
-			return _physicsBody.position.x;
+			
+			//Check if we have a physics body to update
+			if (_physicsBody != null) 
+			{
+				if (_physicsBody.type == BodyType.STATIC)
+				{
+					_createBody();
+				}
+				else
+				{
+					_physicsBody.position.x = value;
+				}
+			}
 		}
 		
 		override public function set y(value:Number):void 
 		{
+			//Only update if new
+			if (super.y == value) return;
+			
+			//Set y for starling
 			super.y = value;
-			if(_physicsBody != null) _physicsBody.position.y = value;
-		}
-		
-		override public function get y():Number 
-		{
-			if (!_physicsBody) return super.y;
-			rotation = _physicsBody.rotation;
-			return _physicsBody.position.y;
+			
+			//Check if we have a physics body to update
+			if (_physicsBody != null) 
+			{
+				if (_physicsBody.type == BodyType.STATIC)
+				{
+					_createBody();
+				}
+				else
+				{
+					_physicsBody.position.y = value;
+				}
+			}
 		}
 		
 		override public function set rotation(value:Number):void 
 		{
 			super.rotation = value;
 			if(_physicsBody != null && _physicsBody.rotation != value) _physicsBody.rotation = value;
-		}
-		
-		override public function get rotation():Number 
-		{
-			if (!_physicsBody) return super.rotation;
-			return super.rotation;
 		}
 		
 		public function set enabled(value:Boolean):void 
