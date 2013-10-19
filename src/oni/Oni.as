@@ -42,7 +42,7 @@ package oni
 		public static const UPDATE:String = "update";
 		
 		/**
-		 * The screen manager - uhm, ye
+		 * The screen manager
 		 */
 		public var screenManager:ScreenManager;
 		

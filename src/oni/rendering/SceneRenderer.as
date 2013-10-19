@@ -2,6 +2,7 @@ package oni.rendering
 {
 	import oni.assets.AssetManager;
 	import oni.entities.Entity;
+	import oni.entities.lights.Light;
 	import oni.Oni;
 	import oni.utils.Platform;
 	import starling.core.Starling;

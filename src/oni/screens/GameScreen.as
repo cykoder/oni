@@ -6,10 +6,10 @@ package oni.screens
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
 	import oni.entities.environment.SmartTexture;
+	import oni.entities.lights.Light;
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
 	import oni.entities.scene.Prop;
-	import oni.rendering.Light;
 	import oni.rendering.SceneRenderer;
 	import oni.screens.GameScreen;
 	import flash.geom.Matrix;

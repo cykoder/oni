@@ -1,7 +1,6 @@
 package oni.entities.lights 
 {
 	import oni.Oni;
-	import oni.rendering.Light;
 	import starling.display.Shape;
 	import starling.events.Event;
 	/**

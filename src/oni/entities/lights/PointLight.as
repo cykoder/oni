@@ -1,7 +1,6 @@
 package oni.entities.lights 
 {
 	import oni.Oni;
-	import oni.rendering.Light;
 	import starling.display.Shape;
 	import starling.events.Event;
 	/**
@@ -42,7 +41,7 @@ package oni.entities.lights
 			_shape.graphics.clear();
 			
 			//Colour fill
-			_shape.graphics.beginFill(color, intensity);
+			_shape.graphics.beginFill(colour, intensity);
 			
 			//Draw circle
 			_shape.graphics.drawCircle(_radius, _radius, _radius);

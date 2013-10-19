@@ -10,7 +10,6 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
-	
 	import starling.core.Starling;
     import starling.utils.RectangleUtil;
     import starling.utils.ScaleMode;
@@ -21,8 +20,14 @@ package
 	 */
 	public class Main extends Sprite
 	{
+		/**
+		 * The starling instance
+		 */
 		private var _starling:Starling;
 		
+		/**
+		 * Initialiser
+		 */
 		public function Main() 
 		{
 			//Setup the stage
