@@ -1,7 +1,9 @@
 package oni.entities 
 {
+    import flash.utils.getQualifiedClassName;
 	import oni.Oni;
 	import oni.rendering.SceneRenderer;
+	import oni.utils.Platform;
 	import flash.display.Scene;
 	import flash.geom.Rectangle;
 	import flash.ui.ContextMenuBuiltInItems;
@@ -9,6 +11,7 @@ package oni.entities
 	import starling.display.Shape;
 	import starling.events.Event;
 	import starling.display.Sprite;
+	import starling.errors.AbstractClassError;
 	/**
 	 * ...
 	 * @author Sam Hellawell
@@ -23,6 +26,13 @@ package oni.entities
 		
 		public function Entity()
 		{
+			//Not allowed to init this class directly fam
+            if (Platform.debugEnabled && 
+                getQualifiedClassName(this) == "oni.entities::Entity")
+            {
+                throw new AbstractClassError();
+            }
+			
 			//Not touchable by default
 			this.touchable = false;
 			
