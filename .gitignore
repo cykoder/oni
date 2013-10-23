@@ -4,7 +4,7 @@ obj/
 dist/*
 cert/*
 
-*.as3proj
+OniEngine.as3proj
 
 # This is private :o
 src/com/oniworks
