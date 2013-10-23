@@ -23,3 +23,7 @@ Features
 Notable games
 ===
 *	[Oni World series](http://www.oniworld.co.uk/)
+
+Contact
+===
+Any issues or queries, the best way to contact me is to email me at [sshellawell@gmail.com](mailto:sshellawell@gmail.com) or add me on Skype: *becki.ness*
