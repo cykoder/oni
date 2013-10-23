@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <application xmlns="http://ns.adobe.com/air/application/3.7">
-  <id>com.oniengine</id>
+  <id>com.oniexample</id>
   <versionNumber>0.1</versionNumber>
   <supportedProfiles>desktop extendedDesktop mobileDevice</supportedProfiles>
-  <filename>OniEngine</filename>
-  <name>OniEngine</name>
+  <filename>OniExample</filename>
+  <name>OniExample</name>
   <copyright>Sam Hellawell</copyright>
   <android>
     <manifestAdditions><![CDATA[<manifest android:installLocation="auto">
@@ -38,8 +38,8 @@
     <requestedDisplayResolution>high</requestedDisplayResolution>
   </iPhone>
   <initialWindow>
-    <title>OniEngine</title>
-    <content>OniEngine.swf</content>
+    <title>OniExample</title>
+    <content>OniExample.swf</content>
     <visible>true</visible>
     <fullScreen>true</fullScreen>
     <!--<autoOrients>false</autoOrients>-->
@@ -73,5 +73,5 @@
 	Android manifest documentation:
 	http://developer.android.com/guide/topics/manifest/manifest-intro.html
 	-->
-  <description>Oni game engine for the Oni World game series</description>
+  <description>Oni engine testbench!</description>
 </application>

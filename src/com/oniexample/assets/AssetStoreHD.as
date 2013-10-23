@@ -23,13 +23,6 @@ package com.oniexample.assets
         [Embed(source="../../../../lib/example/hd/smarttextures/grass/wall.png")]
         public static const smarttexture_grass_wall:Class;
 		
-        [Embed(source="../../../../lib/example/hd/smarttextures/mud/background.png")]
-        public static const smarttexture_mud_background:Class;
-        [Embed(source="../../../../lib/example/hd/smarttextures/mud/floor.png")]
-        public static const smarttexture_mud_floor:Class;
-        [Embed(source="../../../../lib/example/hd/smarttextures/mud/wall.png")]
-        public static const smarttexture_mud_wall:Class;
-		
         [Embed(source="../../../../lib/example/hd/smarttextures/factory_metal/background.png")]
         public static const smarttexture_factory_metal_background:Class;
         [Embed(source="../../../../lib/example/hd/smarttextures/factory_metal/floor.png")]

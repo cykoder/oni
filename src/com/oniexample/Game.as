@@ -1,7 +1,7 @@
 package com.oniexample 
 {
-	import com.oniworks.assets.AssetStoreSD;
-	import com.oniworks.assets.AssetStoreHD;
+	import com.oniexample.assets.AssetStoreSD;
+	import com.oniexample.assets.AssetStoreHD;
 	import oni.assets.AssetManager;
 	import oni.utils.Backend;
 	
