@@ -1,4 +1,4 @@
-package  
+package oni
 {
 	import oni.Oni;
 	import oni.utils.Backend;
@@ -15,10 +15,10 @@ package
     import starling.utils.ScaleMode;
 	
 	/**
-	 * Main startup class, you should extend this and set that class to your document if you don't know what you're doing.
+	 * The startup class, your main/document class should extend this.
 	 * @author Sam Hellawell
 	 */
-	public class Main extends Sprite
+	public class Startup extends Sprite
 	{
 		/**
 		 * The starling instance
@@ -28,7 +28,7 @@ package
 		/**
 		 * Initialiser
 		 */
-		public function Main() 
+		public function Startup() 
 		{
 			//Setup the stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;

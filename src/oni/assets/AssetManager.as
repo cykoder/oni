@@ -64,6 +64,9 @@ package oni.assets
 					Backend.log("High definition graphics mode");
 					assetStore = AssetStoreHD;
 				}
+				
+				//Check if still null
+				if (assetStore == null) throw new Error("You must set AssetStoreSD and AssetStoreHD in your document class!");
 			}
 			
 			//Return the reference
