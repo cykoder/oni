@@ -69,6 +69,9 @@ package oni.rendering
 			//Unflatten
 			if(this.flat && this.isFlattened) unflatten();
 			
+			//Get child
+			var child:DisplayObject = super.getChildAt(index);
+
 			//Remove child
 			return super.removeChildAt(index, dispose);
 			
