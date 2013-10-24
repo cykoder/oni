@@ -30,7 +30,7 @@ package oni.screens
 	import starling.display.DisplayObjectContainer;
 	import starling.events.Event;
 	/**
-	 * ...
+	 * TODO: This class really shouldn't be here, will tidy
 	 * @author Sam Hellawell
 	 */
 	public class GameScreen extends Screen
@@ -48,12 +48,13 @@ package oni.screens
 			entityManager = new EntityManager();
 			
 			//Create a scene renderer
+			//Set second parameter to "true" to enable a crappy lighting test
 			scene = new SceneRenderer("midday", false);
 			addChild(scene);
 			
 			//Listen for events
-			entityManager.addEventListener(Oni.ENTITY_ADD, _addEntity);
-			entityManager.addEventListener(Oni.ENTITY_REMOVE, _removeEntity);
+			entityManager.addEventListener(Oni.ENTITY_ADDED, _addEntity);
+			entityManager.addEventListener(Oni.ENTITY_REMOVED, _removeEntity);
 			
 			var polygonPoints:Array = [new Point(0, 0),
 									   new Point(256, 0),
@@ -130,6 +131,9 @@ package oni.screens
 									   debugTexture.z = 0.8;
 			entityManager.addEntity(debugTexture);
 			
+			/*
+			 * Test lights, this does work if you set lighting enabled when creating the scenerenderer
+			 */
 			var light:Light;
 			/*light = new PolygonLight(0x0000FF, 1, [new Point(50, 200*2),
 													  new Point(100*2, 180*2),
@@ -143,7 +147,7 @@ package oni.screens
 									   light.x = 300;
 									   light.z = 0.5;
 			entityManager.addEntity(light);
-			
+			*/
 			light = new PolygonLight(0xFF0000, 1, [new Point(0, 400),
 									   new Point(0, 100),
 									   new Point(400, 90),
@@ -156,48 +160,25 @@ package oni.screens
 									   light.y = 300;
 									   light.x = 0;
 									   light.z = 1;
-			entityManager.addEntity(light);*/
+			entityManager.addEntity(light);
 			
-			
-			light = new PointLight(0xFFFFFF, 0.85, 128);
-			light.x = light.y = 200;
+			light = new PointLight(0xFFFFFF, 0.75, 128);
+			light.x = 200;
+			light.y = 150;
 			(light as PointLight).radius = 256;
 			entityManager.addEntity(light);
 			
-			/*debugTexture = new SmartTexture("grass", [new Point(0, 0),
-									   new Point(200, 10),
-									   new Point(300, 0),
-									   new Point(300, 300),
-									   new Point(0, 300)], false);
-									   debugTexture.y = 150;
-									   debugTexture.x = 350;
-									   debugTexture.z = 1.5;
-			entityManager.addEntity(debugTexture);*/
-			
-			/*var test:Entity = new DebugSquare(32);
-			test.x = 450;
-			entityManager.addEntity(test);
-			
-			test = new DebugSquare(32);
-			test.x = 500;
-			entityManager.addEntity(test);
-			
-			test = new DebugCircle(32);
-			test.x = 450;
-			entityManager.addEntity(test);
-			
-			test = new DebugCircle(32);
-			test.x = 500;
-			entityManager.addEntity(test);*/
-			
+			//Create a prop, read from the physics data file
 			var prop:Prop = new Prop("factory", "bottom_support");
 			prop.x = 400;
 			prop.y = 300;
 			entityManager.addEntity(prop);
-				
-			for (var ness:int = 0; ness < 50; ness++)
+			
+			//C++, hah!
+			for (var c:int = 0; c < 50; c++)
 			{
-				entityManager.addEntity(new Prop("factory", "klankywanky")).x=500;
+				//Just spawning a few heads for physics testing
+				entityManager.addEntity(new Prop("factory", "klankywanky")).x=600;
 			}
 			
 			

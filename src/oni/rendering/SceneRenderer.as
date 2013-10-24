@@ -1,5 +1,6 @@
 package oni.rendering 
 {
+	import flash.geom.Point;
 	import oni.assets.AssetManager;
 	import oni.entities.Entity;
 	import oni.entities.lights.Light;
@@ -33,21 +34,21 @@ package oni.rendering
 		
 		private var _background:Shape;
 		
-		public function SceneRenderer(skybg:String="midday", lighting:Boolean=true) 
+		public function SceneRenderer(skybg:String="midday", lighting:Boolean=true, ambientColour:uint=0x000000, ambientIntensity:Number=1) 
 		{
 			//Create a diffuse map
 			_diffuseMap = new Map(false);
 			
 			//Create a light map
-			_lightMap = new LightMap(0xFFFFFF, 1);
-			//_lightMap = new LightMap(0x000000, 1);
+			//TODO: Don't initialise the lightmap here?
+			_lightMap = new LightMap(ambientColour, ambientIntensity);
 			
 			//Set the background
 			background = skybg;
 			
 			//Add maps
 			_addChild(_diffuseMap);
-			_addChild(_lightMap);
+			if(lighting) _addChild(_lightMap);
 			
 			//Create a camera
 			camera = new Camera();
@@ -56,19 +57,26 @@ package oni.rendering
 			//Listen for update
 			addEventListener(Oni.UPDATE, _update);
 			
+			//Debug
 			addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
+		private var _lastTouchPosition:Point = new Point();
+		private var _touchDifference:Point = new Point();
 		private function _touch(e:TouchEvent):void
 		{
-			var touch:Touch = e.getTouch(this, TouchPhase.MOVED);
+			var touch:Touch = e.getTouch(this);
 			if (touch != null)
 			{
-				if (touch.globalX < 480) camera.x -= 60;
-				if (touch.globalX > 480) camera.x += 60;
-				
-				if (touch.globalY < 270) camera.y -= 60;
-				if (touch.globalY > 270) camera.y += 60;
+				if (touch.phase == TouchPhase.BEGAN ||touch.phase == TouchPhase.MOVED)
+				{
+					_lastTouchPosition.setTo(stage.stageWidth / 2, stage.stageHeight / 2);
+					_touchDifference.setTo(((_lastTouchPosition.x - touch.globalX) < 0) ? 1 : -1, ((_lastTouchPosition.y - touch.globalY) < 0) ? 1 : -1);
+				}
+				else if (touch.phase == TouchPhase.ENDED)
+				{
+					_touchDifference.setTo(0,0);
+				}
 			}
 		}
 		
@@ -100,6 +108,10 @@ package oni.rendering
 		
 		private function _update(e:Event):void
 		{
+			//Move camera by difference
+			camera.x += _touchDifference.x*50;
+			camera.y += _touchDifference.y*50;
+			
 			//Depth sort
 			if (shouldDepthSort)
 			{

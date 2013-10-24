@@ -74,13 +74,13 @@ package oni.entities
 		public function addEntity(entity:Entity):Entity
 		{
 			//Dispatch added event
-			entity.dispatchEventWith(Oni.ENTITY_ADD, false, { manager:this, physicsWorld:this.physicsWorld } );
+			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, physicsWorld:this.physicsWorld } );
 			
 			//Add to list
 			entities.push(entity);
 			
 			//Dispatch event
-			dispatchEventWith(Oni.ENTITY_ADD, false, { entity:entity } );
+			dispatchEventWith(Oni.ENTITY_ADDED, false, { entity:entity } );
 			
 			//Return
 			return entity;
@@ -89,13 +89,13 @@ package oni.entities
 		public function removeEntity(entity:Entity):void
 		{
 			//Dispatch removed event
-			entity.dispatchEventWith(Oni.ENTITY_REMOVE, false, { manager:this } );
+			entity.dispatchEventWith(Oni.ENTITY_REMOVED, false, { manager:this } );
 			
 			//Remove
 			entities.splice(entities.indexOf(entity), 1);
 			
 			//Dispatch event
-			dispatchEventWith(Oni.ENTITY_REMOVE, false, { entity:entity } );
+			dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity:entity } );
 		}
 		
 	}

@@ -40,13 +40,13 @@ package oni.entities
 			cullBounds = new Rectangle();
 			
 			//Listen for added
-			addEventListener(Oni.ENTITY_ADD, _onAdded);
+			addEventListener(Oni.ENTITY_ADDED, _onAdded);
 		}
 		
 		private function _onAdded(e:Event):void
 		{
 			//Remove event listener
-			removeEventListener(Oni.ENTITY_ADD, _onAdded);
+			removeEventListener(Oni.ENTITY_ADDED, _onAdded);
 			
 			//Listen for debug mode
 			addEventListener(Oni.ENABLE_DEBUG, _onDebugEnabled);

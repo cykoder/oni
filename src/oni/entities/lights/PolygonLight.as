@@ -44,7 +44,7 @@ package oni.entities.lights
 			_shape.graphics.clear();
 			
 			//Colour fill
-			_shape.graphics.beginFill(color, intensity);
+			_shape.graphics.beginFill(colour, intensity);
 			
 			//Loop through each point and redraw
 			for (var i:uint = 0; i < _collisionData.length; ++i)

@@ -16,7 +16,7 @@ package oni.rendering
 	{
 		private var _backgroundQuad:Quad;
 		
-		public function LightMap(ambientColor:uint, ambientIntensity:Number) 
+		public function LightMap(ambientColor:uint, ambientIntensity:Number, blurResolution:Number=0.5) 
 		{
 			//Super
 			super(false);
@@ -36,7 +36,7 @@ package oni.rendering
 			//this.blendMode = "none";
 			this.blendMode = "multiply";
 			
-			this.filter = new BlurFilter(2, 2, 0.25);
+			this.filter = new BlurFilter(2, 2, blurResolution);
 		}
 		
 		private function _addedToStage(e:Event):void
@@ -74,13 +74,16 @@ package oni.rendering
 			//Super
 			super.reposition(nx, ny, nz);
 			
-			//Scale background
-			_backgroundQuad.width = stage.stageWidth / nz;
-			_backgroundQuad.height = stage.stageHeight / nz;
-			
-			//Position background
-			_backgroundQuad.x = nx / nz;
-			_backgroundQuad.y = ny / nz;
+			if (stage != null)
+			{
+				//Scale background
+				_backgroundQuad.width = stage.stageWidth / nz;
+				_backgroundQuad.height = stage.stageHeight / nz;
+				
+				//Position background
+				_backgroundQuad.x = nx / nz;
+				_backgroundQuad.y = ny / nz;
+			}
 		}
 		
 	}

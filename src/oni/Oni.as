@@ -19,26 +19,60 @@ package oni
 	import starling.events.TouchPhase;
 	import starling.textures.Texture;
 	
+	/**
+	 * Main game engine class
+	 * @author Sam Hellawell
+	 */
 	public class Oni extends Sprite
 	{
+		/**
+		 * Event fired when debug mode is enabled
+		 */
 		public static const ENABLE_DEBUG:String = "enabledebug";
 		
+		/**
+		 * Event fired when debug mode is diabled
+		 */
 		public static const DISABLE_DEBUG:String = "disabledebug";
 		
+		/**
+		 * Event fired when data should be updated
+		 */
 		public static const UPDATE_DATA:String = "updatedata";
 		
+		/**
+		 * Event fired when something updates position
+		 */
 		public static const UPDATE_POSITION:String = "updateposition";
 		
+		/**
+		 * Event fired when a screen is added
+		 */
 		public static const SCREEN_ADDED:String = "screenadded";
 		
+		/**
+		 * Event fired when a screen is changed
+		 */
 		public static const SCREEN_CHANGED:String = "screenchanged";
 		
+		/**
+		 * Event fired when a screen is removed
+		 */
 		public static const SCREEN_REMOVED:String = "screenadded";
 		
-		public static const ENTITY_ADD:String = "addent";
+		/**
+		 * Event fired when an entity is added
+		 */
+		public static const ENTITY_ADDED:String = "addent";
 		
-		public static const ENTITY_REMOVE:String = "removeent";
+		/**
+		 * Event fired when an entity is removed
+		 */
+		public static const ENTITY_REMOVED:String = "removeent";
 		
+		/**
+		 * Event fired when the game updates
+		 */
 		public static const UPDATE:String = "update";
 		
 		/**
@@ -55,7 +89,7 @@ package oni
 			addEventListener(Event.ADDED_TO_STAGE, _init);
 			
 			//Debug
-			trace("[Oni] Running on " + Platform.PLATFORM);
+			Backend.log("[Oni] Running on " + Platform.PLATFORM);
 		}
 		
 		/**

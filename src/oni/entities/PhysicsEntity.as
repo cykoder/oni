@@ -39,7 +39,7 @@ package oni.entities
 			this.enabled = physicsEnabled;
 			
 			//Listen for added
-			addEventListener(Oni.ENTITY_ADD, _initPhysics);
+			addEventListener(Oni.ENTITY_ADDED, _initPhysics);
 		}
 		
 		private function _onUpdate(e:Event):void
@@ -82,7 +82,7 @@ package oni.entities
 			}
 			
 			//Remove event listener
-			removeEventListener(Oni.ENTITY_ADD, _initPhysics);
+			removeEventListener(Oni.ENTITY_ADDED, _initPhysics);
 		}
 		
 		protected function _createBody():void
