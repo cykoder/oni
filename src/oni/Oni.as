@@ -1,6 +1,7 @@
 package oni
 {
 	import oni.assets.AssetManager;
+	import oni.components.ComponentManager;
 	import oni.entities.Entity;
 	import oni.screens.GameScreen;
 	import oni.screens.Screen;
@@ -78,7 +79,12 @@ package oni
 		/**
 		 * The screen manager
 		 */
-		public var screenManager:ScreenManager;
+		public var screens:ScreenManager;
+		
+		/**
+		 * The component manager
+		 */
+		public var components:ComponentManager;
 		
 		/**
 		 * The main OniEngine class
@@ -101,11 +107,15 @@ package oni
 			//Remove initialisation listener
 			removeEventListener(Event.ADDED_TO_STAGE, _init);
 			
+			//Create a component manager
+			components = new ComponentManager();
+			
 			//Create a screen manager
-			screenManager = new ScreenManager(this);
+			screens = new ScreenManager(this);
+			components.add(screens);
 			
 			//Add screens
-			screenManager.addScreen(new GameScreen());
+			screens.add(new GameScreen(this));
 			
 			//screenManager.changeTo(ScreenManager.SCREEN_GAME);
 			
@@ -119,8 +129,17 @@ package oni
 		 */
 		private function _enterFrame(e:EnterFrameEvent):void
 		{
+			//Create update event
+			var update:Event = new Event(Oni.UPDATE, false, { engine:this } );
+			
 			//Dispatch update event
-			dispatchEventWith(Oni.UPDATE, false, { } );
+			dispatchEvent(update);
+			
+			//Update components
+			components.dispatchEvent(update);
+			
+			//Nullify!
+			update = null;
 		}
 	}
 }

@@ -109,7 +109,7 @@ package oni.core
 			for (var i:uint = 0; i < l; i++)
 			{
 				entity = getChildAt(i) as Entity;
-				if (entity != null)
+				if (entity != null && entity.z != 1)
 				{
 					//Parallax
 					entity.x -= xdif * (1 - entity.z);

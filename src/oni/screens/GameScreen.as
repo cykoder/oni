@@ -1,6 +1,7 @@
 package oni.screens 
 {
 	import oni.assets.AssetManager;
+	import oni.components.Camera;
 	import oni.editor.EditorScreen;
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
@@ -36,14 +37,16 @@ package oni.screens
 	 */
 	public class GameScreen extends Screen
 	{
+		public var camera:Camera;
+		
 		public var scene:Scene;
 		
 		public var entityManager:EntityManager;
 		
-		public function GameScreen() 
+		public function GameScreen(oni:Oni) 
 		{
 			//Super
-			super("game");
+			super(oni, "game");
 			
 			//Create an entity manager
 			entityManager = new EntityManager();
@@ -53,7 +56,12 @@ package oni.screens
 			entityManager.addEventListener(Oni.ENTITY_REMOVED, _entityRemoved);
 			
 			//Create a little scene
-			createScene("midday", true);
+			createScene("midnight", true);
+			
+			//Create a camera
+			camera = new Camera();
+			camera.addEventListener(Oni.UPDATE_POSITION, _updatePosition);
+			addComponent(camera);
 			
 			var polygonPoints:Array = [new Point(0, 0),
 									   new Point(256, 0),
@@ -162,7 +170,7 @@ package oni.screens
 			//entityManager.addEntity(light);
 			
 			//Ambient!
-			entityManager.addEntity(new AmbientLight(0xFFFFFF, 0.5));
+			entityManager.addEntity(new AmbientLight(0x1B2D54, 1));
 			
 			//Textured lights rock
 			light = new TexturedLight(AssetManager.getTextureAtlas("scene_factory").getTexture("klankywanky"), 0xFFFFFF, 1);
@@ -213,6 +221,28 @@ package oni.screens
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _update);
+			
+			//Debug
+			addEventListener(TouchEvent.TOUCH, _touch);
+		}
+		
+		private var _lastTouchPosition:Point = new Point();
+		private var _touchDifference:Point = new Point();
+		private function _touch(e:TouchEvent):void
+		{
+			var touch:Touch = e.getTouch(this);
+			if (touch != null)
+			{
+				if (touch.phase == TouchPhase.BEGAN ||touch.phase == TouchPhase.MOVED)
+				{
+					_lastTouchPosition.setTo(stage.stageWidth / 2, stage.stageHeight / 2);
+					_touchDifference.setTo(((_lastTouchPosition.x - touch.globalX) < 0) ? 1 : -1, ((_lastTouchPosition.y - touch.globalY) < 0) ? 1 : -1);
+				}
+				else if (touch.phase == TouchPhase.ENDED)
+				{
+					_touchDifference.setTo(0,0);
+				}
+			}
 		}
 		
 		
@@ -262,6 +292,10 @@ package oni.screens
 		 */
 		private function _update(e:Event):void
 		{
+			//Move camera by difference
+			camera.x += _touchDifference.x*50;
+			camera.y += _touchDifference.y * 50;
+			
 			//Update the scene
 			this.scene.dispatchEvent(e);
 			
@@ -270,6 +304,15 @@ package oni.screens
 			
 			//TODO: Other stuff
 			
+		}
+		
+		/**
+		 * 
+		 * @param	e
+		 */
+		private function _updatePosition(e:Event):void
+		{
+			this.scene.dispatchEvent(e);
 		}
 		
 	}

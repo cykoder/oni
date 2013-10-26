@@ -39,14 +39,14 @@ package oni.screens
 			_oni = oni;
 			
 			//Listen for update
-			_oni.addEventListener(Oni.UPDATE, _updateScreen);
+			addEventListener(Oni.UPDATE, _updateScreen);
 		}
 		
 		/**
 		 * Adds a screen to the list
 		 * @param	screen
 		 */
-		public function addScreen(screen:Screen):void
+		public function add(screen:Screen):Screen
 		{
 			//Check its not in array
 			if (_screens.indexOf(screen) < 0)
@@ -68,6 +68,9 @@ package oni.screens
 				//Change to it?
 				if (_screens.length == 1) changeTo(_screens.length-1);
 			}
+			
+			//Return
+			return screen;
 		}
 		
 		/**
@@ -114,7 +117,7 @@ package oni.screens
 		 * @param	index
 		 * @return
 		 */
-		public function removeScreen(index:int):Screen
+		public function remove(index:int):Screen
 		{
 			//Create new array
 			var screens:Array = _screens.concat();
@@ -123,7 +126,7 @@ package oni.screens
 			_screens = new Array();
 			for (var i:int = 0; i < screens.length; i++)
 			{
-				if(i != index) addScreen(screens[i]);
+				if(i != index) add(screens[i]);
 			}
 			
 			//Check if current screen
