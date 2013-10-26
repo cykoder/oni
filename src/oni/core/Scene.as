@@ -1,7 +1,8 @@
-package oni.rendering 
+package oni.core 
 {
 	import flash.geom.Point;
 	import oni.assets.AssetManager;
+	import oni.components.Camera;
 	import oni.entities.Entity;
 	import oni.entities.lights.Light;
 	import oni.Oni;
@@ -22,33 +23,36 @@ package oni.rendering
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class SceneRenderer extends DisplayObjectContainer
+	public class Scene extends DisplayObjectContainer
 	{
 		public var camera:Camera;
 		
 		public var shouldDepthSort:Boolean;
 		
-		private var _diffuseMap:Map;
+		protected var _diffuseMap:DisplayMap;
 		
-		private var _lightMap:LightMap;
+		protected var _lightMap:LightMap;
 		
 		private var _background:Shape;
 		
-		public function SceneRenderer(skybg:String="midday", lighting:Boolean=true, ambientColour:uint=0x000000, ambientIntensity:Number=1) 
+		public function Scene(skybg:String="midday", lighting:Boolean=true) 
 		{
 			//Create a diffuse map
-			_diffuseMap = new Map(false);
-			
-			//Create a light map
-			//TODO: Don't initialise the lightmap here?
-			_lightMap = new LightMap(ambientColour, ambientIntensity);
+			_diffuseMap = new DisplayMap(false);
 			
 			//Set the background
 			background = skybg;
 			
 			//Add maps
-			_addChild(_diffuseMap);
-			if(lighting) _addChild(_lightMap);
+			addChild(_diffuseMap);
+			
+			//Is lighting enabled?
+			if (lighting)
+			{
+				//Create a light map
+				_lightMap = new LightMap();
+				addChild(_lightMap);
+			}
 			
 			//Create a camera
 			camera = new Camera();
@@ -80,6 +84,11 @@ package oni.rendering
 			}
 		}
 		
+		public function get lighting():LightMap
+		{
+			return _lightMap;
+		}
+		
 		public function set background(bg:String):void
 		{
 			//Check if background is already set
@@ -88,7 +97,7 @@ package oni.rendering
 				//Create background and add to display list
 				_background = new Shape();
 				_background.blendMode = BlendMode.NONE;
-				super.addChildAt(_background, 0);
+				addChildAt(_background, 0);
 			}
 			
 			//Clear background
@@ -116,7 +125,7 @@ package oni.rendering
 			if (shouldDepthSort)
 			{
 				shouldDepthSort = false;
-				_diffuseMap.sortChildren(Entity.depthSort);
+				_diffuseMap.sortChildren(depthSort);
 			}
 			
 			//Update camera
@@ -126,11 +135,12 @@ package oni.rendering
 		private function _updatePosition(e:Event):void
 		{
 			//Scale
-			_diffuseMap.scaleX = _diffuseMap.scaleY = _lightMap.scaleX = _lightMap.scaleY = e.data.z;
+			_diffuseMap.scaleX = _diffuseMap.scaleY = e.data.z;
+			if(_lightMap != null) _lightMap.scaleX = _lightMap.scaleY = e.data.z;
 			
 			//Position maps
 			_diffuseMap.reposition(e.data.x, e.data.y, e.data.z);
-			_lightMap.reposition(e.data.x, e.data.y, e.data.z);
+			if(_lightMap != null) _lightMap.reposition(e.data.x, e.data.y, e.data.z);
 		}
 		
 		public function getContainer(child:DisplayObject):DisplayObjectContainer
@@ -140,34 +150,55 @@ package oni.rendering
 			return _diffuseMap;
 		}
 		
-		override public function addChild(child:DisplayObject):DisplayObject 
+		public function addEntity(entity:Entity):void
 		{
-			if (getContainer(child).contains(child)) return child;
-			shouldDepthSort = true;
-			return getContainer(child).addChild(child);
+			var container:DisplayObjectContainer = getContainer(entity);
+			if (container != null)
+			{
+				container.addChild(entity);
+				container = null;
+			}
 		}
 		
-		override public function addChildAt(child:DisplayObject, index:int):DisplayObject 
+		public function removeEntity(entity:Entity):void
 		{
-			if (getContainer(child).contains(child)) return child;
-			shouldDepthSort = true;
-			return getContainer(child).addChildAt(child, index);
+			var container:DisplayObjectContainer = getContainer(entity);
+			if (container != null)
+			{
+				container.removeChild(entity);
+				container = null;
+			}
 		}
 		
-		override public function removeChild(child:DisplayObject, dispose:Boolean = true):DisplayObject 
+		override public function dispose():void 
 		{
-			if (!getContainer(child).contains(child)) return child;
-			return getContainer(child).removeChild(child, dispose);
+			//Remove event listeners
+			removeEventListener(Oni.UPDATE, _update);
+			
+			//Super
+			super.dispose();
 		}
 		
-		private function _addChild(child:DisplayObject):DisplayObject 
+		/**
+		 * Depth sorts two entities
+		 * @param	a
+		 * @param	b
+		 * @return
+		 */
+		public static function depthSort(a:DisplayObject, b:DisplayObject):Number
 		{
-			return super.addChildAt(child, numChildren);
-		}
-		
-		private function _removeChild(child:DisplayObject, dispose:Boolean = true):DisplayObject 
-		{
-			return super.removeChildAt(getChildIndex(child), dispose);
+			//Calculate z
+			var aZ:Number = 0;
+			var bZ:Number = 0;
+			
+			//Is an entity?
+			if (a is Entity) aZ = (a as Entity).z;
+			if (b is Entity) bZ = (b as Entity).z;
+			
+			//Calculate y difference
+			var ydif:Number = aZ - bZ;
+			if (ydif == 0) ydif = -1;
+			return ydif;
 		}
 		
 	}

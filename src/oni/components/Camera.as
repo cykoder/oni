@@ -1,4 +1,4 @@
-package oni.rendering 
+package oni.components 
 {
 	import oni.Oni;
 	import starling.events.Event;
@@ -21,7 +21,7 @@ package oni.rendering
 		{
 			//Initialise variables
 			_x = _y = 0;
-			_z = 1.25;
+			_z = 1;
 			_holdX = _holdY = -1;
 			
 			//Listen for update

@@ -2,6 +2,7 @@ package oni.entities.lights
 {
     import flash.utils.getQualifiedClassName;
 	import oni.entities.Entity;
+	import oni.Oni;
 	import oni.utils.Platform;
 	import starling.display.Shape;
 	import starling.errors.AbstractClassError;
@@ -61,7 +62,11 @@ package oni.entities.lights
 		 */
 		public function set colour(value:uint):void
 		{
+			//Set colour
 			_colour = value;
+			
+			//Dispatch update data event
+			dispatchEventWith(Oni.UPDATE_DATA);
 		}
 		
 		/**
@@ -77,7 +82,11 @@ package oni.entities.lights
 		 */
 		public function set intensity(value:Number):void
 		{
+			//Set intensity
 			_intensity = value;
+			
+			//Dispatch update data event
+			dispatchEventWith(Oni.UPDATE_DATA);
 		}
 		
 	}

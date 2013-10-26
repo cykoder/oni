@@ -7,6 +7,12 @@ package com.oniexample.assets
 	public class AssetStoreHD
 	{
 		/*
+		 * Light textures (required)
+		 */
+        [Embed(source="../../../../lib/textures/hd/lights/point.png")]
+        public static const light_point:Class;
+		
+		/*
 		 * Smart textures
 		 */
         [Embed(source="../../../../lib/example/hd/smarttextures/debug/background.png")]

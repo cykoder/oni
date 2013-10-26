@@ -1,7 +1,7 @@
-package oni.rendering 
+package oni.core 
 {
 	import oni.entities.Entity;
-	import oni.rendering.Camera;
+	import oni.components.Camera;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Sprite;
@@ -9,11 +9,11 @@ package oni.rendering
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class Map extends Sprite
+	public class DisplayMap extends Sprite
 	{
 		public var flat:Boolean;
 		
-		public function Map(flat:Boolean) 
+		public function DisplayMap(flat:Boolean) 
 		{
 			//Set flat
 			this.flat = flat;

@@ -7,6 +7,12 @@ package com.oniexample.assets
 	public class AssetStoreSD
 	{
 		/*
+		 * Light textures (required)
+		 */
+        [Embed(source="../../../../lib/textures/sd/lights/point.png")]
+        public static const light_point:Class;
+		
+		/*
 		 * Smart textures
 		 */
         [Embed(source="../../../../lib/example/sd/smarttextures/debug/background.png")]

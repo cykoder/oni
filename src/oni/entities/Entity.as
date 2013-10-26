@@ -2,7 +2,7 @@ package oni.entities
 {
     import flash.utils.getQualifiedClassName;
 	import oni.Oni;
-	import oni.rendering.SceneRenderer;
+	import oni.core.Scene;
 	import oni.utils.Platform;
 	import flash.display.Scene;
 	import flash.geom.Rectangle;
@@ -67,34 +67,12 @@ package oni.entities
 			this._z = value;
 			
 			//Sort parent children by Z
-			if (parent != null && parent is SceneRenderer) (parent as SceneRenderer).shouldDepthSort = true;
+			if (parent != null && parent is oni.core.Scene) (parent as oni.core.Scene).shouldDepthSort = true;
 		}
 		
 		public function get z():Number
 		{
 			return _z;
-		}
-		
-		/**
-		 * Depth sorts two entityies
-		 * @param	a
-		 * @param	b
-		 * @return
-		 */
-		public static function depthSort(a:DisplayObject, b:DisplayObject):Number
-		{
-			//Calculate z
-			var aZ:Number = 0;
-			var bZ:Number = 0;
-			
-			//Is an entity?
-			if (a is Entity) aZ = (a as Entity).z;
-			if (b is Entity) bZ = (b as Entity).z;
-			
-			//Calculate y difference
-			var ydif:Number = aZ - bZ;
-			if (ydif == 0) ydif = -1;
-			return ydif;
 		}
 	}
 

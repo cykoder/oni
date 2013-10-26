@@ -21,22 +21,10 @@ package oni.entities
 		
 		public var entities:Array;
 		
-		private var _napeDebug:ShapeDebug;
-		
 		public function EntityManager(gravity:Number=600) 
 		{
 			//Create a physics world
 			physicsWorld = new Space(new Vec2(0, gravity));
-			
-			//Setup a debugger
-			/*if (Platform.debugEnabled)
-			{
-				_napeDebug = new ShapeDebug(Main.s.stageWidth, Main.s.stageHeight, 0x000000);
-				_napeDebug.drawConstraints = true;
-				_napeDebug.display.scaleX = Main.s.stageWidth / 960;
-				_napeDebug.display.scaleY = Main.s.stageHeight / 540;
-				Main.s.addChild(_napeDebug.display);
-			}*/
 			
 			//Create an entities array
 			entities = new Array();
@@ -61,14 +49,6 @@ package oni.entities
 		{
 			//Update the physics world
 			physicsWorld.step(1 / 30);
-			
-			//Update debug view
-			if (_napeDebug != null)
-			{
-				_napeDebug.clear();
-				_napeDebug.draw(physicsWorld);
-				_napeDebug.flush();
-			}
 		}
 		
 		public function addEntity(entity:Entity):Entity

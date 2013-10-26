@@ -1,18 +1,18 @@
 package oni.screens 
 {
+	import oni.assets.AssetManager;
 	import oni.editor.EditorScreen;
-	import oni.entities.debug.DebugCircle;
-	import oni.entities.debug.DebugSquare;
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
 	import oni.entities.environment.SmartTexture;
+	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
+	import oni.entities.lights.TexturedLight;
 	import oni.entities.scene.Prop;
-	import oni.rendering.SceneRenderer;
+	import oni.core.Scene;
 	import oni.screens.GameScreen;
-	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import nape.shape.Circle;
@@ -25,17 +25,18 @@ package oni.screens
 	import starling.events.TouchPhase;
 	import starling.textures.Texture;
 	import oni.Oni;
-	import oni.rendering.SceneRenderer;
+	import oni.core.Scene;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.events.Event;
+	
 	/**
 	 * TODO: This class really shouldn't be here, will tidy
 	 * @author Sam Hellawell
 	 */
 	public class GameScreen extends Screen
 	{
-		public var scene:SceneRenderer;
+		public var scene:Scene;
 		
 		public var entityManager:EntityManager;
 		
@@ -47,14 +48,12 @@ package oni.screens
 			//Create an entity manager
 			entityManager = new EntityManager();
 			
-			//Create a scene renderer
-			//Set second parameter to "true" to enable a crappy lighting test
-			scene = new SceneRenderer("midday", false);
-			addChild(scene);
+			//Listen for entity added and removed
+			entityManager.addEventListener(Oni.ENTITY_ADDED, _entityAdded);
+			entityManager.addEventListener(Oni.ENTITY_REMOVED, _entityRemoved);
 			
-			//Listen for events
-			entityManager.addEventListener(Oni.ENTITY_ADDED, _addEntity);
-			entityManager.addEventListener(Oni.ENTITY_REMOVED, _removeEntity);
+			//Create a little scene
+			createScene("midday", true);
 			
 			var polygonPoints:Array = [new Point(0, 0),
 									   new Point(256, 0),
@@ -160,10 +159,37 @@ package oni.screens
 									   light.y = 300;
 									   light.x = 0;
 									   light.z = 1;
+			//entityManager.addEntity(light);
+			
+			//Ambient!
+			entityManager.addEntity(new AmbientLight(0xFFFFFF, 0.5));
+			
+			//Textured lights rock
+			light = new TexturedLight(AssetManager.getTextureAtlas("scene_factory").getTexture("klankywanky"), 0xFFFFFF, 1);
+			light.x = 200;
+			light.y = 50;
 			entityManager.addEntity(light);
 			
 			light = new PointLight(0xFFFFFF, 0.75, 128);
 			light.x = 200;
+			light.y = 150;
+			(light as PointLight).radius = 256;
+			entityManager.addEntity(light);
+			
+			light = new PointLight(0xFF0000, 0.75, 128);
+			light.x = 400;
+			light.y = 150;
+			(light as PointLight).radius = 256;
+			entityManager.addEntity(light);
+			
+			light = new PointLight(0x00FF00, 0.75, 128);
+			light.x = 600;
+			light.y = 150;
+			(light as PointLight).radius = 256;
+			entityManager.addEntity(light);
+			
+			light = new PointLight(0x0000FF, 0.75, 128);
+			light.x = 0;
 			light.y = 150;
 			(light as PointLight).radius = 256;
 			entityManager.addEntity(light);
@@ -189,14 +215,29 @@ package oni.screens
 			addEventListener(Oni.UPDATE, _update);
 		}
 		
+		
+		public function createScene(background:String="", lighting:Boolean=true):void
+		{
+			//Check if we already have a scene
+			if (scene != null)
+			{
+				//Dispose
+				scene.dispose();
+				scene = null;
+			}
+			//Create a scene instance
+			scene = new Scene(background, lighting);
+			addChild(scene);
+		}
+		
 		/**
 		 * Called when an entity needs to be added to the scene
 		 * @param	e
 		 */
-		private function _addEntity(e:Event):void
+		private function _entityAdded(e:Event):void
 		{
 			//Add to scene
-			scene.addChild(e.data.entity);
+			scene.addEntity(e.data.entity);
 			
 			//Relay event
 			dispatchEvent(e);
@@ -206,10 +247,10 @@ package oni.screens
 		 * Called when an entity needs to be removed from the scene
 		 * @param	e
 		 */
-		private function _removeEntity(e:Event):void
+		private function _entityRemoved(e:Event):void
 		{
 			//Remove from scene
-			scene.removeChild(e.data.entity);
+			scene.removeEntity(e.data.entity);
 			
 			//Relay event
 			dispatchEvent(e);

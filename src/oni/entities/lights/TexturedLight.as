@@ -5,17 +5,13 @@ package oni.entities.lights
 	import starling.display.Image;
 	import starling.display.Shape;
 	import starling.events.Event;
+	import starling.textures.Texture;
 	/**
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class PointLight extends Light
+	public class TexturedLight extends Light
 	{
-		/**
-		 * The radius of the point light
-		 */
-		private var _radius:int;
-		
 		/**
 		 * The base point light image
 		 */
@@ -25,22 +21,20 @@ package oni.entities.lights
 		 * Crates a point light
 		 * @param	colour
 		 * @param	intensity
-		 * @param	radius
 		 */
-		public function PointLight(colour:uint, intensity:Number, radius:int) 
+		public function TexturedLight(texture:Texture, colour:uint, intensity:Number) 
 		{
 			//Super
 			super(colour, intensity);
 			
 			//Create a base image
-			_baseImage = new Image(AssetManager.getTexture("light_point"));
+			_baseImage = new Image(texture);
+			_baseImage.color = colour;
+			_baseImage.alpha = intensity;
 			addChild(_baseImage);
 			
 			//Listen for collision update
 			addEventListener(Oni.UPDATE_DATA, _redraw);
-			
-			//Update collision
-			dispatchEventWith(Oni.UPDATE_DATA, false, { radius: radius } );
 		}
 		
 		/**
@@ -49,17 +43,6 @@ package oni.entities.lights
 		 */
 		private function _redraw(e:Event):void
 		{
-			//Check if we should set the radius
-			if (e.data.radius && e.data.radius != _radius)
-			{
-				//Set radius
-				_radius = e.data.radius;
-				
-				//Resize base image
-				_baseImage.width = _radius;
-				_baseImage.height = _radius;
-			}
-			
 			//Tint the base image
 			if(_baseImage.color != colour) _baseImage.color = colour;
 			
@@ -68,22 +51,6 @@ package oni.entities.lights
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width + 64, height + 64);
-		}
-		
-		/**
-		 * The radius of the point light
-		 */
-		public function get radius():int
-		{
-			return _radius;
-		}
-		
-		/**
-		 * The radius of the point light
-		 */
-		public function set radius(value:int):void
-		{
-			dispatchEventWith(Oni.UPDATE_DATA, false, { radius: value } );
 		}
 		
 	}
