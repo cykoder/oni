@@ -77,6 +77,11 @@ package oni
 		public static const UPDATE:String = "update";
 		
 		/**
+		 * Event fired when something should initialise
+		 */
+		public static const INIT:String = "init";
+		
+		/**
 		 * The screen manager
 		 */
 		public var screens:ScreenManager;
@@ -114,13 +119,11 @@ package oni
 			screens = new ScreenManager(this);
 			components.add(screens);
 			
-			//Add screens
-			screens.add(new GameScreen(this));
-			
-			//screenManager.changeTo(ScreenManager.SCREEN_GAME);
-			
 			//Listen for update
 			addEventListener(EnterFrameEvent.ENTER_FRAME, _enterFrame);
+			
+			//Dispatch init event
+			dispatchEventWith(Oni.INIT);
 		}
 		
 		/**

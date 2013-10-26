@@ -12,7 +12,9 @@ package com.oniexample
 	 */
 	public class Main extends Startup
 	{
-		
+		/**
+		 * Bootloader!
+		 */
 		public function Main() 
 		{
 			//Set asset stores, you must always do this in your document class constructor
