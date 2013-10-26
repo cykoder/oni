@@ -21,6 +21,11 @@ package oni
 	public class Startup extends Sprite
 	{
 		/**
+		 * The class we use for the engine
+		 */
+		public static var StartupClass:Class = Oni;
+		
+		/**
 		 * The starling instance
 		 */
 		private var _starling:Starling;
@@ -62,7 +67,7 @@ package oni
 													   ScaleMode.SHOW_ALL);
 													  
 			//Create instance
-			_starling = new Starling(Oni, stage, viewport);
+			_starling = new Starling(StartupClass, stage, viewport);
 			_starling.antiAliasing = 1;
             _starling.simulateMultitouch = false;
 			_starling.showStats = Platform.debugEnabled;

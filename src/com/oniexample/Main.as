@@ -7,17 +7,23 @@ package com.oniexample
 	import oni.utils.Backend;
 	
 	/**
-	 * ...
+	 * This class doesn't do much besides boot up the game engine and set asset stores
 	 * @author Sam Hellawell
 	 */
-	public class Game extends Startup
+	public class Main extends Startup
 	{
 		
-		public function Game() 
+		public function Main() 
 		{
 			//Set asset stores, you must always do this in your document class constructor
 			AssetManager.AssetStoreSD = AssetStoreSD;
 			AssetManager.AssetStoreHD = AssetStoreHD;
+			
+			//Set startup class
+			Startup.StartupClass = ExampleGame;
+			
+			//Super, because we want to use the default initialiser!
+			super();
 		}
 		
 	}
