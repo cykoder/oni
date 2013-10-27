@@ -36,7 +36,7 @@ package oni.entities.lights
 			_baseImage = new Image(AssetManager.getTexture("light_point"));
 			addChild(_baseImage);
 			
-			//Listen for collision update
+			//Listen for data update
 			addEventListener(Oni.UPDATE_DATA, _redraw);
 			
 			//Update collision
@@ -67,7 +67,7 @@ package oni.entities.lights
 			if(_baseImage.alpha != intensity) _baseImage.alpha = intensity;
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, width + 64, height + 64);
+			cullBounds.setTo(0, 0, _radius + 64, _radius + 64);
 		}
 		
 		/**

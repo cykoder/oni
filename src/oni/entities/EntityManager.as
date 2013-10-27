@@ -56,7 +56,7 @@ package oni.entities
 			}
 		}
 		
-		public function addEntity(entity:Entity):Entity
+		public function add(entity:Entity):Entity
 		{
 			//Dispatch added event
 			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, physicsWorld:_physicsWorld } );
@@ -71,7 +71,7 @@ package oni.entities
 			return entity;
 		}
 		
-		public function removeEntity(entity:Entity):void
+		public function remove(entity:Entity):void
 		{
 			//Dispatch removed event
 			entity.dispatchEventWith(Oni.ENTITY_REMOVED, false, { manager:this } );

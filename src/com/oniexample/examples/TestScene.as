@@ -6,8 +6,10 @@ package com.oniexample.examples
 	import oni.entities.lights.Light;
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
+	import oni.entities.lights.TexturedLight;
 	import oni.entities.scene.Prop;
 	import oni.Oni;
+	import oni.assets.AssetManager;
 	import oni.screens.GameScreen;
 	/**
 	 * ...
@@ -52,7 +54,7 @@ package com.oniexample.examples
 									   debugTexture.y = 100;
 									   debugTexture.x = 300;
 									   debugTexture.z = 0.5;
-			//entityManager.addEntity(debugTexture);
+			//entityManager.add(debugTexture);
 			
 			debugTexture = new SmartTexture("grass", [new Point(0, 100),
 									   new Point(250, 100),
@@ -91,13 +93,13 @@ package com.oniexample.examples
 									   debugTexture.x = 0;
 									   debugTexture.z = 1;
 									   debugTexture.cull = false;
-			entityManager.addEntity(debugTexture);
+			entityManager.add(debugTexture);
 			
 			debugTexture = new SmartTexture("factory_metal", [new Point(0,256), new Point(20,0), new Point(256,30), new Point(300,300)], false);
 									   debugTexture.y = 230;
 									   debugTexture.x = 450;
 									   debugTexture.z = 0.8;
-			entityManager.addEntity(debugTexture);
+			entityManager.add(debugTexture);
 			
 			/*
 			 * Test lights, this does work if you set lighting enabled when creating the scenerenderer
@@ -114,7 +116,7 @@ package com.oniexample.examples
 									   light.y = 100;
 									   light.x = 300;
 									   light.z = 0.5;
-			entityManager.addEntity(light);
+			entityManager.add(light);
 			*/
 			light = new PolygonLight(0xFF0000, 1, [new Point(0, 400),
 									   new Point(0, 100),
@@ -128,52 +130,74 @@ package com.oniexample.examples
 									   light.y = 300;
 									   light.x = 0;
 									   light.z = 1;
-			//entityManager.addEntity(light);
+			//entityManager.add(light);
 			
 			//Ambient!
-			entityManager.addEntity(new AmbientLight(0x1B2D54, 1));
+			entityManager.add(new AmbientLight(0x1B2D54, 1));
 			
 			//Textured lights rock
 			/*light = new TexturedLight(AssetManager.getTextureAtlas("scene_factory").getTexture("klankywanky"), 0xFFFFFF, 1);
 			light.x = 200;
 			light.y = 50;
-			entityManager.addEntity(light);*/
+			entityManager.add(light);
 			
 			light = new PointLight(0xFFFFFF, 0.75, 128);
 			light.x = 200;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.addEntity(light);
+			entityManager.add(light);
 			
 			light = new PointLight(0xFF0000, 0.75, 128);
 			light.x = 400;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.addEntity(light);
+			entityManager.add(light);
 			
 			light = new PointLight(0x00FF00, 0.75, 128);
 			light.x = 600;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.addEntity(light);
+			entityManager.add(light);
 			
 			light = new PointLight(0x0000FF, 0.75, 128);
 			light.x = 0;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.addEntity(light);
+			entityManager.add(light);*/
+			
+			
+			
+			
+			light = new PointLight(0xFF0000, 1, 256);
+			light.x = 400;
+			light.y = 100;
+			entityManager.add(light);
+			
+			light = new PointLight(0x00FF00, 1, 256);
+			light.x = 528;
+			light.y = 100;
+			entityManager.add(light);
+			
+			light = new PointLight(0x0000FF, 1, 256);
+			light.x = 464;
+			light.y = 228;
+			entityManager.add(light);
+			
+			
+			
+			
 			
 			//Create a prop, read from the physics data file
 			var prop:Prop = new Prop("factory", "bottom_support");
 			prop.x = 400;
 			prop.y = 300;
-			entityManager.addEntity(prop);
+			entityManager.add(prop);
 			
 			//C++, hah!
 			for (var c:int = 0; c < 50; c++)
 			{
 				//Just spawning a few heads for physics testing
-				entityManager.addEntity(new Prop("factory", "klankywanky")).x=600;
+				entityManager.add(new Prop("factory", "klankywanky")).x=600;
 			}
 		}
 		

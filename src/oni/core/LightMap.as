@@ -4,6 +4,7 @@ package oni.core
 	import oni.core.DisplayMap;
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
+	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Image;
@@ -23,16 +24,10 @@ package oni.core
 		
 		private var _ambientLight:AmbientLight;
 		
-		public function LightMap(blurAmount:Number=2, blurResolution:Number=0.5) 
+		public function LightMap(blurAmount:Number=0, blurResolution:Number=0.5) 
 		{
 			//Super
 			super(false);
-			
-			//Fix for tinting performance
-			this.alpha = 0.999;
-			
-			//Set untouchable
-			this.touchable = false;
 			
 			//Create a background quad 
 			_backgroundQuad = new Quad(1, 1, 0x000000);
@@ -43,7 +38,7 @@ package oni.core
 			addChild(_ambientQuad);
 			
 			//Set the blend mode
-			this.blendMode = "multiply";
+			this.blendMode = BlendMode.MULTIPLY;
 			
 			//Create a blur filkter
 			this.filter = new BlurFilter(blurAmount, blurAmount, blurResolution);

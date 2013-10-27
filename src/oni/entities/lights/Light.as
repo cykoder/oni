@@ -4,6 +4,7 @@ package oni.entities.lights
 	import oni.entities.Entity;
 	import oni.Oni;
 	import oni.utils.Platform;
+	import starling.display.BlendMode;
 	import starling.display.Shape;
 	import starling.errors.AbstractClassError;
 	import starling.filters.BlurFilter;
@@ -30,7 +31,7 @@ package oni.entities.lights
 		 * @param	intensity
 		 * @param	blend
 		 */
-		public function Light(colour:uint, intensity:Number, blend:String="add") 
+		public function Light(colour:uint, intensity:Number, blendMode:String = BlendMode.ADD) 
 		{
 			//Not allowed to init this class directly fam
             if (Platform.debugEnabled && 
@@ -45,8 +46,8 @@ package oni.entities.lights
 			//Set intensity
 			_intensity = intensity;
 			
-			//Set blend state (additive or multiply)
-			blendMode = blend;
+			//Set blend mode (additive or multiply, usually)
+			if(blendMode != null) this.blendMode = blendMode;
 		}
 		
 		/**

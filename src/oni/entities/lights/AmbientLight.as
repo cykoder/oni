@@ -13,7 +13,7 @@ package oni.entities.lights
 		public function AmbientLight(colour:uint, intensity:Number) 
 		{
 			//Super
-			super(colour, intensity);
+			super(colour, intensity, null);
 		}
 		
 	}
