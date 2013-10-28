@@ -1,5 +1,6 @@
 package oni.core 
 {
+	import flash.display.Bitmap;
 	import flash.geom.Point;
 	import oni.assets.AssetManager;
 	import oni.components.Camera;
@@ -7,6 +8,7 @@ package oni.core
 	import oni.entities.lights.Light;
 	import oni.Oni;
 	import oni.utils.Platform;
+	import starling.core.RenderSupport;
 	import starling.core.Starling;
 	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
@@ -33,15 +35,10 @@ package oni.core
 		
 		private var _background:Shape;
 		
-		public function Scene(skybg:String="midday", lighting:Boolean=true) 
+		public function Scene(background:String, lighting:Boolean=true) 
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap(false);
-			
-			//Set the background
-			background = skybg;
-			
-			//Add maps
 			addChild(_diffuseMap);
 			
 			//Is lighting enabled?
@@ -52,8 +49,10 @@ package oni.core
 				addChild(_lightMap);
 			}
 			
+			//Set the background
+			this.background = background;
+			
 			//Listen for events
-			addEventListener(Oni.UPDATE, _update);
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 		}
 		
@@ -88,7 +87,7 @@ package oni.core
 			bgTexture = null;
 		}
 		
-		private function _update(e:Event):void
+		override public function render(support:RenderSupport, parentAlpha:Number):void 
 		{
 			//Depth sort
 			if (shouldDepthSort)
@@ -96,6 +95,9 @@ package oni.core
 				shouldDepthSort = false;
 				_diffuseMap.sortChildren(depthSort);
 			}
+			
+			//Render
+			super.render(support, parentAlpha);
 		}
 		
 		private function _updatePosition(e:Event):void
@@ -143,7 +145,7 @@ package oni.core
 		override public function dispose():void 
 		{
 			//Remove event listeners
-			removeEventListener(Oni.UPDATE, _update);
+			removeEventListener(Oni.UPDATE_POSITION, _updatePosition);
 			
 			//Super
 			super.dispose();

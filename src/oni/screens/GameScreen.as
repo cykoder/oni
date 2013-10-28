@@ -24,7 +24,7 @@ package oni.screens
 		
 		public var scene:Scene;
 		
-		public var entityManager:EntityManager;
+		public var entities:EntityManager;
 		
 		public function GameScreen(oni:Oni) 
 		{
@@ -32,21 +32,21 @@ package oni.screens
 			super(oni, "game");
 			
 			//Create an entity manager
-			entityManager = new EntityManager();
-			addComponent(entityManager);
+			entities = new EntityManager();
+			components.add(entities);
 			
 			//Create a camera
 			camera = new Camera();
-			addComponent(camera);
+			components.add(camera);
 			
 			//Listen for entity added and removed
-			entityManager.addEventListener(Oni.ENTITY_ADDED, _entityAdded);
-			entityManager.addEventListener(Oni.ENTITY_REMOVED, _entityRemoved);
+			entities.addEventListener(Oni.ENTITY_ADDED, _entityAdded);
+			entities.addEventListener(Oni.ENTITY_REMOVED, _entityRemoved);
 			
 			//Listen for camera position update
 			camera.addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 			
-			//addChild(new EditorScreen(scene, entityManager)).visible = true;
+			//addChild(new EditorScreen(scene, entities)).visible = true;
 			
 			//Debug
 			addEventListener(Oni.UPDATE, _update);
@@ -93,7 +93,7 @@ package oni.screens
 			{
 				//Dispose
 				scene.dispose();
-				removeComponent(scene);
+				components.remove(scene);
 				scene = null;
 			}
 			
@@ -101,7 +101,7 @@ package oni.screens
 			scene = new Scene(background, lighting);
 			
 			//Add to components
-			addComponent(scene);
+			components.add(scene);
 			
 			//Add to display list
 			addChild(scene);

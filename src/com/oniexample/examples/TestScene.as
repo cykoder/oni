@@ -24,7 +24,7 @@ package com.oniexample.examples
 			super(oni);
 			
 			//Create a little scene
-			createScene("midnight", true);
+			createScene("midday", true);
 			
 			var polygonPoints:Array = [new Point(0, 0),
 									   new Point(256, 0),
@@ -54,7 +54,7 @@ package com.oniexample.examples
 									   debugTexture.y = 100;
 									   debugTexture.x = 300;
 									   debugTexture.z = 0.5;
-			//entityManager.add(debugTexture);
+			//entities.add(debugTexture);
 			
 			debugTexture = new SmartTexture("grass", [new Point(0, 100),
 									   new Point(250, 100),
@@ -93,13 +93,13 @@ package com.oniexample.examples
 									   debugTexture.x = 0;
 									   debugTexture.z = 1;
 									   debugTexture.cull = false;
-			entityManager.add(debugTexture);
+			entities.add(debugTexture);
 			
 			debugTexture = new SmartTexture("factory_metal", [new Point(0,256), new Point(20,0), new Point(256,30), new Point(300,300)], false);
 									   debugTexture.y = 230;
 									   debugTexture.x = 450;
 									   debugTexture.z = 0.8;
-			entityManager.add(debugTexture);
+			entities.add(debugTexture);
 			
 			/*
 			 * Test lights, this does work if you set lighting enabled when creating the scenerenderer
@@ -116,7 +116,7 @@ package com.oniexample.examples
 									   light.y = 100;
 									   light.x = 300;
 									   light.z = 0.5;
-			entityManager.add(light);
+			entities.add(light);
 			*/
 			light = new PolygonLight(0xFF0000, 1, [new Point(0, 400),
 									   new Point(0, 100),
@@ -130,40 +130,41 @@ package com.oniexample.examples
 									   light.y = 300;
 									   light.x = 0;
 									   light.z = 1;
-			//entityManager.add(light);
+			//entities.add(light);
 			
 			//Ambient!
-			entityManager.add(new AmbientLight(0x1B2D54, 1));
+			//entities.add(new AmbientLight(0x1B2D54, 1));
+			entities.add(new AmbientLight(0xFFFFFF, 1));
 			
 			//Textured lights rock
 			/*light = new TexturedLight(AssetManager.getTextureAtlas("scene_factory").getTexture("klankywanky"), 0xFFFFFF, 1);
 			light.x = 200;
 			light.y = 50;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0xFFFFFF, 0.75, 128);
 			light.x = 200;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0xFF0000, 0.75, 128);
 			light.x = 400;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0x00FF00, 0.75, 128);
 			light.x = 600;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0x0000FF, 0.75, 128);
 			light.x = 0;
 			light.y = 150;
 			(light as PointLight).radius = 256;
-			entityManager.add(light);*/
+			entities.add(light);*/
 			
 			
 			
@@ -171,17 +172,17 @@ package com.oniexample.examples
 			light = new PointLight(0xFF0000, 1, 256);
 			light.x = 400;
 			light.y = 100;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0x00FF00, 1, 256);
 			light.x = 528;
 			light.y = 100;
-			entityManager.add(light);
+			entities.add(light);
 			
 			light = new PointLight(0x0000FF, 1, 256);
 			light.x = 464;
 			light.y = 228;
-			entityManager.add(light);
+			entities.add(light);
 			
 			
 			
@@ -191,13 +192,13 @@ package com.oniexample.examples
 			var prop:Prop = new Prop("factory", "bottom_support");
 			prop.x = 400;
 			prop.y = 300;
-			entityManager.add(prop);
+			entities.add(prop);
 			
 			//C++, hah!
 			for (var c:int = 0; c < 50; c++)
 			{
 				//Just spawning a few heads for physics testing
-				entityManager.add(new Prop("factory", "klankywanky")).x=600;
+				entities.add(new Prop("factory", "klankywanky")).x=600;
 			}
 		}
 		

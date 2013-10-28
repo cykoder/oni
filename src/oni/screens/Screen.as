@@ -1,5 +1,6 @@
 package oni.screens 
 {
+	import oni.components.ComponentManager;
 	import oni.Oni;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Quad;
@@ -28,14 +29,14 @@ package oni.screens
 			_oni = oni;
 		}
 		
-		public function addComponent(component:EventDispatcher):EventDispatcher
+		public function get components():ComponentManager
 		{
-			return _oni.components.add(component);
+			return _oni.components;
 		}
 		
-		public function removeComponent(component:EventDispatcher):EventDispatcher
+		public function get oni():Oni
 		{
-			return _oni.components.remove(component);
+			return _oni;
 		}
 		
 	}
