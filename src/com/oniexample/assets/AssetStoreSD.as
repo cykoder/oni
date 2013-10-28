@@ -48,6 +48,14 @@ package com.oniexample.assets
         [Embed(source="../../../../lib/example/sd/levels/backgrounds/midnight.png")]
         public static const scene_background_midnight:Class;
 		
+		/*
+		 * Entity textures
+		 */
+        [Embed(source="../../../../lib/example/sd/levels/factory.png")]
+        public static const scene_factory:Class;
+        [Embed(source="../../../../lib/example/sd/levels/factory.xml", mimeType="application/octet-stream")]
+        public static const scene_factoryAtlas:Class;
+		
 	}
 
 }

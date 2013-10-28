@@ -73,7 +73,8 @@ package oni.assets
 			try
 			{
 				if (assetStore[name] != null) return new assetStore[name];
-				return new AssetStore[name];
+				if (AssetStore[name] != null) return new AssetStore[name];
+				Backend.log("AssetManager: Can't find asset: " + name, "error");
 			}
 			catch(error:Error)
 			{
@@ -109,6 +110,16 @@ package oni.assets
 			
 			//Return the texture
 			return _textures[name];
+		}
+		
+		/**
+		 * Gets an asset as a bitmap
+		 * @param	name
+		 * @return
+		 */
+		public static function getBitmap(name:String):Bitmap
+		{
+			return getAsset(name) as Bitmap;
 		}
 		
 		/**

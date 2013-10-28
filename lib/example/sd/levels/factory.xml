@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with TexturePacker http://texturepacker.com-->
-<!-- $TexturePacker:SmartUpdate:179d1fe255c94029099f4a5d3e1c0e3b$ -->
+<!-- $TexturePacker:SmartUpdate:ccd73c6f6b76f21788cbc4d26acc6bcd$ -->
 <TextureAtlas imagePath="factory.png">
-    <SubTexture name="bottom_support" x="356" y="0" width="356" height="200"/>
-    <SubTexture name="klankywanky" x="712" y="0" width="126" height="128" frameX="-1" frameY="0" frameWidth="128" frameHeight="128"/>
-    <SubTexture name="under_support" x="0" y="0" width="356" height="200"/>
+    <SubTexture name="bottom_support" x="178" y="0" width="178" height="100"/>
+    <SubTexture name="klankywanky" x="356" y="0" width="64" height="64"/>
+    <SubTexture name="under_support" x="0" y="0" width="178" height="100"/>
 </TextureAtlas>
