@@ -50,10 +50,14 @@ package oni.entities.lights
 		private function _redraw(e:Event):void
 		{
 			//Check if we should set the radius
-			if (e.data.radius && e.data.radius != _radius)
+			if (e.data != null && e.data.radius && e.data.radius != _radius)
 			{
 				//Set radius
 				_radius = e.data.radius;
+				
+				//Reposition
+				_baseImage.x = -_radius/2;
+				_baseImage.y = -_radius/2;
 				
 				//Resize base image
 				_baseImage.width = _radius;

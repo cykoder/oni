@@ -1,5 +1,6 @@
 package com.oniexample 
 {
+	import com.oniexample.examples.PointLights;
 	import com.oniexample.examples.TestScene;
 	import oni.Oni;
 	import oni.utils.Backend;
@@ -28,7 +29,7 @@ package com.oniexample
 		private function _init(e:Event):void
 		{
 			//Add test scene
-			screens.add(new TestScene(this));
+			screens.add(new PointLights(this));
 			
 			//screenManager.changeTo(ScreenManager.SCREEN_GAME);
 		}
