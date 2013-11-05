@@ -90,6 +90,10 @@ package oni.entities.lights
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width + 64, height + 64);
+				
+			//Change pivot
+			this.pivotX = width / 2;
+			this.pivotY = height / 2;
 		}
 		
 	}

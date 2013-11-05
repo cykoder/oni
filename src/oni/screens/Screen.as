@@ -29,6 +29,12 @@ package oni.screens
 			_oni = oni;
 		}
 		
+		public function remove():void
+		{
+			//Remove from parent
+			_oni.removeChild(this);
+		}
+		
 		public function get components():ComponentManager
 		{
 			return _oni.components;

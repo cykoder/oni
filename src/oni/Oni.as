@@ -100,7 +100,7 @@ package oni
 			addEventListener(Event.ADDED_TO_STAGE, _init);
 			
 			//Debug
-			Backend.log("[Oni] Running on " + Platform.PLATFORM);
+			Backend.log("Oni running on " + Platform.PLATFORM);
 		}
 		
 		/**

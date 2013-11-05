@@ -22,8 +22,6 @@ package oni.core
 		
 		private var _ambientQuad:Quad;
 		
-		private var _ambientLight:AmbientLight;
-		
 		public function LightMap(blurAmount:Number=0, blurResolution:Number=0.5) 
 		{
 			//Super

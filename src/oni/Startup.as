@@ -3,7 +3,7 @@ package oni
 	import oni.Oni;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
-    import flash.desktop.NativeApplication;
+    //import flash.desktop.NativeApplication;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.display.StageAlign;
@@ -82,12 +82,12 @@ package oni
 			_starling.start();
 			
 			//Listen for application activate
-            NativeApplication.nativeApplication.addEventListener(
+            /*NativeApplication.nativeApplication.addEventListener(
                 Event.ACTIVATE, function (e:*):void { _starling.start(); });
             
 			//Listen for application deactivate
             NativeApplication.nativeApplication.addEventListener(
-                Event.DEACTIVATE, function (e:*):void { _starling.stop(true); });
+                Event.DEACTIVATE, function (e:*):void { _starling.stop(true); });*/
 		}
 	}
 	

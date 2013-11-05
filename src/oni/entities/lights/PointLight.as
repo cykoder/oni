@@ -55,9 +55,8 @@ package oni.entities.lights
 				//Set radius
 				_radius = e.data.radius;
 				
-				//Reposition
-				_baseImage.x = -_radius/2;
-				_baseImage.y = -_radius/2;
+				//Change pivot
+				this.pivotX = this.pivotY = _radius / 2;
 				
 				//Resize base image
 				_baseImage.width = _radius;

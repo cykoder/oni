@@ -89,17 +89,20 @@ package oni.screens
 				childIndex = _oni.getChildIndex(_currentScreen);
 				
 				//Remove
-				_oni.removeChild(_currentScreen);
+				_currentScreen.remove();
 			}
 			
 			//Set current screen
 			_currentScreen = _screens[index];
 			
+			//Tell screen we've changed
+			_currentScreen.dispatchEventWith(Oni.SCREEN_ADDED);
+			
 			//Dispatch event
 			dispatchEventWith(Oni.SCREEN_CHANGED, false, { screen: _currentScreen } );
 			
 			//Add
-			_oni.addChildAt(_screens[index], childIndex);
+			if(!_oni.contains(_screens[index])) _oni.addChildAt(_screens[index], childIndex);
 		}
 		
 		/**
@@ -138,6 +141,9 @@ package oni.screens
 			{
 				_currentScreen = null;
 			}
+				
+			//Remove
+			screens[index].remove();
 			
 			//Dispatch event
 			dispatchEventWith(Oni.SCREEN_REMOVED, false, { screen: screens[index] } );
