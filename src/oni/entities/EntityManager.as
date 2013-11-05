@@ -22,13 +22,13 @@ package oni.entities
 		
 		private var _physicsWorld:Space;
 		
-		public function EntityManager(gravity:Number=600) 
+		public function EntityManager(physics:Boolean=true) 
 		{
-			//Create a physics world
-			_physicsWorld = new Space(new Vec2(0, gravity));
-			
 			//Create an entities array
 			entities = new Array();
+			
+			//Setup physics
+			if(physics) setupPhysics(new Vec2(0, 600));
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
@@ -38,10 +38,31 @@ package oni.entities
 			addEventListener(Oni.DISABLE_DEBUG, _relayEvent);
 		}
 		
+		public function setupPhysics(gravity:Vec2):void
+		{
+			//Check if we already have a physics world
+			if (_physicsWorld != null)
+			{
+				//Clear and set gravity
+				_physicsWorld.clear();
+				_physicsWorld.gravity = gravity;
+			}
+			else
+			{
+				//Create a physics world
+				_physicsWorld = new Space(new Vec2(0, 600));
+			}
+		}
+		
+		public function get physicsEnabled():Boolean
+		{
+			return _physicsWorld != null;
+		}
+		
 		private function _onUpdate(e:Event):void
 		{
 			//Update the physics world
-			_physicsWorld.step(1 / 30);
+			if(_physicsWorld != null) _physicsWorld.step(1 / 30);
 			
 			//Relay
 			_relayEvent(e);

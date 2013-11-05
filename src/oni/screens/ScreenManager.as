@@ -80,7 +80,7 @@ package oni.screens
 		public function changeTo(index:int):void
 		{
 			//Base child index
-			var childIndex:int = 0;
+			var childIndex:int = _oni.numChildren;
 			
 			//Check if we have a screen
 			if (_currentScreen != null)

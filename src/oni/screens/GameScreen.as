@@ -26,13 +26,13 @@ package oni.screens
 		
 		public var entities:EntityManager;
 		
-		public function GameScreen(oni:Oni) 
+		public function GameScreen(oni:Oni, physics:Boolean=true) 
 		{
 			//Super
 			super(oni, "game");
 			
 			//Create an entity manager
-			entities = new EntityManager();
+			entities = new EntityManager(physics);
 			components.add(entities);
 			
 			//Create a camera
@@ -86,7 +86,7 @@ package oni.screens
 		 * @param	background
 		 * @param	lighting
 		 */
-		public function createScene(background:String="", lighting:Boolean=true):void
+		public function createScene(background:String=null, lighting:Boolean=true):void
 		{
 			//Check if we already have a scene
 			if (scene != null)
