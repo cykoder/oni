@@ -1,6 +1,7 @@
 package oni.screens 
 {
 	import oni.Oni;
+	import oni.utils.Backend;
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
 	/**
@@ -66,7 +67,7 @@ package oni.screens
 				dispatchEventWith(Oni.SCREEN_ADDED, false, { screen: screen } );
 				
 				//Change to it?
-				if (_screens.length == 1) changeTo(_screens.length-1);
+				if (_screens.length == 1) switchTo(_screens.length-1);
 			}
 			
 			//Return
@@ -74,10 +75,10 @@ package oni.screens
 		}
 		
 		/**
-		 * Switches between two screens
+		 * Switches to a screen by index
 		 * @param	index
 		 */
-		public function changeTo(index:int):void
+		public function switchTo(index:int):void
 		{
 			//Base child index
 			var childIndex:int = _oni.numChildren;
@@ -106,13 +107,50 @@ package oni.screens
 		}
 		
 		/**
+		 * Switches to a screen by name
+		 * @param	name
+		 */
+		public function switchToName(name:String):void
+		{
+			switchTo(getIndexByName(name));
+		}
+		
+		/**
 		 * Gets a screen by index
 		 * @param	index
 		 * @return
 		 */
-		public function getScreen(index:int):Screen
+		public function get(index:int):Screen
 		{
 			return _screens[index];
+		}
+		
+		/**
+		 * Gets a screen by name
+		 * @param	index
+		 * @return
+		 */
+		public function getByName(name:String):Screen
+		{
+			return _screens[getIndexByName(name)];
+		}
+		
+		/**
+		 * Gets a screen index by name
+		 * @param	name
+		 * @return
+		 */
+		public function getIndexByName(name:String):int
+		{
+			//Find screen with name
+			for (var i:uint = 0; i < _screens.length; i++)
+			{
+				if (_screens[i].name == name) return i;
+			}
+			
+			//Log error
+			Backend.log("ScreenManager: No screen with name (" + name +  ")", "error");
+			return -1;
 		}
 		
 		/**
@@ -135,7 +173,7 @@ package oni.screens
 			//Check if current screen
 			if (_currentScreen == screens[index] && _screens.length > 0)
 			{
-				changeTo(0);
+				switchTo(0);
 			}
 			else
 			{
