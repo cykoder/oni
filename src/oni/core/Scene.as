@@ -63,6 +63,9 @@ package oni.core
 		
 		public function set background(bg:String):void
 		{
+			//Null background?
+			if (bg == null) return;
+			
 			//Check if background is already set
 			if (_background == null)
 			{

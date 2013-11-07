@@ -77,7 +77,7 @@ package oni.entities
 			}
 		}
 		
-		public function add(entity:Entity):Entity
+		public function add(entity:Entity, silent:Boolean=false):Entity
 		{
 			//Dispatch added event
 			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, physicsWorld:_physicsWorld } );
@@ -86,13 +86,13 @@ package oni.entities
 			entities.push(entity);
 			
 			//Dispatch event
-			dispatchEventWith(Oni.ENTITY_ADDED, false, { entity:entity } );
+			if(!silent) dispatchEventWith(Oni.ENTITY_ADDED, false, { entity:entity } );
 			
 			//Return
 			return entity;
 		}
 		
-		public function remove(entity:Entity):void
+		public function remove(entity:Entity, silent:Boolean=false):void
 		{
 			//Dispatch removed event
 			entity.dispatchEventWith(Oni.ENTITY_REMOVED, false, { manager:this } );
@@ -101,7 +101,13 @@ package oni.entities
 			entities.splice(entities.indexOf(entity), 1);
 			
 			//Dispatch event
-			dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity:entity } );
+			if(!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity:entity } );
+		}
+		
+		public function removeAll(silent:Boolean=false):void
+		{
+			//Remove all entities
+			for (var i:int = 0; i < entities.length; i++) remove(entities[i], silent);
 		}
 		
 	}
