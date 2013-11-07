@@ -42,8 +42,8 @@ package starling.core
             mTextField.hAlign = HAlign.LEFT;
             mTextField.vAlign = VAlign.TOP;
             
-            addChild(mBackground);
-            addChild(mTextField);
+            /*addChild(mBackground);
+            addChild(mTextField);*/
             
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
             updateText(0, getMemory(), 0);

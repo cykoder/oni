@@ -1,5 +1,6 @@
 package com.oniexample 
 {
+	import com.oniexample.examples.OtherLights;
 	import com.oniexample.examples.PointLights;
 	import com.oniexample.examples.TestScene;
 	import oni.Oni;
