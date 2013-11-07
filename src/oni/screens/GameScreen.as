@@ -49,8 +49,8 @@ package oni.screens
 			//addChild(new EditorScreen(scene, entities)).visible = true;
 			
 			//Debug
-			addEventListener(Oni.UPDATE, _update);
-			addEventListener(TouchEvent.TOUCH, _touch);
+			//addEventListener(Oni.UPDATE, _update);
+			//addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
 		// TODO: remove this debug
@@ -77,7 +77,7 @@ package oni.screens
 		private function _update(e:Event):void
 		{
 			//Move camera by difference
-			camera.x += _touchDifference.x*50;
+			camera.x += _touchDifference.x * 50;
 			camera.y += _touchDifference.y * 50;
 		}
 		
@@ -105,6 +105,24 @@ package oni.screens
 			
 			//Add to display list
 			addChild(scene);
+		}
+		
+		/**
+		 * Resets the game
+		 */
+		public function reset():void
+		{
+			//Remove all entities
+			entities.removeAll();
+			
+			//Dispose of scene
+			if (scene != null)
+			{
+				scene.dispose();
+				components.remove(scene);
+				if (contains(scene)) removeChild(scene);
+				scene = null;
+			}
 		}
 		
 		/**
