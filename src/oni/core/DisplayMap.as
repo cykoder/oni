@@ -111,25 +111,34 @@ package oni.core
 				entity = getChildAt(i) as Entity;
 				if (entity != null && entity.z != 1)
 				{
-					//Parallax
-					entity.x -= xdif * (1 - entity.z);
-					entity.y -= ydif * (1 - entity.z);
-					
-					//Check if entity is offscreen (culling)
-					/*if (entity.cull && entity.cullBounds != null && stage != null)
+					//Static
+					if (entity.z == -1)
 					{
-						if (entity.x + entity.cullBounds.width - nx < 0 ||
-							entity.y + entity.cullBounds.height - ny < 0 ||
-							entity.x - nx >= stage.stageWidth ||
-							entity.y-ny >= stage.stageHeight)
+						entity.x = nx;
+						entity.y = ny;
+					}
+					else
+					{
+						//Parallax
+						entity.x -= xdif * (1 - entity.z);
+						entity.y -= ydif * (1 - entity.z);
+						
+						//Check if entity is offscreen (culling)
+						/*if (entity.cull && entity.cullBounds != null && stage != null)
 						{
-							entity.noRender = true;
-						}
-						else
-						{
-							entity.noRender = false;
-						}
-					}*/
+							if (entity.x + entity.cullBounds.width - nx < 0 ||
+								entity.y + entity.cullBounds.height - ny < 0 ||
+								entity.x - nx >= stage.stageWidth ||
+								entity.y-ny >= stage.stageHeight)
+							{
+								entity.noRender = true;
+							}
+							else
+							{
+								entity.noRender = false;
+							}
+						}*/
+					}
 				}
 			}
 		}

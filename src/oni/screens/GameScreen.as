@@ -47,38 +47,6 @@ package oni.screens
 			camera.addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 			
 			//addChild(new EditorScreen(scene, entities)).visible = true;
-			
-			//Debug
-			//addEventListener(Oni.UPDATE, _update);
-			//addEventListener(TouchEvent.TOUCH, _touch);
-		}
-		
-		// TODO: remove this debug
-		private var _lastTouchPosition:Point = new Point();
-		private var _touchDifference:Point = new Point();
-		private function _touch(e:TouchEvent):void
-		{
-			var touch:Touch = e.getTouch(this);
-			if (touch != null)
-			{
-				if (touch.phase == TouchPhase.BEGAN ||touch.phase == TouchPhase.MOVED)
-				{
-					_lastTouchPosition.setTo(stage.stageWidth / 2, stage.stageHeight / 2);
-					_touchDifference.setTo(((_lastTouchPosition.x - touch.globalX) < 0) ? 1 : -1, ((_lastTouchPosition.y - touch.globalY) < 0) ? 1 : -1);
-				}
-				else if (touch.phase == TouchPhase.ENDED)
-				{
-					_touchDifference.setTo(0,0);
-				}
-			}
-		}
-		
-		// TODO: remove this debug
-		private function _update(e:Event):void
-		{
-			//Move camera by difference
-			camera.x += _touchDifference.x * 50;
-			camera.y += _touchDifference.y * 50;
 		}
 		
 		/**

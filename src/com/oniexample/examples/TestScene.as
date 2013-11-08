@@ -2,15 +2,21 @@ package com.oniexample.examples
 {
 	import flash.geom.Point;
 	import oni.entities.environment.SmartTexture;
+	import oni.entities.environment.StaticTexture;
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
 	import oni.entities.lights.TexturedLight;
 	import oni.entities.scene.Prop;
+	import oni.utils.Platform;
 	import oni.Oni;
 	import oni.assets.AssetManager;
 	import oni.screens.GameScreen;
+	import starling.events.Event;
+	import starling.events.Touch;
+	import starling.events.TouchEvent;
+	import starling.events.TouchPhase;
 	/**
 	 * ...
 	 * @author Sam Hellawell
@@ -26,37 +32,15 @@ package com.oniexample.examples
 			//Create a little scene
 			createScene(true);
 			
-			var polygonPoints:Array = [new Point(0, 0),
-									   new Point(256, 0),
-									   new Point(256, 256),
-									   new Point(0, 256),
-									   new Point(0, 0)];
-									   
-			/*polygonPoints = [new Point(150, 100*4),
-													  new Point(200*4, 100*4),
-													  new Point(200*4, 150),
-													  new Point(300*4, 150),
-													  new Point(300*4, 150*4),
-													  new Point(500*4, 150*4),
-													  new Point(500*4, 300*4),
-													  new Point(150, 300 * 4)];
-													  
-			polygonPoints = [new Point(50, 200*2),
-													  new Point(100*2, 180*2),
-													  new Point(130*2, 50*2),
-													  new Point(150*2, 0),
-													  new Point(300*2, 160*2),
-													  new Point(350*2, 180*2),
-													  new Point(350*2, 225*2),
-													  new Point(50, 225 * 2)];*/
+			//Add a sky background
+			var skyBG:StaticTexture = new StaticTexture("scene_background_sky");
+			skyBG.width = Platform.STAGE_WIDTH;
+			skyBG.height = Platform.STAGE_HEIGHT;
+			skyBG.z = -1;
+			entities.add(skyBG);
 			
-			var debugTexture:SmartTexture = new SmartTexture("debug", polygonPoints, false);
-									   debugTexture.y = 100;
-									   debugTexture.x = 300;
-									   debugTexture.z = 0.5;
-			//entities.add(debugTexture);
-			
-			debugTexture = new SmartTexture("grass", [new Point(0, 100),
+			//Create grass!
+			var debugTexture:SmartTexture = new SmartTexture("grass", [new Point(0, 100),
 									   new Point(250, 100),
 									   new Point(500, 128),
 									   new Point(700, 200),
@@ -101,93 +85,10 @@ package com.oniexample.examples
 									   debugTexture.z = 0.8;
 			entities.add(debugTexture);
 			
-			/*
-			 * Test lights, this does work if you set lighting enabled when creating the scenerenderer
-			 */
-			var light:Light;
-			/*light = new PolygonLight(0x0000FF, 1, [new Point(50, 200*2),
-													  new Point(100*2, 180*2),
-													  new Point(130*2, 50*2),
-													  new Point(150*2, 0),
-													  new Point(300*2, 160*2),
-													  new Point(350*2, 180*2),
-													  new Point(350*2, 225*2),
-													  new Point(50, 225 * 2)]);
-									   light.y = 100;
-									   light.x = 300;
-									   light.z = 0.5;
-			entities.add(light);
-			*/
-			light = new PolygonLight(0xFF0000, 1, [new Point(0, 400),
-									   new Point(0, 100),
-									   new Point(400, 90),
-									   new Point(600, 100),
-									   new Point(620, 0),
-									   new Point(800, 0),
-									   new Point(850, 100),
-									   new Point(1000, 100),
-									   new Point(1000, 400)]);
-									   light.y = 300;
-									   light.x = 0;
-									   light.z = 1;
-			//entities.add(light);
-			
 			//Ambient!
 			//entities.add(new AmbientLight(0x1B2D54, 1));
 			//entities.add(new AmbientLight(0x000033, 1));
 			entities.add(new AmbientLight(0xFFFFFF, 1));
-			
-			//Textured lights rock
-			/*light = new TexturedLight(AssetManager.getTextureAtlas("scene_factory").getTexture("klankywanky"), 0xFFFFFF, 1);
-			light.x = 200;
-			light.y = 50;
-			entities.add(light);
-			
-			light = new PointLight(0xFFFFFF, 0.75, 128);
-			light.x = 200;
-			light.y = 150;
-			(light as PointLight).radius = 256;
-			entities.add(light);
-			
-			light = new PointLight(0xFF0000, 0.75, 128);
-			light.x = 400;
-			light.y = 150;
-			(light as PointLight).radius = 256;
-			entities.add(light);
-			
-			light = new PointLight(0x00FF00, 0.75, 128);
-			light.x = 600;
-			light.y = 150;
-			(light as PointLight).radius = 256;
-			entities.add(light);
-			
-			light = new PointLight(0x0000FF, 0.75, 128);
-			light.x = 0;
-			light.y = 150;
-			(light as PointLight).radius = 256;
-			entities.add(light);*/
-			
-			
-			
-			
-			light = new PointLight(0xFF0000, 1, 256);
-			light.x = 400;
-			light.y = 100;
-			entities.add(light);
-			
-			light = new PointLight(0x00FF00, 1, 256);
-			light.x = 528;
-			light.y = 100;
-			entities.add(light);
-			
-			light = new PointLight(0x0000FF, 1, 256);
-			light.x = 464;
-			light.y = 228;
-			entities.add(light);
-			
-			
-			
-			
 			
 			//Create a prop, read from the physics data file
 			var prop:Prop = new Prop("factory", "bottom_support");
@@ -208,6 +109,36 @@ package com.oniexample.examples
 					entities.add(new Prop("factory", "klankywanky")).x = 600;
 				}
 			}
+			
+			//Debug
+			addEventListener(Oni.UPDATE, _update);
+			addEventListener(TouchEvent.TOUCH, _touch);
+		}
+	
+		private var _lastTouchPosition:Point = new Point();
+		private var _touchDifference:Point = new Point();
+		private function _touch(e:TouchEvent):void
+		{
+			var touch:Touch = e.getTouch(this);
+			if (touch != null)
+			{
+				if (touch.phase == TouchPhase.BEGAN ||touch.phase == TouchPhase.MOVED)
+				{
+					_lastTouchPosition.setTo(stage.stageWidth / 2, stage.stageHeight / 2);
+					_touchDifference.setTo(((_lastTouchPosition.x - touch.globalX) < 0) ? 1 : -1, ((_lastTouchPosition.y - touch.globalY) < 0) ? 1 : -1);
+				}
+				else if (touch.phase == TouchPhase.ENDED)
+				{
+					_touchDifference.setTo(0,0);
+				}
+			}
+		}
+		
+		private function _update(e:Event):void
+		{
+			//Move camera by difference
+			camera.x += _touchDifference.x * 50;
+			camera.y += _touchDifference.y * 50;
 		}
 		
 	}
