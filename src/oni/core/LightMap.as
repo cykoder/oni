@@ -22,7 +22,7 @@ package oni.core
 		
 		private var _ambientQuad:Quad;
 		
-		public function LightMap(blurAmount:Number=0, blurResolution:Number=0.5) 
+		public function LightMap(blurAmount:Number=0.5, blurResolution:Number=1) 
 		{
 			//Super
 			super(false);

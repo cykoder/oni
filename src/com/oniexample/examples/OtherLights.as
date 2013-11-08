@@ -7,6 +7,7 @@ package com.oniexample.examples
 	import oni.entities.lights.Light;
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
+	import oni.entities.lights.TexturedLight;
 	import oni.entities.scene.Prop;
 	import oni.Oni;
 	import oni.assets.AssetManager;
@@ -58,8 +59,8 @@ package com.oniexample.examples
 														   new Point(150,200),
 														   new Point(50, 200),
 														   new Point(0, 100)]);
-			_polygonLight.x = 100;
-			_polygonLight.y = 100;
+			_polygonLight.x = 150;
+			_polygonLight.y = 200;
 			entities.add(_polygonLight);
 			
 			//Create 3 static point lights (red, green, blue)
@@ -77,6 +78,12 @@ package com.oniexample.examples
 			light = new PointLight(0x0000FF, 1, 256);
 			light.x = 364+100;
 			light.y = 228-32+128;
+			entities.add(light);
+			
+			//Create a textured light
+			light = new TexturedLight(AssetManager.getTexture("light_oniworks"), 0xFFFFFF, 1);
+			light.x = 780;
+			light.y = 350;
 			entities.add(light);
 			
 			//Listen for update

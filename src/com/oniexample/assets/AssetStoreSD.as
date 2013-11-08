@@ -37,6 +37,12 @@ package com.oniexample.assets
         public static const smarttexture_factory_metal_wall:Class;
 		
 		/*
+		 * Light textures
+		 */
+        [Embed(source="../../../../lib/example/sd/lights/oniworks.png")]
+        public static const light_oniworks:Class;
+		
+		/*
 		 * Sky textures
 		 */
         [Embed(source="../../../../lib/example/sd/levels/backgrounds/dawn.png")]

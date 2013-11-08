@@ -14,7 +14,7 @@ package oni.entities.lights
 		/**
 		 * The radius of the point light
 		 */
-		private var _radius:int;
+		protected var _radius:int;
 		
 		/**
 		 * The base point light image
@@ -67,7 +67,7 @@ package oni.entities.lights
 			if(_baseImage.color != colour) _baseImage.color = colour;
 			
 			//Set alpha
-			if(_baseImage.alpha != intensity) _baseImage.alpha = intensity;
+			if(this.alpha != intensity) this.alpha = intensity;
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _radius + 64, _radius + 64);
