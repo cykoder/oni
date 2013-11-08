@@ -41,6 +41,11 @@ package oni.assets
 		public static var scaleFactor:Number;
 		
 		/**
+		 * Whether to force standard definiton graphics mode
+		 */
+		public static var forceSD:Boolean = false;
+		
+		/**
 		 * Gets an asset and returns it as an object
 		 * @param	name
 		 * @return
@@ -51,10 +56,10 @@ package oni.assets
 			if (assetStore == null)
 			{
 				//Get scale factor
-				scaleFactor = Starling.current.viewPort.width <= Platform.STAGE_WIDTH ? 1 : 2;
+				scaleFactor = (Starling.current.viewPort.width <= Platform.STAGE_WIDTH || forceSD) ? 1 : 2;
 				
 				//Get asset store
-				if (scaleFactor == 1)
+				if (scaleFactor <= 1)
 				{
 					Backend.log("Standard definition graphics mode");
 					assetStore = AssetStoreSD;
