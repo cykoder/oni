@@ -86,7 +86,7 @@ package oni.screens
 		 * @param	background
 		 * @param	lighting
 		 */
-		public function createScene(background:String=null, lighting:Boolean=true):void
+		public function createScene(lighting:Boolean=true):void
 		{
 			//Check if we already have a scene
 			if (scene != null)
@@ -98,7 +98,7 @@ package oni.screens
 			}
 			
 			//Create a scene instance
-			scene = new Scene(background, lighting);
+			scene = new Scene(lighting);
 			
 			//Add to components
 			components.add(scene);

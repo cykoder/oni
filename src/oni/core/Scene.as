@@ -33,9 +33,7 @@ package oni.core
 		
 		protected var _lightMap:LightMap;
 		
-		private var _background:Shape;
-		
-		public function Scene(background:String, lighting:Boolean=true) 
+		public function Scene(lighting:Boolean=true) 
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap(false);
@@ -49,9 +47,6 @@ package oni.core
 				addChild(_lightMap);
 			}
 			
-			//Set the background
-			this.background = background;
-			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 		}
@@ -59,35 +54,6 @@ package oni.core
 		public function get lighting():LightMap
 		{
 			return _lightMap;
-		}
-		
-		public function set background(bg:String):void
-		{
-			//Null background?
-			if (bg == null) return;
-			
-			//Check if background is already set
-			if (_background == null)
-			{
-				//Create background and add to display list
-				_background = new Shape();
-				_background.blendMode = BlendMode.NONE;
-				addChildAt(_background, 0);
-			}
-			
-			//Clear background
-			_background.graphics.clear();
-			
-			//Get the texture
-			var bgTexture:Texture = AssetManager.getTexture("scene_background_" + bg);
-			
-			//Fill with texture
-			_background.graphics.beginTextureFill(bgTexture);
-			_background.graphics.drawRect(0, 0, Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
-			_background.graphics.endFill();
-			
-			//Null
-			bgTexture = null;
 		}
 		
 		override public function render(support:RenderSupport, parentAlpha:Number):void 

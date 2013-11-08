@@ -24,7 +24,7 @@ package com.oniexample.examples
 			super(oni);
 			
 			//Create a little scene
-			createScene("midday", true);
+			createScene(true);
 			
 			var polygonPoints:Array = [new Point(0, 0),
 									   new Point(256, 0),
@@ -134,6 +134,7 @@ package com.oniexample.examples
 			
 			//Ambient!
 			//entities.add(new AmbientLight(0x1B2D54, 1));
+			//entities.add(new AmbientLight(0x000033, 1));
 			entities.add(new AmbientLight(0xFFFFFF, 1));
 			
 			//Textured lights rock
@@ -198,7 +199,14 @@ package com.oniexample.examples
 			for (var c:int = 0; c < 50; c++)
 			{
 				//Just spawning a few heads for physics testing
-				entities.add(new Prop("factory", "klankywanky")).x=600;
+				if ((Math.floor(Math.random() * (1 + 1))) == 0)
+				{
+					entities.add(new Prop("factory", "wardenjordan")).x = 600;
+				}
+				else
+				{
+					entities.add(new Prop("factory", "klankywanky")).x = 600;
+				}
 			}
 		}
 		

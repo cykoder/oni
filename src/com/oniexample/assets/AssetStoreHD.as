@@ -43,18 +43,6 @@ package com.oniexample.assets
         public static const light_oniworks:Class;
 		
 		/*
-		 * Sky textures
-		 */
-        [Embed(source="../../../../lib/example/hd/backgrounds/dawn.png")]
-        public static const scene_background_dawn:Class;
-        [Embed(source="../../../../lib/example/hd/backgrounds/midday.png")]
-        public static const scene_background_midday:Class;
-        [Embed(source="../../../../lib/example/hd/backgrounds/dusk.png")]
-        public static const scene_background_dusk:Class;
-        [Embed(source="../../../../lib/example/hd/backgrounds/midnight.png")]
-        public static const scene_background_midnight:Class;
-		
-		/*
 		 * Entity textures
 		 */
         [Embed(source="../../../../lib/example/hd/levels/factory.png")]
