@@ -7,7 +7,13 @@ package com.oniexample.assets
 	public class AssetStoreHD
 	{
 		/*
-		 * Light textures (required)
+		 * Weather textures
+		 */
+        [Embed(source="../../../../lib/textures/hd/weather/haze.png")]
+        public static const weather_haze:Class;
+		
+		/*
+		 * Light textures
 		 */
         [Embed(source="../../../../lib/textures/hd/lights/point.png")]
         public static const light_point:Class;

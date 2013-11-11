@@ -93,6 +93,14 @@ package oni.entities.environment
 			var vertices:Array = [];
 			for (var i:uint = 0; i < _collisionData.length; i++) vertices.push(new Vec2(_collisionData[i].x, _collisionData[i].y));
 			
+			//Check if not a complete polygon
+			if (_collisionData[0].x != _collisionData[_collisionData.length - 1].x || _collisionData[0].y != _collisionData[_collisionData.length - 1].y)
+			{
+				vertices.push(new Vec2(_collisionData[_collisionData.length - 1].x, _collisionData[_collisionData.length - 1].y + 64));
+				vertices.push(new Vec2(_collisionData[0].x, _collisionData[_collisionData.length - 1].y + 64));
+				vertices.push(new Vec2(_collisionData[0].x, _collisionData[0].y));
+			}
+			
 			//Create a poly list and add shapes
 			var polys:GeomPolyList = new GeomPoly(vertices).convexDecomposition();
 			polys.foreach(function (p:GeomPoly):void

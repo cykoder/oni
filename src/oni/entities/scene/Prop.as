@@ -46,13 +46,20 @@ package oni.entities.scene
 			if (textureAtlas != null)
 			{
 				var textures:Vector.<Texture> = textureAtlas.getTextures(name);
-				if (textures.length == 1) //Not animated
+				if (textures != null && textures.length > 0)
 				{
-					addChild(new Image(textures[0]));
+					if (textures.length == 1) //Not animated
+					{
+						addChild(new Image(textures[0]));
+					}
+					else //Animated
+					{
+						Starling.juggler.add(addChild(new MovieClip(textures)) as MovieClip);
+					}
 				}
-				else //Animated
+				else
 				{
-					Starling.juggler.add(addChild(new MovieClip(textures)) as MovieClip);
+					Backend.log("Unable to find textures for: " + name + " in atlas " + atlas, "error");
 				}
 			}
 			else

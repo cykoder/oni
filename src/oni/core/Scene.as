@@ -33,7 +33,7 @@ package oni.core
 		
 		protected var _lightMap:LightMap;
 		
-		public function Scene(lighting:Boolean=true) 
+		public function Scene(lighting:Boolean=true)
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
@@ -46,6 +46,9 @@ package oni.core
 				_lightMap = new LightMap();
 				addChild(_lightMap);
 			}
+			
+			//Non touchable
+			//this.touchable = false;
 			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);

@@ -1,6 +1,7 @@
 package oni.entities 
 {
     import flash.utils.getQualifiedClassName;
+	import oni.core.DisplayMap;
 	import oni.Oni;
 	import oni.core.Scene;
 	import oni.utils.Platform;
@@ -59,9 +60,6 @@ package oni.entities
                 throw new AbstractClassError();
             }
 			
-			//Not touchable by default
-			this.touchable = false;
-			
 			//Create base culling rectangle
 			cullBounds = new Rectangle();
 		}
@@ -83,7 +81,7 @@ package oni.entities
 			this._z = value;
 			
 			//Sort parent children by Z
-			if (parent != null && parent is oni.core.Scene) (parent as oni.core.Scene).shouldDepthSort = true;
+			if (parent != null && parent is DisplayMap) (parent.parent as oni.core.Scene).shouldDepthSort = true;
 		}
 		
 		/**

@@ -14,10 +14,17 @@ package oni.entities.environment
 		
 		private var _image:Image;
 		
-		public function StaticTexture(texture:String) 
+		public function StaticTexture(atlas:String, texture:String) 
 		{
 			//Create an image
-			_image = new Image(AssetManager.getTexture(texture));
+			if (atlas == "" || atlas == null)
+			{
+				_image = new Image(AssetManager.getTexture(texture));
+			}
+			else
+			{
+				_image = new Image(AssetManager.getTextureAtlas(atlas).getTexture(texture));
+			}
 			addChild(_image);
 			
 			//Set texture
