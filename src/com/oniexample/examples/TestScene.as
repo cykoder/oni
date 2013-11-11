@@ -33,7 +33,7 @@ package com.oniexample.examples
 			createScene(true);
 			
 			//Add a sky background
-			var skyBG:StaticTexture = new StaticTexture("scene_background_sky");
+			var skyBG:StaticTexture = new StaticTexture(null, "background_sky");
 			skyBG.width = Platform.STAGE_WIDTH;
 			skyBG.height = Platform.STAGE_HEIGHT;
 			skyBG.z = -1;

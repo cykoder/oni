@@ -7,7 +7,13 @@ package com.oniexample.assets
 	public class AssetStoreSD
 	{
 		/*
-		 * Light textures (required)
+		 * Weather textures
+		 */
+        [Embed(source="../../../../lib/textures/sd/weather/haze.png")]
+        public static const weather_haze:Class;
+		
+		/*
+		 * Light textures
 		 */
         [Embed(source="../../../../lib/textures/sd/lights/point.png")]
         public static const light_point:Class;
@@ -39,8 +45,8 @@ package com.oniexample.assets
 		/*
 		 * Background textures
 		 */
-        [Embed(source="../../../../lib/example/sd/levels/backgrounds/sky.png")]
-        public static const scene_background_sky:Class;
+        [Embed(source="../../../../lib/example/sd/backgrounds/sky.png")]
+        public static const background_sky:Class;
 		
 		/*
 		 * Light textures (not required)

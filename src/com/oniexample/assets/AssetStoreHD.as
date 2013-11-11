@@ -45,8 +45,8 @@ package com.oniexample.assets
 		/*
 		 * Background textures
 		 */
-        [Embed(source="../../../../lib/example/hd/levels/backgrounds/sky.png")]
-        public static const scene_background_sky:Class;
+        [Embed(source="../../../../lib/example/hd/backgrounds/sky.png")]
+        public static const background_sky:Class;
 		
 		/*
 		 * Light textures (not required)
