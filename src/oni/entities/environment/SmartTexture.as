@@ -162,6 +162,7 @@ package oni.entities.environment
 					
 					//Draw line
 					_shape.graphics.lineTo(_collisionData[i].x, _collisionData[i].y);
+					//_shape.graphics.curveTo(_collisionData[i].x, _collisionData[i].y, _collisionData[i].x, _collisionData[i].y + 100);
 				}
 			}
 			

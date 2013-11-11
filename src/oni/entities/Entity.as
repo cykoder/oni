@@ -6,9 +6,8 @@ package oni.entities
 	import oni.utils.Platform;
 	import flash.display.Scene;
 	import flash.geom.Rectangle;
-	import flash.ui.ContextMenuBuiltInItems;
+	import starling.core.RenderSupport;
 	import starling.display.DisplayObject;
-	import starling.display.Shape;
 	import starling.events.Event;
 	import starling.display.Sprite;
 	import starling.errors.AbstractClassError;
@@ -18,12 +17,39 @@ package oni.entities
 	 */
 	public class Entity extends Sprite
 	{
+		/**
+		 * The culling bounds of the entity
+		 */
 		public var cullBounds:Rectangle;
 		
+		/**
+		 * Whether the entity should cull or not
+		 */
 		public var cull:Boolean = true;
 		
+		/**
+		 * The entity's Z co-ordinate
+		 */
 		private var _z:Number = 1;
 		
+		/**
+		 * Whether the entity should render or not
+		 */
+		private var _shouldRender:Boolean = true;
+		
+		/**
+		 * Whether the entity should parallax scroll along the X axis
+		 */
+		private var _scrollX:Boolean = true;
+		
+		/**
+		 * Whether the entity should parallax scroll along the X axis
+		 */
+		private var _scrollY:Boolean = true;
+		
+		/**
+		 * Initialises an entity instance
+		 */
 		public function Entity()
 		{
 			//Not allowed to init this class directly fam
@@ -38,29 +64,19 @@ package oni.entities
 			
 			//Create base culling rectangle
 			cullBounds = new Rectangle();
-			
-			//Listen for added
-			addEventListener(Oni.ENTITY_ADDED, _onAdded);
 		}
 		
-		private function _onAdded(e:Event):void
+		/**
+		 * The entity's Z co-ordinate
+		 */
+		public function get z():Number
 		{
-			//Remove event listener
-			removeEventListener(Oni.ENTITY_ADDED, _onAdded);
-			
-			//Listen for debug mode
-			addEventListener(Oni.ENABLE_DEBUG, _onDebugEnabled);
+			return _z;
 		}
 		
-		private function _onDebugEnabled(e:Event):void
-		{
-			//Remove event listener
-			removeEventListener(Oni.ENABLE_DEBUG, _onDebugEnabled);
-			
-			//Listen for debug disabled
-			//addEventListener(Oni.DISABLE_DEBUG, _onDebugDisabled);
-		}
-		
+		/**
+		 * The entity's Z co-ordinate
+		 */
 		public function set z(value:Number):void
 		{
 			//Set z
@@ -70,9 +86,57 @@ package oni.entities
 			if (parent != null && parent is oni.core.Scene) (parent as oni.core.Scene).shouldDepthSort = true;
 		}
 		
-		public function get z():Number
+		/**
+		 * Whether the entity should parallax scroll along the X axis
+		 */
+		public function get scrollX():Boolean
 		{
-			return _z;
+			return (_z < 0 || _scrollX);
+		}
+		
+		/**
+		 * Whether the entity should parallax scroll along the X axis
+		 */
+		public function set scrollX(value:Boolean):void
+		{
+			_scrollX = value;
+		}
+		
+		/**
+		 * Whether the entity should parallax scroll along the Y axis
+		 */
+		public function get scrollY():Boolean
+		{
+			return (_z < 0 || _scrollY);
+		}
+		
+		/**
+		 * Whether the entity should parallax scroll along the Y axis
+		 */
+		public function set scrollY(value:Boolean):void
+		{
+			_scrollY = value;
+		}
+		
+		/**
+		 * Checks if an entity should be culled or not
+		 * @param	nx
+		 * @param	ny
+		 */
+		public function cullCheck(nx:int, ny:int):void
+		{
+			if (cull && cullBounds != null)
+			{
+				_shouldRender = !(((x + nx + cullBounds.width) < 0) ||
+								((y + ny + cullBounds.height) < 0) ||
+								((x + nx > Platform.STAGE_WIDTH)) ||
+								((y + ny > Platform.STAGE_HEIGHT)));
+			}
+		}
+		
+		override public function render(support:RenderSupport, parentAlpha:Number):void 
+		{
+			if (_shouldRender) super.render(support, parentAlpha);
 		}
 	}
 

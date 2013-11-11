@@ -11,89 +11,6 @@ package oni.core
 	 */
 	public class DisplayMap extends Sprite
 	{
-		public var flat:Boolean;
-		
-		public function DisplayMap(flat:Boolean) 
-		{
-			//Set flat
-			this.flat = flat;
-		}
-		
-		override public function addChild(child:DisplayObject):DisplayObject 
-		{
-			//Unflatten
-			if(this.flat && this.isFlattened) unflatten();
-			
-			//Add the child
-			super.addChild(child);
-			
-			//Flatten
-			if(this.flat) flatten();
-			
-			//Return
-			return child;
-		}
-		
-		override public function addChildAt(child:DisplayObject, index:int):DisplayObject 
-		{
-			//Unflatten
-			if(this.flat && this.isFlattened) unflatten();
-			
-			//Add the child
-			super.addChildAt(child, index);
-			
-			//Flatten
-			if(this.flat) flatten();
-			
-			//Return
-			return child;
-		}
-		
-		override public function removeChild(child:DisplayObject, dispose:Boolean = true):DisplayObject 
-		{
-			//Unflatten
-			if(this.flat && this.isFlattened) unflatten();
-			
-			//Remove child
-			super.removeChild(child, dispose);
-			
-			//Flatten
-			if(this.flat) flatten();
-			
-			//Return
-			return child;
-		}
-		
-		override public function removeChildAt(index:int, dispose:Boolean = false):DisplayObject 
-		{
-			//Unflatten
-			if(this.flat && this.isFlattened) unflatten();
-			
-			//Get child
-			var child:DisplayObject = super.getChildAt(index);
-
-			//Remove child
-			return super.removeChildAt(index, dispose);
-			
-			//Flatten
-			if(this.flat) flatten();
-			
-			//Return
-			return child;
-		}
-		
-		override public function removeChildren(beginIndex:int = 0, endIndex:int = -1, dispose:Boolean = false):void 
-		{
-			//Unflatten
-			if(this.flat && this.isFlattened) unflatten();
-			
-			//Remove children
-			super.removeChildren(beginIndex, endIndex, dispose);
-			
-			//Flatten
-			if(this.flat) flatten();
-		}
-		
 		public function reposition(nx:int, ny:int, nz:Number):void
 		{
 			//Get difference
@@ -109,36 +26,38 @@ package oni.core
 			for (var i:uint = 0; i < l; i++)
 			{
 				entity = getChildAt(i) as Entity;
-				if (entity != null && entity.z != 1)
+				if (entity != null)
 				{
 					//Static
-					if (entity.z == -1)
+					if (entity.z < 0)
 					{
 						entity.x = nx;
 						entity.y = ny;
 					}
-					else
+					else if(entity.z != 1)
 					{
 						//Parallax
-						entity.x -= xdif * (1 - entity.z);
-						entity.y -= ydif * (1 - entity.z);
-						
-						//Check if entity is offscreen (culling)
-						/*if (entity.cull && entity.cullBounds != null && stage != null)
+						if (entity.scrollX)
 						{
-							if (entity.x + entity.cullBounds.width - nx < 0 ||
-								entity.y + entity.cullBounds.height - ny < 0 ||
-								entity.x - nx >= stage.stageWidth ||
-								entity.y-ny >= stage.stageHeight)
-							{
-								entity.noRender = true;
-							}
-							else
-							{
-								entity.noRender = false;
-							}
-						}*/
+							entity.x -= xdif * (1 - entity.z);
+						}
+						else
+						{
+							entity.x = nx;
+						}
+						
+						if (entity.scrollY) 
+						{
+							entity.y -= ydif * (1 - entity.z);
+						}
+						else
+						{
+							entity.y = ny;
+						}
 					}
+					
+					//Cullcheck entity
+					entity.cullCheck(this.x, this.y);
 				}
 			}
 		}

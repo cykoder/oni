@@ -24,9 +24,6 @@ package oni.core
 		
 		public function LightMap(blurAmount:Number=0.5, blurResolution:Number=1) 
 		{
-			//Super
-			super(false);
-			
 			//Create a background quad 
 			_backgroundQuad = new Quad(1, 1, 0x000000);
 			addChild(_backgroundQuad);

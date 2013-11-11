@@ -36,7 +36,7 @@ package oni.core
 		public function Scene(lighting:Boolean=true) 
 		{
 			//Create a diffuse map
-			_diffuseMap = new DisplayMap(false);
+			_diffuseMap = new DisplayMap();
 			addChild(_diffuseMap);
 			
 			//Is lighting enabled?

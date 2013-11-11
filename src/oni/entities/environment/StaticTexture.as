@@ -1,5 +1,6 @@
 package oni.entities.environment 
 {
+	import flash.geom.Rectangle;
 	import oni.assets.AssetManager;
 	import oni.entities.Entity;
 	import starling.display.Image;
@@ -21,6 +22,9 @@ package oni.entities.environment
 			
 			//Set texture
 			_texture = texture;
+			
+			//Set cull bounds
+			cullBounds.setTo(0, 0, _image.width, _image.height);
 		}
 		
 		public function get texture():String
@@ -38,6 +42,9 @@ package oni.entities.environment
 				
 				//Set image texture
 				_image.texture = AssetManager.getTexture(value);
+			
+				//Set cull bounds
+				cullBounds.setTo(0, 0, _image.width, _image.height);
 			}
 		}
 		
