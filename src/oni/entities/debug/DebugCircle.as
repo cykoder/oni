@@ -1,6 +1,7 @@
 package oni.entities.debug 
 {
 	import oni.entities.Entity;
+	import oni.entities.PhysicsEntity;
 	import oni.Oni;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
@@ -13,15 +14,11 @@ package oni.entities.debug
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class DebugCircle extends Entity
+	public class DebugCircle extends PhysicsEntity
 	{
 		private var _radius:int;
 		
 		private var _shape:Shape;
-		
-		private var _physicsBody:Body;
-		
-		private var _physicsWorld:Space;
 		
 		public function DebugCircle(radius:int) 
 		{
@@ -41,65 +38,18 @@ package oni.entities.debug
 			_shape.graphics.lineTo(0, 0);
 			addChild(_shape);
 			
-			//Listen for added
-			addEventListener(Oni.ENTITY_ADD, _onAdded);
+			//Set cull bounds
+			cullBounds.setTo(0, 0, radius*2, radius*2);
 		}
 		
-		private function _onAdded(e:Event):void
+		override protected function _createBody():void 
 		{
-			//Set physics world
-			_physicsWorld = e.data.physicsWorld;
-			
-			//Init physics
-			_initPhysics();
-			
-			//Listen for update
-			e.data.manager.addEventListener(Oni.UPDATE, _onUpdate);
-			
-			//Remove event listener
-			removeEventListener(Oni.ENTITY_ADD, _onAdded);
-		}
-		
-		private function _initPhysics(e:Event=null):void
-		{
-			//Can only update if we have access to the world
-			if (_physicsWorld != null)
-			{
-				//Update if we've already initialised
-				if (_physicsBody != null)
-				{
-					//Set position
-					_physicsBody.position = new Vec2(x, y);
-				}
-				else
-				{
-					//Create a physics body
-					_physicsBody = new Body(BodyType.DYNAMIC, new Vec2(x, y));
-					_physicsBody.shapes.add(new Circle(_radius));
+			//Create a physics body
+			_physicsBody = new Body(BodyType.DYNAMIC, new Vec2(x, y));
+			_physicsBody.shapes.add(new Circle(_radius));
 					
-					//Set physics world
-					_physicsBody.space = _physicsWorld;
-				}
-			}
-		}
-		
-		private function _onUpdate(e:Event):void
-		{
-			super.x = _physicsBody.position.x;
-			super.y = _physicsBody.position.y;
-			this.rotation = _physicsBody.rotation;
-		}
-		
-		override public function set x(value:Number):void 
-		{
-			super.x = value;
-			if(_physicsBody != null) _physicsBody.position.x = value;
-		}
-		
-		override public function set y(value:Number):void 
-		{
-			super.y = value;
-			if(_physicsBody != null) _physicsBody.position.y = value;
+			//Set physics world
+			_physicsBody.space = _physicsWorld;
 		}
 		
 	}
