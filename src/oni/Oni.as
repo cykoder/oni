@@ -27,6 +27,11 @@ package oni
 	public class Oni extends Sprite
 	{
 		/**
+		 * Event fired when there is a physics interaction
+		 */
+		public static const PHYSICS_INTERACTION:String = "physicsinteraction";
+		
+		/**
 		 * Event fired when debug mode is enabled
 		 */
 		public static const ENABLE_DEBUG:String = "enabledebug";

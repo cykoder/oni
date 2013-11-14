@@ -1,6 +1,11 @@
 package oni.entities.platformer 
 {
 	import flash.geom.Point;
+	import nape.callbacks.CbEvent;
+	import nape.callbacks.CbType;
+	import nape.callbacks.InteractionCallback;
+	import nape.callbacks.InteractionListener;
+	import nape.callbacks.InteractionType;
 	import nape.phys.Material;
 	import nape.shape.Polygon;
 	import oni.entities.Entity;
@@ -19,6 +24,14 @@ package oni.entities.platformer
 	 */
 	public class Character extends PhysicsEntity
 	{
+		public var jumpHeight:Number = 340;
+		
+		public var jumpAcceleration:Number = 10;
+		
+		public var acceleration:Number = 30;
+		
+		public var maxVelocity:Number = 240;
+		
 		private var _shape:Shape;
 		
 		private var _bodyWidth:int;
@@ -26,6 +39,14 @@ package oni.entities.platformer
 		private var _bodyHeight:int;
 		
 		private var _material:Material;
+		
+		private var _footSensor:Polygon;
+		
+		private var _onGround:Boolean;
+		
+		private var _moveDirection:int;
+		
+		private var _isJumping:Boolean;
 		
 		public function Character(bodyWidth:int, bodyHeight:int)
 		{
@@ -43,6 +64,12 @@ package oni.entities.platformer
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, bodyWidth + 64, bodyHeight + 64);
+			
+			//Listen for interaction
+			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
+			
+			//Listen for update
+			addEventListener(Oni.UPDATE, _onUpdate);
 		}
 		
 		override protected function _createBody():void 
@@ -64,10 +91,96 @@ package oni.entities.platformer
 												 //new Vec2((angle/4), _bodyHeight-(angle/2)),
 												 new Vec2(0, _bodyHeight - angle),
 												 new Vec2(0, 0)], _material));
+			
+			//Create a foot sensor
+			_footSensor = new Polygon(Polygon.rect(2, _bodyHeight-4, _bodyWidth-4, 8));
+			_footSensor.sensorEnabled = true;
+			_physicsBody.shapes.add(_footSensor);
+			
+			//Don't allow rotation
 			_physicsBody.allowRotation = false;
 					
 			//Set physics world
 			_physicsBody.space = _physicsWorld;
+		}
+		
+		private function _onPhysicsInteraction(e:Event):void
+		{
+			//Sensor interaction
+			if (e.data.type == InteractionType.SENSOR)
+			{
+				//Set on ground
+				_onGround = (e.data.event == CbEvent.BEGIN);
+				if (_onGround) _isJumping = false;
+			}
+		}
+		
+		public function jump():void
+		{
+			//Only jump is we're on ground
+			if (_onGround)
+			{
+				velocity.y = -jumpHeight;
+				_isJumping = true;
+			}
+		}
+		
+		public function stopJumping():void
+		{
+			_isJumping = false;
+		}
+		
+		private function _onUpdate(e:Event):void
+		{
+			//Are we jumping?
+			if (_isJumping && velocity.y < 0)
+			{
+				velocity.y -= jumpAcceleration;
+			}
+			
+			//Check if moving
+			if (_moveDirection != 0)
+			{
+				//Accelerate
+				if (!(velocity.x < -maxVelocity || velocity.x > maxVelocity))
+				{
+					velocity.x += _moveDirection * acceleration;
+				}
+			}
+		}
+		
+		public function move(direction:int):void
+		{
+			//Check if different
+			if (direction != _moveDirection)
+			{
+				//Set direction
+				_moveDirection = direction;
+				
+				//Reset velocity
+				velocity.x = _moveDirection * acceleration;
+				
+				//Clear friction
+				friction = 0;
+			}
+		}
+		
+		public function stop():void
+		{
+			//Stop moving
+			velocity.x = 0;
+			friction = 0.4;
+			_moveDirection = 0;
+		}
+		
+		public function get footSensor():Polygon
+		{
+			return _footSensor;
+		}
+		
+		public function get onGround():Boolean
+		{
+			return _onGround;
 		}
 		
 		public function get friction():Number

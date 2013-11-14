@@ -78,6 +78,9 @@ package oni.entities
 				{
 					//Create the body!
 					_createBody();
+					
+					//Set data
+					_physicsBody.userData.entity = this;
 				}
 			}
 			
