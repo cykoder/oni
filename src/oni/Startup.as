@@ -33,11 +33,11 @@ package oni
 		/**
 		 * Initialiser
 		 */
-		public function Startup(stageWidth:int=960, stageHeight:int=540) 
+		public function Startup(targetWidth:int=960, targetHeight:int=540, stretch:Boolean=false) 
 		{
 			//Set target dimensions
-			Platform.STAGE_WIDTH = stageWidth;
-			Platform.STAGE_HEIGHT = stageHeight;
+			Platform.STAGE_WIDTH = targetWidth;
+			Platform.STAGE_HEIGHT = targetHeight;
 			
 			//Setup the stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -66,9 +66,17 @@ package oni
 			}
 			
 			//Set viewport
-			var viewport:Rectangle = RectangleUtil.fit(new Rectangle(0, 0, Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT), 
-													   new Rectangle(0, 0, stageWidth, stageHeight), 
-													   ScaleMode.SHOW_ALL);
+			var viewport:Rectangle;
+			if (!stretch) //Bordered, keep aspect ratio
+			{
+				viewport = RectangleUtil.fit(new Rectangle(0, 0, Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT), 
+											 new Rectangle(0, 0, stageWidth, stageHeight), 
+											 ScaleMode.SHOW_ALL);
+			}
+			else //Stretch to fit
+			{
+				viewport = new Rectangle(0, 0, stageWidth, stageHeight);
+			}
 													  
 			//Create instance
 			_starling = new Starling(StartupClass, stage, viewport);
