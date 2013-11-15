@@ -33,8 +33,12 @@ package oni
 		/**
 		 * Initialiser
 		 */
-		public function Startup() 
+		public function Startup(stageWidth:int=960, stageHeight:int=540) 
 		{
+			//Set target dimensions
+			Platform.STAGE_WIDTH = stageWidth;
+			Platform.STAGE_HEIGHT = stageHeight;
+			
 			//Setup the stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
