@@ -29,6 +29,9 @@ package oni.components
 			{
 				//Add
 				components.push(component);
+				
+				//Dispatch event
+				component.dispatchEventWith(Oni.COMPONENT_ADDED);
 			}
 			
 			//Return
@@ -42,6 +45,9 @@ package oni.components
 			{
 				//Remove
 				components.splice(components.indexOf(component, 1));
+				
+				//Dispatch event
+				component.dispatchEventWith(Oni.COMPONENT_REMOVED);
 			}
 			
 			//Return

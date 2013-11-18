@@ -77,6 +77,16 @@ package oni
 		public static const ENTITY_REMOVED:String = "removeent";
 		
 		/**
+		 * Event fired when a component is added
+		 */
+		public static const COMPONENT_ADDED:String = "addcomp";
+		
+		/**
+		 * Event fired when a component is removed
+		 */
+		public static const COMPONENT_REMOVED:String = "removecomp";
+		
+		/**
 		 * Event fired when the game updates
 		 */
 		public static const UPDATE:String = "update";
