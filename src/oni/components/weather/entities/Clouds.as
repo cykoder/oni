@@ -1,4 +1,4 @@
-package oni.components.weather 
+package oni.components.weather.entities 
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -42,26 +42,24 @@ package oni.components.weather
 		
 		private var _windDirection:Point;
 		
-		private var _seed:int;
-		
-		private var _scene:Scene;
+		private var _seed:uint;
 		
 		private var _material:StandardMaterial;
 		
-		public function Clouds(scene:Scene, z:Number, spread:int, windDirection:Point = null, perlinBase:int=100, octaves:int = 8) 
+		public function Clouds(z:Number, spread:int, windDirection:Point = null, intensity:Number = 0, perlinBase:int = 0, octaves:int = 0) 
 		{
-			//Set scene
-			_scene = scene;
-			
-			//Default wind
+			//Default parameters
 			if (windDirection == null) windDirection = new Point(-0.025, 0);
+			if (intensity == 0 || isNaN(intensity)) intensity = 1;
+			if (perlinBase == 0 || isNaN(perlinBase)) perlinBase = 100;
+			if (octaves == 0 || isNaN(octaves)) octaves = 8;
 			
 			//Set data
 			this.z = z;
 			_windDirection = windDirection;
 			_perlinBase = perlinBase;
 			_octaves = octaves;
-			_seed = Math.random() * 100;
+			_seed = uint(Math.random() * 10);
 			
 			//Set entity stuff
 			scrollX = scrollY = cull = false;
@@ -75,24 +73,11 @@ package oni.components.weather
 			//Set spread
 			this.spread = spread;
 			
-			//Listen for events
-			addEventListener(Oni.COMPONENT_ADDED, _onAdded);
-			addEventListener(Oni.COMPONENT_REMOVED, _onRemoved);
+			//Set intensity
+			this.intensity = intensity;
 			
 			//Set blend mode
 			this.blendMode = BlendMode.ADD;
-		}
-		
-		private function _onAdded(e:Event):void
-		{
-			//Add to scene
-			_scene.addEntity(this);
-		}
-		
-		private function _onRemoved(e:Event):void
-		{
-			//Remove from scene
-			_scene.removeEntity(this);
 		}
 		
 		public function get spread():int
@@ -201,6 +186,16 @@ package oni.components.weather
 			
 			//Regenerate
 			_generateClouds();
+		}
+		
+		public function get intensity():Number
+		{
+			return alpha;
+		}
+		
+		public function set intensity(value:Number):void
+		{
+			alpha = value;
 		}
 		
 	}

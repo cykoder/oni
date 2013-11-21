@@ -34,12 +34,12 @@ package oni.core
 						entity.x = nx;
 						entity.y = ny;
 					}
-					else if(entity.z != 1)
+					else
 					{
 						//Parallax
 						if (entity.scrollX)
 						{
-							entity.x -= xdif * (1 - entity.z);
+							if(entity.z != 1) entity.x -= xdif * (1 - entity.z);
 						}
 						else
 						{
@@ -48,7 +48,7 @@ package oni.core
 						
 						if (entity.scrollY) 
 						{
-							entity.y -= ydif * (1 - entity.z);
+							if(entity.z != 1) entity.y -= ydif * (1 - entity.z);
 						}
 						else
 						{

@@ -31,7 +31,7 @@ package oni.components
 				components.push(component);
 				
 				//Dispatch event
-				component.dispatchEventWith(Oni.COMPONENT_ADDED);
+				component.dispatchEventWith(Oni.COMPONENT_ADDED, false, { manager:this });
 			}
 			
 			//Return
@@ -47,7 +47,7 @@ package oni.components
 				components.splice(components.indexOf(component, 1));
 				
 				//Dispatch event
-				component.dispatchEventWith(Oni.COMPONENT_REMOVED);
+				component.dispatchEventWith(Oni.COMPONENT_REMOVED, false, { manager:this });
 			}
 			
 			//Return
