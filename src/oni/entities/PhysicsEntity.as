@@ -24,7 +24,7 @@ package oni.entities
 		
 		protected var _physicsEnabled:Boolean;
 		
-		protected var _physicsWorld:Space;
+		protected var _space:Space;
 		
 		public function PhysicsEntity(physicsEnabled:Boolean=true) 
 		{
@@ -63,10 +63,10 @@ package oni.entities
 			if(_physicsEnabled) e.data.manager.addEventListener(Oni.UPDATE, _onUpdate);
 			
 			//Set physics world
-			if(e.data.physicsWorld != null) _physicsWorld = e.data.physicsWorld;
+			if(e.data.space != null) _space = e.data.space;
 			
 			//Can only update if we have access to the world
-			if (_physicsEnabled && _physicsWorld != null)
+			if (_physicsEnabled && _space != null)
 			{
 				//Update if we've already initialised
 				if (_physicsBody != null)

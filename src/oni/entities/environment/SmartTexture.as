@@ -118,7 +118,7 @@ package oni.entities.environment
 			polys.clear();
 			
 			//Set physics world
-			_physicsBody.space = _physicsWorld;
+			_physicsBody.space = _space;
 		}
 		
 		private function _updateCollision(e:Event):void

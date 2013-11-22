@@ -129,7 +129,7 @@ package oni.entities.scene
 			}
 					
 			//Set physics world
-			_physicsBody.space = _physicsWorld;
+			_physicsBody.space = _space;
 		}
 		
 	}

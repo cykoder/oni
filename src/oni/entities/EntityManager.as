@@ -9,9 +9,7 @@ package oni.entities
 	import oni.Oni;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
-	import nape.shape.Circle;
 	import nape.space.Space;
-	import nape.util.ShapeDebug;
 	import starling.core.Starling;
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
@@ -22,24 +20,33 @@ package oni.entities
 	 */
 	public class EntityManager extends EventDispatcher
 	{
+		/**
+		 * The physics time step
+		 */
+		public static var TIME_STEP:Number = 1 / 30;
+		
+		/**
+		 * A list of current entities
+		 */
 		public var entities:Array;
 		
-		private var _physicsWorld:Space;
+		/**
+		 * The physics space
+		 */
+		private var _space:Space;
 		
-		private var debug:ShapeDebug;
-		
+		/**
+		 * Creates an entity manager instance, with physics enabled or not
+		 * @param	physics
+		 * @param	gravity
+		 */
 		public function EntityManager(physics:Boolean=true, gravity:Vec2=null) 
 		{
 			//Create an entities array
 			entities = new Array();
 			
 			//Setup physics
-			if (physics)
-			{
-				//Set default gravity
-				if (gravity == null) gravity = new Vec2(0, 600);
-				setupPhysics(gravity);
-			}
+			if (physics) setupPhysics(gravity);
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
@@ -49,34 +56,41 @@ package oni.entities
 			addEventListener(Oni.DISABLE_DEBUG, _relayEvent);
 		}
 		
-		public function setupPhysics(gravity:Vec2):void
+		/**
+		 * Sets up a physics space with the given parameters
+		 * @param	gravity
+		 */
+		public function setupPhysics(gravity:Vec2=null):void
 		{
-			//Check if we already have a physics world
-			if (_physicsWorld != null)
+			//Set default gravity
+			if (gravity == null) gravity = new Vec2(0, 600);
+			
+			//Check if we already have a physics space
+			if (_space != null)
 			{
 				//Clear and set gravity
-				_physicsWorld.clear();
-				_physicsWorld.gravity = gravity;
+				_space.clear();
+				_space.gravity = gravity;
 			}
 			else
 			{
-				//Create a physics world
-				_physicsWorld = new Space(new Vec2(0, 600));
+				//Create a physics space
+				_space = new Space(new Vec2(0, 600));
 			
 				//Create collision interaction listeners
-				_physicsWorld.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
-				_physicsWorld.listeners.add(new InteractionListener(CbEvent.END, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
+				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
+				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
 				
 				//Create sensor interaction listeners
-				_physicsWorld.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
-				_physicsWorld.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
-				
-				//Add debug
-				debug = new ShapeDebug(Starling.current.nativeStage.stageWidth, Starling.current.nativeStage.stageHeight);
-				//Starling.current.nativeStage.addChild(debug.display);
+				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
+				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
 			}
 		}
 		
+		/**
+		 * Called when there is a collision interaction
+		 * @param	callback
+		 */
 		private function _onCollisionInteraction(callback:InteractionCallback):void
 		{
 			//Get contacts
@@ -91,6 +105,10 @@ package oni.entities
 			b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
 		}
 		
+		/**
+		 * Called when there is a sensor interaction
+		 * @param	callback
+		 */
 		private function _onSensorInteraction(callback:InteractionCallback):void
 		{
 			//Get contacts
@@ -105,27 +123,49 @@ package oni.entities
 			b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
 		}
 		
+		/**
+		 * Whether physics are enabled or not
+		 */
 		public function get physicsEnabled():Boolean
 		{
-			return _physicsWorld != null;
+			return _space != null;
 		}
 		
+		/**
+		 * Whether physics are enabled or not
+		 */
+		public function set physicsEnabled(value:Boolean):void
+		{
+			if (physicsEnabled && !value)
+			{
+				//Disable
+				_space.clear();
+				_space = null;
+			}
+			else if (value)
+			{
+				//Enable
+				setupPhysics();
+			}
+		}
+		
+		/**
+		 * Called when the engine updates
+		 * @param	e
+		 */
 		private function _onUpdate(e:Event):void
 		{
-			//Update the physics world
-			if (_physicsWorld != null)
-			{
-				_physicsWorld.step(1 / 30);
-				
-				debug.clear();
-				debug.draw(_physicsWorld);
-				debug.flush();
-			}
+			//Step physics
+			if (_space != null) _space.step(TIME_STEP);
 			
 			//Relay
 			_relayEvent(e);
 		}
 		
+		/**
+		 * Relays an event to all entities
+		 * @param	e
+		 */
 		private function _relayEvent(e:Event):void
 		{
 			//Relay event to all entities
@@ -135,10 +175,16 @@ package oni.entities
 			}
 		}
 		
+		/**
+		 * Adds an entity, if silent it won't dispatch an added event
+		 * @param	entity
+		 * @param	silent
+		 * @return
+		 */
 		public function add(entity:Entity, silent:Boolean=false):Entity
 		{
 			//Dispatch added event
-			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, physicsWorld:_physicsWorld } );
+			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, space: _space } );
 			
 			//Add to list
 			entities.push(entity);
@@ -150,6 +196,12 @@ package oni.entities
 			return entity;
 		}
 		
+		/**
+		 * Removes an entity, if silent it won't dispatch a removed event
+		 * @param	entity
+		 * @param	silent
+		 * @return
+		 */
 		public function remove(entity:Entity, silent:Boolean=false):void
 		{
 			//Dispatch removed event
@@ -162,6 +214,10 @@ package oni.entities
 			if(!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity:entity } );
 		}
 		
+		/**
+		 * Removes all entities, if silent it won't dispatch a removed event
+		 * @param	silent
+		 */
 		public function removeAll(silent:Boolean=false):void
 		{
 			//Remove all entities

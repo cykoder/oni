@@ -93,7 +93,7 @@ package oni.entities.platformer
 												 new Vec2(0, 0)], _material));
 			
 			//Create a foot sensor
-			_footSensor = new Polygon(Polygon.rect(2, _bodyHeight-4, _bodyWidth-4, 8));
+			_footSensor = new Polygon(Polygon.rect(2, _bodyHeight-2, _bodyWidth-4, 8));
 			_footSensor.sensorEnabled = true;
 			_physicsBody.shapes.add(_footSensor);
 			
@@ -101,7 +101,7 @@ package oni.entities.platformer
 			_physicsBody.allowRotation = false;
 					
 			//Set physics world
-			_physicsBody.space = _physicsWorld;
+			_physicsBody.space = _space;
 		}
 		
 		private function _onPhysicsInteraction(e:Event):void

@@ -148,7 +148,7 @@ package oni
 		private function _enterFrame(e:EnterFrameEvent):void
 		{
 			//Create update event
-			var update:Event = new Event(Oni.UPDATE, false, { engine:this } );
+			var update:Event = new Event(Oni.UPDATE, false, { engine:this, time: e.passedTime } );
 			
 			//Dispatch update event
 			dispatchEvent(update);
