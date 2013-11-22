@@ -17,10 +17,20 @@ package oni.entities.debug
 	 */
 	public class DebugSquare extends PhysicsEntity
 	{
+		/**
+		 * The width/height of the square
+		 */
 		private var _wh:int;
 		
+		/**
+		 * The shape to draw to
+		 */
 		private var _shape:Shape;
 		
+		/**
+		 * Creates a debug circle with the given width/height
+		 * @param	wh
+		 */
 		public function DebugSquare(wh:int) 
 		{
 			//Set width and height
@@ -44,14 +54,17 @@ package oni.entities.debug
 			cullBounds.setTo(0, 0, wh + 64, wh + 64);
 		}
 		
+		/**
+		 * Creates a physics body
+		 */
 		override protected function _createBody():void
 		{
 			//Create a physics body
 			_physicsBody = new Body(BodyType.DYNAMIC, new Vec2(x, y));
 			_physicsBody.shapes.add(new Polygon(Polygon.box(_wh, _wh)));
 			
-			//Set physics world
-			_physicsBody.space = _physicsWorld;
+			//Set physics space
+			_physicsBody.space = _space;
 		}
 		
 	}

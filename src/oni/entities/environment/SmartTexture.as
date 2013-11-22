@@ -62,9 +62,9 @@ package oni.entities.environment
 			//addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
-		override protected function _initPhysics(e:Event):void 
+		override protected function _onAdded(e:Event):void 
 		{
-			//Remove curernt physics body
+			//Remove current physics body
 			if (_physicsBody != null)
 			{
 				_physicsBody.space = null;
@@ -73,7 +73,7 @@ package oni.entities.environment
 			}
 				
 			//Super
-			super._initPhysics(e);
+			super._onAdded(e);
 		}
 		
 		override protected function _createBody():void 
@@ -117,7 +117,7 @@ package oni.entities.environment
 			});
 			polys.clear();
 			
-			//Set physics world
+			//Set physics space
 			_physicsBody.space = _space;
 		}
 		

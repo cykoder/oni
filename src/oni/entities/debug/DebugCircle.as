@@ -16,10 +16,20 @@ package oni.entities.debug
 	 */
 	public class DebugCircle extends PhysicsEntity
 	{
+		/**
+		 * The radius of the circle
+		 */
 		private var _radius:int;
 		
+		/**
+		 * The shape to draw to
+		 */
 		private var _shape:Shape;
 		
+		/**
+		 * Creates a debug circle with the given radius
+		 * @param	radius
+		 */
 		public function DebugCircle(radius:int) 
 		{
 			//Set radius
@@ -42,14 +52,17 @@ package oni.entities.debug
 			cullBounds.setTo(0, 0, radius*2, radius*2);
 		}
 		
+		/**
+		 * Creates a physics body
+		 */
 		override protected function _createBody():void 
 		{
 			//Create a physics body
 			_physicsBody = new Body(BodyType.DYNAMIC, new Vec2(x, y));
 			_physicsBody.shapes.add(new Circle(_radius));
 					
-			//Set physics world
-			_physicsBody.space = _physicsWorld;
+			//Set physics space
+			_physicsBody.space = _space;
 		}
 		
 	}

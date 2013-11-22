@@ -1,5 +1,6 @@
 package oni.entities.scene 
 {
+	import oni.entities.EntityManager;
 	import oni.entities.PhysicsEntity;
 	import starling.display.DisplayObject;
 	import flash.geom.Rectangle;
@@ -29,17 +30,21 @@ package oni.entities.scene
 	 */
 	public class Prop extends PhysicsEntity
 	{
-		private static var _physData:Object;
-		
+		/**
+		 * The prop's physical data
+		 */
 		private var _physicsData:Object;
 		
+		/**
+		 * Creates a new prop from with the given parameters
+		 * @param	atlas
+		 * @param	name
+		 * @param	physicsEnabled
+		 */
 		public function Prop(atlas:String, name:String, physicsEnabled:Boolean=true) 
 		{
 			//Super
 			super(physicsEnabled);
-			
-			//Load physics data?
-			if (_physData == null) _physData = AssetManager.getJSON("physics_data");
 			
 			//Load texture
 			var textureAtlas:TextureAtlas = AssetManager.getTextureAtlas("scene_" + atlas);
@@ -68,7 +73,7 @@ package oni.entities.scene
 			}
 			
 			//Set physics data
-			_physicsData = _physData[name];
+			_physicsData = EntityManager.PHYSICS_DATA[name];
 			
 			//Check if we have physics data available, if not, disable physics
 			if (physicsEnabled && _physicsData == null) physicsEnabled = false;
@@ -81,55 +86,62 @@ package oni.entities.scene
 			cullBounds.setTo(0, 0, width + 64, height + 64);
 		}
 		
+		/**
+		 * Creates a physics body
+		 */
 		override protected function _createBody():void 
 		{
-			//Create a physics body
-			_physicsBody = new Body(_physicsData.dynamic ? BodyType.DYNAMIC : BodyType.STATIC, new Vec2(x, y));
-					
-			//Go through fixtures (shapes)
-			var shapes:Array = _physicsData.fixtures;
-			var material:Material;
-			for (var i:uint = 0; i < shapes.length; i++)
+			//Only create if we have physics data
+			if (_physicsData != null)
 			{
-				//Update material
-				if (material == null) material = new Material(shapes[i].restitution, shapes[i].friction, shapes[i].friction * 1.5, shapes[i].density);
+				//Create a physics body
+				_physicsBody = new Body(_physicsData.dynamic ? BodyType.DYNAMIC : BodyType.STATIC, new Vec2(x, y));
 						
-				//Circle
-				if (shapes[i].type == "CIRCLE")
+				//Go through fixtures (shapes)
+				var shapes:Array = _physicsData.fixtures;
+				var material:Material;
+				for (var i:uint = 0; i < shapes.length; i++)
 				{
-					_physicsBody.shapes.add(
-						new Circle(shapes[i].radius / 2,
-								   new Vec2(shapes[i].x, shapes[i].y),
-								   material)
-					);
-				}
-				else if (shapes[i].type == "POLYGON") //Polygon
-				{
-					var polygons:Array = shapes[i].polygons;
-					var vertices:Array;
-					for (var c:uint = 0; c < polygons.length; c++)
-					{
-						vertices = polygons[c];
-						if (vertices != null && vertices.length > 0)
-						{
-							//Transform collision data into nape vertices
-							var collisionVerts:Array = [];
-							for (var j:uint = 0; j < vertices.length - 1; j++) collisionVerts.push(new Vec2(vertices[j].x/2, vertices[j].y/2));
+					//Update material
+					if (material == null) material = new Material(shapes[i].restitution, shapes[i].friction, shapes[i].friction * 1.5, shapes[i].density);
 							
-							//Create a poly list and add shapes
-							var polys:GeomPolyList = new GeomPoly(collisionVerts).convexDecomposition();
-							polys.foreach(function (p:GeomPoly):void
+					//Circle
+					if (shapes[i].type == "CIRCLE")
+					{
+						_physicsBody.shapes.add(
+							new Circle(shapes[i].radius / 2,
+									   new Vec2(shapes[i].x, shapes[i].y),
+									   material)
+						);
+					}
+					else if (shapes[i].type == "POLYGON") //Polygon
+					{
+						var polygons:Array = shapes[i].polygons;
+						var vertices:Array;
+						for (var c:uint = 0; c < polygons.length; c++)
+						{
+							vertices = polygons[c];
+							if (vertices != null && vertices.length > 0)
 							{
-								_physicsBody.shapes.add(new Polygon(p, material));
-							});
-							polys.clear();
+								//Transform collision data into nape vertices
+								var collisionVerts:Array = [];
+								for (var j:uint = 0; j < vertices.length - 1; j++) collisionVerts.push(new Vec2(vertices[j].x/2, vertices[j].y/2));
+								
+								//Create a poly list and add shapes
+								var polys:GeomPolyList = new GeomPoly(collisionVerts).convexDecomposition();
+								polys.foreach(function (p:GeomPoly):void
+								{
+									_physicsBody.shapes.add(new Polygon(p, material));
+								});
+								polys.clear();
+							}
 						}
 					}
 				}
+						
+				//Set physics world
+				_physicsBody.space = _space;
 			}
-					
-			//Set physics world
-			_physicsBody.space = _space;
 		}
 		
 	}

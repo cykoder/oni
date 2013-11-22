@@ -18,7 +18,7 @@ package oni.entities.lights
 		protected var _baseImage:Image;
 		
 		/**
-		 * Crates a point light
+		 * Crates a textured light with the given parameters
 		 * @param	colour
 		 * @param	intensity
 		 */

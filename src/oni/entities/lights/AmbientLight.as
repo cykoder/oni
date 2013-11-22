@@ -10,6 +10,11 @@ package oni.entities.lights
 	 */
 	public class AmbientLight extends Light
 	{
+		/**
+		 * Creates an ambient light instance with the given parameters
+		 * @param	colour
+		 * @param	intensity
+		 */
 		public function AmbientLight(colour:uint, intensity:Number) 
 		{
 			//Super

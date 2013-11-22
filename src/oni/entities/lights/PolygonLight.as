@@ -9,11 +9,23 @@ package oni.entities.lights
 	 */
 	public class PolygonLight extends Light
 	{
-		private var _collisionData:Array;
+		/**
+		 * The array of points to follow
+		 */
+		private var _lightPoints:Array;
 		
+		/**
+		 * The shape to draw to
+		 */
 		protected var _shape:Shape;
 		
-		public function PolygonLight(colour:uint, intensity:Number, collisionData:Array) 
+		/**
+		 * Creates a new polygon light with the given parameters
+		 * @param	colour
+		 * @param	intensity
+		 * @param	lightPoints
+		 */
+		public function PolygonLight(colour:uint, intensity:Number, lightPoints:Array) 
 		{
 			//Super
 			super(colour, intensity);
@@ -22,23 +34,24 @@ package oni.entities.lights
 			_shape = new Shape();
 			addChild(_shape);
 			
-			//Set touchable
-			//this.touchable = true;
-			
 			//Listen for collision update
 			addEventListener(Oni.UPDATE_DATA, _redraw);
 			
 			//Update collision
-			dispatchEventWith(Oni.UPDATE_DATA, false, { collisionData: collisionData } );
+			dispatchEventWith(Oni.UPDATE_DATA, false, { lightPoints: lightPoints } );
 		}
 		
+		/**
+		 * Redraws the light
+		 * @param	e
+		 */
 		private function _redraw(e:Event):void
 		{
 			//Get collision data
-			_collisionData = e.data.collisionData;
+			if( e.data.lightPoints != null) _lightPoints = e.data.lightPoints;
 			
 			//Add first element (fixes drawing errors)
-			_collisionData.push(_collisionData[0]);
+			_lightPoints.push(_lightPoints[0]);
 			
 			//Clear graphics
 			_shape.graphics.clear();
@@ -47,46 +60,23 @@ package oni.entities.lights
 			_shape.graphics.beginFill(colour, intensity);
 			
 			//Loop through each point and redraw
-			for (var i:uint = 0; i < _collisionData.length; ++i)
+			for (var i:uint = 0; i < _lightPoints.length; ++i)
 			{
 				if (i == 0)
 				{
-					_shape.graphics.moveTo(_collisionData[i].x, _collisionData[i].y);
+					_shape.graphics.moveTo(_lightPoints[i].x, _lightPoints[i].y);
 				}
 				else
 				{
-					_shape.graphics.lineTo(_collisionData[i].x, _collisionData[i].y);
+					_shape.graphics.lineTo(_lightPoints[i].x, _lightPoints[i].y);
 				}
 			}
 			
 			//End fill
 			_shape.graphics.endFill();
 			
-			//Draw debug outlines
-			/*_shape.graphics.lineStyle(5, 0xFFFFFF);
-			for (i = 0; i < _collisionData.length; ++i)
-			{
-				if (i == 0)
-				{
-					_shape.graphics.moveTo(_collisionData[i].x, _collisionData[i].y);
-				}
-				else
-				{
-					_shape.graphics.lineTo(_collisionData[i].x, _collisionData[i].y);
-				}
-			}
-			
-			//Draw debug points
-			_shape.graphics.lineStyle(1, 0xCCCCCC);
-			_shape.graphics.beginFill(0xFFFFFF, 1);
-			for (i = 0; i < _collisionData.length; ++i)
-			{
-				_shape.graphics.drawCircle(_collisionData[i].x, _collisionData[i].y, 10);
-			}
-			_shape.graphics.endFill();*/
-			
 			//Remove element added at start
-			_collisionData.pop();
+			_lightPoints.pop();
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width + 64, height + 64);

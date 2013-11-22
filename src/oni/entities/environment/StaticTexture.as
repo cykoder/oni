@@ -12,6 +12,8 @@ package oni.entities.environment
 	{
 		private var _texture:String;
 		
+		private var _atlas:String;
+		
 		private var _image:Image;
 		
 		public function StaticTexture(atlas:String, texture:String) 
@@ -27,8 +29,9 @@ package oni.entities.environment
 			}
 			addChild(_image);
 			
-			//Set texture
+			//Set texture and atlas
 			_texture = texture;
+			_atlas = atlas;
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _image.width, _image.height);
@@ -48,7 +51,42 @@ package oni.entities.environment
 				_texture = value;
 				
 				//Set image texture
-				_image.texture = AssetManager.getTexture(value);
+				if (atlas == "" || atlas == null)
+				{
+					_image.texture = AssetManager.getTexture(value);
+				}
+				else
+				{
+					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
+				}
+			
+				//Set cull bounds
+				cullBounds.setTo(0, 0, _image.width, _image.height);
+			}
+		}
+		
+		public function get atlas():String
+		{
+			return _atlas;
+		}
+		
+		public function set atlas(value:String):void
+		{
+			//Only change if different
+			if (_atlas != value)
+			{
+				//Set
+				_atlas = value;
+				
+				//Set image texture
+				if (atlas == "" || atlas == null)
+				{
+					_image.texture = AssetManager.getTexture(value);
+				}
+				else
+				{
+					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
+				}
 			
 				//Set cull bounds
 				cullBounds.setTo(0, 0, _image.width, _image.height);

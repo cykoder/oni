@@ -6,6 +6,7 @@ package oni.entities
 	import nape.callbacks.InteractionListener;
 	import nape.callbacks.InteractionType;
 	import nape.util.Debug;
+	import oni.assets.AssetManager;
 	import oni.Oni;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
@@ -24,6 +25,11 @@ package oni.entities
 		 * The physics time step
 		 */
 		public static var TIME_STEP:Number = 1 / 30;
+		
+		/**
+		 * The physics data for props
+		 */
+		public static var PHYSICS_DATA:Object;
 		
 		/**
 		 * A list of current entities
@@ -62,6 +68,9 @@ package oni.entities
 		 */
 		public function setupPhysics(gravity:Vec2=null):void
 		{
+			//Load physics data
+			if (EntityManager.PHYSICS_DATA == null) EntityManager.PHYSICS_DATA = AssetManager.getJSON("physics_data");
+			
 			//Set default gravity
 			if (gravity == null) gravity = new Vec2(0, 600);
 			
