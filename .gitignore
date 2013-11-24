@@ -1,10 +1,9 @@
 bin/*
-lib/oniworld/
 obj/
 dist/*
 cert/*
 
-OniEngine.as3proj
-
 # This is private :o
 src/com/oniworks
+lib/oniworld/
+OniEngine.as3proj
