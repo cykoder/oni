@@ -73,7 +73,7 @@ package oni.entities.scene
 			}
 			
 			//Set physics data
-			_physicsData = EntityManager.PHYSICS_DATA[name];
+			if(EntityManager.PHYSICS_DATA != null) _physicsData = EntityManager.PHYSICS_DATA[name];
 			
 			//Check if we have physics data available, if not, disable physics
 			if (physicsEnabled && _physicsData == null) physicsEnabled = false;

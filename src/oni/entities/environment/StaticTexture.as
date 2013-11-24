@@ -93,6 +93,26 @@ package oni.entities.environment
 			}
 		}
 		
+		override public function get width():Number 
+		{
+			return _image.width;
+		}
+		
+		override public function set width(value:Number):void 
+		{
+			_image.width = value;
+		}
+		
+		override public function get height():Number 
+		{
+			return _image.height;
+		}
+		
+		override public function set height(value:Number):void 
+		{
+			_image.height = value;
+		}
+		
 	}
 
 }

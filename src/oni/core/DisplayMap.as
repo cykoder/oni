@@ -2,6 +2,7 @@ package oni.core
 {
 	import oni.entities.Entity;
 	import oni.components.Camera;
+	import oni.entities.environment.StaticTexture;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Sprite;
@@ -13,13 +14,13 @@ package oni.core
 	{
 		public function reposition(nx:int, ny:int, nz:Number):void
 		{
-			//Get difference
-			var xdif:Number = -nx - this.x;
-			var ydif:Number = -ny - this.y;
-			
 			//Set position
 			this.x = -nx;
 			this.y = -ny;
+			
+			//Set scale
+			this.scaleX = nz;
+			this.scaleY = nz;
 			
 			//Loop through entities
 			var entity:Entity, l:uint = numChildren;
@@ -31,15 +32,17 @@ package oni.core
 					//Static
 					if (entity.z < 0)
 					{
-						entity.x = nx;
-						entity.y = ny;
+						entity.x = nx / nz;
+						entity.y = ny / nz;
+						entity.scaleX = 1 / nz;
+						entity.scaleY = 1 / nz;
 					}
 					else
 					{
 						//Parallax
 						if (entity.scrollX)
 						{
-							if(entity.z != 1) entity.x -= xdif * (1 - entity.z);
+							if(entity.z != 1) entity.x -= (-nx - this.x) * (1 - entity.z);
 						}
 						else
 						{
@@ -48,7 +51,7 @@ package oni.core
 						
 						if (entity.scrollY) 
 						{
-							if(entity.z != 1) entity.y -= ydif * (1 - entity.z);
+							if(entity.z != 1) entity.y -= (-ny - this.y) * (1 - entity.z);
 						}
 						else
 						{

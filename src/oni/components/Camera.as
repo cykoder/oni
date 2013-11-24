@@ -62,7 +62,7 @@ package oni.components
 				}
 				
 				//Dispatch event
-				dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:z } );
+				dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:_z } );
 			}
 		}
 		
@@ -93,7 +93,11 @@ package oni.components
 		
 		public function set z(value:Number):void
 		{
+			//Set
 			_z = value;
+			
+			//Dispatch event
+			dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:_z } );
 		}
 		
 	}

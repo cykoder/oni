@@ -1,6 +1,7 @@
 package com.oniexample.examples 
 {
 	import flash.geom.Point;
+	import oni.components.weather.WeatherSystem;
 	import oni.entities.environment.SmartTexture;
 	import oni.entities.environment.StaticTexture;
 	import oni.entities.lights.AmbientLight;
@@ -109,6 +110,13 @@ package com.oniexample.examples
 					entities.add(new Prop("factory", "klankywanky")).x = 600;
 				}
 			}
+			
+			components.add(new WeatherSystem(scene, {
+				clouds: [ { z: -1, spread:15 },
+						  { z: -1, spread:50, windDirection: new Point(0.05) } ],
+				haze: { z: 0.86, intensity:0.5, color: 0x95784c, enabled: false },
+				rain: {  }
+			}));
 			
 			//Debug
 			addEventListener(Oni.UPDATE, _update);

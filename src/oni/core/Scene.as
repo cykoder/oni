@@ -74,10 +74,6 @@ package oni.core
 		
 		private function _updatePosition(e:Event):void
 		{
-			//Scale
-			_diffuseMap.scaleX = _diffuseMap.scaleY = e.data.z;
-			if(_lightMap != null) _lightMap.scaleX = _lightMap.scaleY = e.data.z;
-			
 			//Position maps
 			_diffuseMap.reposition(e.data.x, e.data.y, e.data.z);
 			if(_lightMap != null) _lightMap.reposition(e.data.x, e.data.y, e.data.z);
