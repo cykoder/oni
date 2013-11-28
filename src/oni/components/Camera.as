@@ -93,6 +93,10 @@ package oni.components
 		
 		public function set z(value:Number):void
 		{
+			//Limit
+			if (value < 0.25) value = 0.25;
+			if (value > 4) value = 4;
+			
 			//Set
 			_z = value;
 			

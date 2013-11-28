@@ -1,5 +1,6 @@
 package oni
 {
+	import flash.display.StageDisplayState;
 	import oni.Oni;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
@@ -33,7 +34,7 @@ package oni
 		/**
 		 * Initialiser
 		 */
-		public function Startup(targetWidth:int=960, targetHeight:int=540, stretch:Boolean=false) 
+		public function Startup(targetWidth:int=960, targetHeight:int=540, stretch:Boolean=false, fullscreen:Boolean=false) 
 		{
 			//Set target dimensions
 			Platform.STAGE_WIDTH = targetWidth;
@@ -42,6 +43,7 @@ package oni
 			//Setup the stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
+			if(fullscreen) stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 			
 			//Setup starling
 			Starling.multitouchEnabled = true;
@@ -81,14 +83,11 @@ package oni
 			//Create instance
 			_starling = new Starling(StartupClass, stage, viewport);
 			_starling.antiAliasing = 1;
-            _starling.simulateMultitouch = false;
-			_starling.showStats = Platform.debugEnabled;
+            _starling.simulateMultitouch = Platform.isDesktop();
+			_starling.showStats = false;// Platform.debugEnabled;
             _starling.enableErrorChecking = Platform.debugEnabled;
 			_starling.stage.stageWidth  = Platform.STAGE_WIDTH;
 			_starling.stage.stageHeight = Platform.STAGE_HEIGHT;
-			
-			//test
-			_starling.showStats = true;
 			
 			//Start!
 			_starling.start();
