@@ -46,19 +46,22 @@ package oni.components.weather.entities
 		
 		private var _material:StandardMaterial;
 		
-		public function Clouds(z:Number, spread:int, windDirection:Point = null, intensity:Number = 0, perlinBase:int = 0, octaves:int = 0) 
+		public function Clouds(params:Object) 
 		{
 			//Default parameters
-			if (windDirection == null) windDirection = new Point(-0.025, 0);
-			if (intensity == 0 || isNaN(intensity)) intensity = 1;
-			if (perlinBase == 0 || isNaN(perlinBase)) perlinBase = 100;
-			if (octaves == 0 || isNaN(octaves)) octaves = 8;
+			if (params.windDirection == null) params.windDirection = new Point(-0.025, 0);
+			if (params.intensity == null || isNaN(intensity)) params.intensity = 1;
+			if (params.perlinBase == null || isNaN(perlinBase)) params.perlinBase = 100;
+			if (params.octaves == null || isNaN(octaves)) params.octaves = 8;
+			
+			//Super
+			super(params);
 			
 			//Set data
-			this.z = z;
-			_windDirection = windDirection;
-			_perlinBase = perlinBase;
-			_octaves = octaves;
+			this.z = params.z;
+			_windDirection = params.windDirection;
+			_perlinBase = params.perlinBase;
+			_octaves = params.octaves;
 			_seed = uint(Math.random() * 10);
 			
 			//Set entity stuff
@@ -71,10 +74,10 @@ package oni.components.weather.entities
 			_colourFilter = new ColorMatrixFilter([0, 0, 0, 0, 255, 0, 0, 0, 0, 255, 0, 0, 0, 0, 255, 1, 0, 0, 0, 0]);
 			
 			//Set spread
-			this.spread = spread;
+			this.spread = params.spread;
 			
 			//Set intensity
-			this.intensity = intensity;
+			this.intensity = params.intensity;
 			
 			//Set blend mode
 			this.blendMode = BlendMode.ADD;

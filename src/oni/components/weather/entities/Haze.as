@@ -10,10 +10,15 @@ package oni.components.weather.entities
 	public class Haze extends StaticTexture
 	{
 		
-		public function Haze(z:Number, intensity:Number, color:uint)
+		public function Haze(startupParameters:Object)
 		{
+			//Default parameters
+			startupParameters.atlas = null;
+			startupParameters.texture = "weather_haze";
+			startupParameters.pivot = false;
+			
 			//Super
-			super(null, "weather_haze");
+			super(startupParameters);
 			
 			//Set dimensions
 			width = Platform.STAGE_WIDTH;
@@ -25,13 +30,13 @@ package oni.components.weather.entities
 			cull = false;
 			
 			//Set z
-			this.z = z;
+			this.z = startupParameters.z;
 			
 			//Set intensity
-			this.intensity = intensity;
+			this.intensity = startupParameters.intensity;
 			
 			//Set color
-			this.color = color;
+			this.color = startupParameters.colour;
 		}
 		
 		public function get intensity():Number

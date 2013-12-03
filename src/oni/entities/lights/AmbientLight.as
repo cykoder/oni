@@ -15,10 +15,10 @@ package oni.entities.lights
 		 * @param	colour
 		 * @param	intensity
 		 */
-		public function AmbientLight(colour:uint, intensity:Number) 
+		public function AmbientLight(params:Object) 
 		{
 			//Super
-			super(colour, intensity, null);
+			super(params);
 			
 			//Disable touching
 			this.touchable = false;

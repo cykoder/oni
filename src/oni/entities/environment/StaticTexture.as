@@ -18,25 +18,31 @@ package oni.entities.environment
 		
 		private var _pivot:Boolean;
 		
-		public function StaticTexture(atlas:String, texture:String, pivot:Boolean=true) 
+		public function StaticTexture(params:Object) 
 		{
+			//Default
+			if (params.pivot == null) params.pivot = true;
+			
+			//Super
+			super(params);
+			
 			//Create an image
-			if (atlas == "" || atlas == null)
+			if (params.atlas == "" || params.atlas == null)
 			{
-				_image = new Image(AssetManager.getTexture(texture));
+				_image = new Image(AssetManager.getTexture(params.texture));
 			}
 			else
 			{
-				_image = new Image(AssetManager.getTextureAtlas(atlas).getTexture(texture));
+				_image = new Image(AssetManager.getTextureAtlas(params.atlas).getTexture(params.texture));
 			}
 			addChild(_image);
 			
 			//Set texture and atlas
-			_texture = texture;
-			_atlas = atlas;
+			_texture = params.texture;
+			_atlas = params.atlas;
 			
 			//Set pivot or not
-			_pivot = pivot;
+			_pivot = params.pivot;
 			
 			//Readjust
 			_readjust();

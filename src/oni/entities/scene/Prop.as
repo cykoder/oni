@@ -41,16 +41,16 @@ package oni.entities.scene
 		 * @param	name
 		 * @param	physicsEnabled
 		 */
-		public function Prop(atlas:String, name:String, physicsEnabled:Boolean=true) 
+		public function Prop(params:Object) 
 		{
 			//Super
-			super(physicsEnabled);
+			super(params);
 			
 			//Load texture
-			var textureAtlas:TextureAtlas = AssetManager.getTextureAtlas("scene_" + atlas);
+			var textureAtlas:TextureAtlas = AssetManager.getTextureAtlas("scene_" + params.atlas);
 			if (textureAtlas != null)
 			{
-				var textures:Vector.<Texture> = textureAtlas.getTextures(name);
+				var textures:Vector.<Texture> = textureAtlas.getTextures(params.name);
 				if (textures != null && textures.length > 0)
 				{
 					if (textures.length == 1) //Not animated
@@ -64,19 +64,19 @@ package oni.entities.scene
 				}
 				else
 				{
-					Backend.log("Unable to find textures for: " + name + " in atlas " + atlas, "error");
+					Backend.log("Unable to find textures for: " + params.name + " in atlas " + params.atlas, "error");
 				}
 			}
 			else
 			{
-				Backend.log("Unable to find scene atlas for: " + atlas, "error");
+				Backend.log("Unable to find scene atlas for: " + params.atlas, "error");
 			}
 			
 			//Set physics data
-			if(EntityManager.PHYSICS_DATA != null) _physicsData = EntityManager.PHYSICS_DATA[name];
+			if(EntityManager.PHYSICS_DATA != null) _physicsData = EntityManager.PHYSICS_DATA[params.name];
 			
 			//Check if we have physics data available, if not, disable physics
-			if (physicsEnabled && _physicsData == null) physicsEnabled = false;
+			if (params.physicsEnabled && _physicsData == null) _isPhysicsEnabled = false;
 			
 			//Set pivot
 			this.pivotX = width / 2;

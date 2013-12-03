@@ -32,7 +32,7 @@ package oni.components.weather
 				_clouds = new Array();
 				for (i = 0; i < params.clouds.length; i++)
 				{
-					_clouds.push(new Clouds(params.clouds[i].z, params.clouds[i].spread, params.clouds[i].windDirection, params.clouds[i].intensity, params.clouds[i].perlinBase, params.clouds[i].octaves));
+					_clouds.push(new Clouds(params.clouds[i]));
 				}
 			}
 			
@@ -40,7 +40,7 @@ package oni.components.weather
 			if (params.haze != null)
 			{
 				//Create
-				_haze = new Haze(params.haze.z, params.haze.intensity, params.haze.color);
+				_haze = new Haze(params.haze);
 				if (params.haze.enabled != null) _haze.enabled = params.haze.enabled;
 			}
 			

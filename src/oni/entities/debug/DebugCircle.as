@@ -30,10 +30,13 @@ package oni.entities.debug
 		 * Creates a debug circle with the given radius
 		 * @param	radius
 		 */
-		public function DebugCircle(radius:int) 
+		public function DebugCircle(params:Object) 
 		{
+			//Super
+			super(params);
+			
 			//Set radius
-			_radius = radius/2;
+			_radius = params.radius/2;
 			
 			//No culling
 			this.cull = false;

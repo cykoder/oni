@@ -25,10 +25,10 @@ package oni.entities.lights
 		 * @param	intensity
 		 * @param	lightPoints
 		 */
-		public function PolygonLight(colour:uint, intensity:Number, lightPoints:Array) 
+		public function PolygonLight(params:Object) 
 		{
 			//Super
-			super(colour, intensity);
+			super(params);
 			
 			//Create a shape
 			_shape = new Shape();
@@ -38,7 +38,7 @@ package oni.entities.lights
 			addEventListener(Oni.UPDATE_DATA, _redraw);
 			
 			//Update collision
-			dispatchEventWith(Oni.UPDATE_DATA, false, { lightPoints: lightPoints } );
+			dispatchEventWith(Oni.UPDATE_DATA, false, params);
 		}
 		
 		/**
@@ -48,7 +48,7 @@ package oni.entities.lights
 		private function _redraw(e:Event):void
 		{
 			//Get collision data
-			if( e.data.lightPoints != null) _lightPoints = e.data.lightPoints;
+			if(e.data.lightPoints != null) _lightPoints = e.data.lightPoints;
 			
 			//Add first element (fixes drawing errors)
 			_lightPoints.push(_lightPoints[0]);

@@ -31,10 +31,13 @@ package oni.entities.debug
 		 * Creates a debug circle with the given width/height
 		 * @param	wh
 		 */
-		public function DebugSquare(wh:int) 
+		public function DebugSquare(params:Object) 
 		{
+			//Super
+			super(params);
+			
 			//Set width and height
-			_wh = wh;
+			_wh = params.wh;
 			
 			//No culling
 			this.cull = false;

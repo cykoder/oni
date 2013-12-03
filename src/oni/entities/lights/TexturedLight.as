@@ -22,15 +22,15 @@ package oni.entities.lights
 		 * @param	colour
 		 * @param	intensity
 		 */
-		public function TexturedLight(texture:Texture, colour:uint, intensity:Number) 
+		public function TexturedLight(params:Object) 
 		{
 			//Super
-			super(colour, intensity);
+			super(params);
 			
 			//Create a base image
-			_baseImage = new Image(texture);
-			_baseImage.color = colour;
-			_baseImage.alpha = intensity;
+			_baseImage = new Image(params.texture);
+			_baseImage.color = params.colour;
+			_baseImage.alpha = params.intensity;
 			addChild(_baseImage);
 			
 			//Listen for collision update

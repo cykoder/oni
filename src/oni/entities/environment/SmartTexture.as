@@ -37,13 +37,13 @@ package oni.entities.environment
 		
 		private var _collisionData:Array;
 		
-		public function SmartTexture(texture:String, collisionData:Array, physicsEnabled:Boolean=true)
+		public function SmartTexture(params:Object)
 		{
 			//Super
-			super(physicsEnabled);
+			super(params);
 			
 			//Set texture
-			_texture = texture;
+			_texture = params.texture;
 			
 			//Set touchable
 			this.touchable = true;
@@ -56,7 +56,7 @@ package oni.entities.environment
 			addEventListener(Oni.UPDATE_DATA, _updateCollision);
 			
 			//Update collision
-			dispatchEventWith(Oni.UPDATE_DATA, false, { collisionData: collisionData } );
+			dispatchEventWith(Oni.UPDATE_DATA, false, params);
 			
 			//TODO: remove this bug line
 			//addEventListener(TouchEvent.TOUCH, _touch);

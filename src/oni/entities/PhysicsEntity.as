@@ -39,8 +39,14 @@ package oni.entities
 		 * Creates a physics entity, should not be called directly you naughty boy!
 		 * @param	physicsEnabled
 		 */
-		public function PhysicsEntity(physicsEnabled:Boolean=true) 
+		public function PhysicsEntity(params:Object) 
 		{
+			//Default parameters
+			if (params.physicsEnabled == null) params.physicsEnabled = true;
+			
+			//Super
+			super(params);
+			
 			//Not allowed to init this class directly fam
             if (Platform.debugEnabled && 
                 getQualifiedClassName(this) == "oni.entities::PhysicsEntity")
@@ -49,7 +55,7 @@ package oni.entities
             }
 			
 			//Set enabled
-			_isPhysicsEnabled = physicsEnabled;
+			_isPhysicsEnabled = params.physicsEnabled;
 			
 			//Listen for added
 			addEventListener(Oni.ENTITY_ADDED, _onAdded);

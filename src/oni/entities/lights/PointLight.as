@@ -27,10 +27,10 @@ package oni.entities.lights
 		 * @param	intensity
 		 * @param	radius
 		 */
-		public function PointLight(colour:uint, intensity:Number, radius:int) 
+		public function PointLight(params:Object) 
 		{
 			//Super
-			super(colour, intensity);
+			super(params);
 			
 			//Create a base image
 			_baseImage = new Image(AssetManager.getTexture("light_point"));
@@ -40,7 +40,7 @@ package oni.entities.lights
 			addEventListener(Oni.UPDATE_DATA, _redraw);
 			
 			//Update collision
-			dispatchEventWith(Oni.UPDATE_DATA, false, { radius: radius } );
+			dispatchEventWith(Oni.UPDATE_DATA, false, { radius: params.radius } );
 		}
 		
 		/**

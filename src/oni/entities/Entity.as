@@ -51,11 +51,16 @@ package oni.entities
 		
 		private var _boundsShape:Shape;
 		
+		private var _params:Object;
+		
 		/**
 		 * Initialises an entity instance
 		 */
-		public function Entity()
+		public function Entity(params:Object)
 		{
+			//Set startup parameters
+			_params = params;
+			
 			//Not allowed to init this class directly fam
             if (Platform.debugEnabled && 
                 getQualifiedClassName(this) == "oni.entities::Entity")
@@ -217,6 +222,26 @@ package oni.entities
 			
 			//Return child
 			return child;
+		}
+		
+		public function serialize():Object
+		{
+			return {
+				className: getQualifiedClassName(this),
+				x: this.x,
+				y: this.y,
+				z: this.z,
+				scaleX: this.scaleX,
+				scaleX: this.scaleY,
+				rotation: this.rotation,
+				blendMode: this.blendMode,
+				cull: this.cull,
+				scrollX: this.scrollX,
+				scrollY: this.scrollY,
+				width: this.width,
+				height: this.height,
+				params: _params
+			};
 		}
 	}
 

@@ -31,8 +31,11 @@ package oni.entities.lights
 		 * @param	intensity
 		 * @param	blend
 		 */
-		public function Light(colour:uint, intensity:Number, blendMode:String = BlendMode.ADD) 
+		public function Light(params:Object) 
 		{
+			//Super
+			super(params);
+			
 			//Not allowed to init this class directly fam
             if (Platform.debugEnabled && 
                 getQualifiedClassName(this) == "oni.entities.lights::Light")
@@ -41,13 +44,13 @@ package oni.entities.lights
             }
 			
 			//Set colour
-			_colour = colour;
+			_colour = params.colour;
 			
 			//Set intensity
-			_intensity = intensity;
+			_intensity = params.intensity;
 			
 			//Set blend mode (additive or multiply, usually)
-			if(blendMode != null) this.blendMode = blendMode;
+			if(blendMode != null) this.blendMode = BlendMode.ADD;
 		}
 		
 		/**

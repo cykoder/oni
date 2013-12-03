@@ -48,22 +48,25 @@ package oni.entities.platformer
 		
 		private var _isJumping:Boolean;
 		
-		public function Character(bodyWidth:int, bodyHeight:int)
+		public function Character(params:Object)
 		{
+			//Super
+			super(params);
+			
 			//Set dimensions
-			_bodyWidth = bodyWidth;
-			_bodyHeight = bodyHeight;
+			_bodyWidth = params.bodyWidth;
+			_bodyHeight = params.bodyHeight;
 			
 			//Create a shape for graphics
 			_shape = new Shape();
 			_shape.graphics.beginFill(0x000000);
 			_shape.graphics.lineStyle(1, 0xFFFFFF);
-			_shape.graphics.drawRect(0, 0, bodyWidth, bodyHeight);
+			_shape.graphics.drawRect(0, 0, _bodyWidth, _bodyHeight);
 			_shape.graphics.endFill();
 			addChild(_shape);
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, bodyWidth, bodyHeight);
+			cullBounds.setTo(0, 0, _bodyWidth, _bodyHeight);
 			
 			//Listen for interaction
 			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
