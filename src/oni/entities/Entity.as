@@ -9,6 +9,7 @@ package oni.entities
 	import flash.geom.Rectangle;
 	import starling.core.RenderSupport;
 	import starling.display.DisplayObject;
+	import starling.display.Shape;
 	import starling.events.Event;
 	import starling.display.Sprite;
 	import starling.errors.AbstractClassError;
@@ -18,11 +19,6 @@ package oni.entities
 	 */
 	public class Entity extends Sprite
 	{
-		/**
-		 * The culling bounds of the entity
-		 */
-		public var cullBounds:Rectangle;
-		
 		/**
 		 * Whether the entity should cull or not
 		 */
@@ -49,6 +45,13 @@ package oni.entities
 		private var _scrollY:Boolean = true;
 		
 		/**
+		 * The culling bounds of the entity
+		 */
+		private var _cullBounds:Rectangle;
+		
+		private var _boundsShape:Shape;
+		
+		/**
 		 * Initialises an entity instance
 		 */
 		public function Entity()
@@ -61,7 +64,64 @@ package oni.entities
             }
 			
 			//Create base culling rectangle
-			cullBounds = new Rectangle();
+			_cullBounds = new Rectangle();
+			
+			//Create a bounds shape
+			_boundsShape = new Shape();
+			_boundsShape.visible = false;
+			addChild(_boundsShape);
+		}
+		
+		/**
+		 * Whether to show the bounds or not
+		 */
+		public function get showBounds():Boolean
+		{
+			return _boundsShape.visible;
+		}
+		
+		/**
+		 * Whether to show the bounds or not
+		 */
+		public function set showBounds(value:Boolean):void
+		{
+			cullBounds = _cullBounds;
+			_boundsShape.visible = value;
+		}
+		
+		/**
+		 * The culling bounds of the entity
+		 */
+		public function get cullBounds():Rectangle
+		{
+			return _cullBounds;
+		}
+		
+		/**
+		 * The culling bounds of the entity
+		 */
+		public function set cullBounds(value:Rectangle):void
+		{
+			if (_cullBounds != value)
+			{
+				//Set cull bounds
+				_cullBounds = value;
+			}
+			
+			//Redraw
+			if (_cullBounds != null)
+			{
+				//Draw rect
+				_boundsShape.graphics.clear();
+				_boundsShape.graphics.lineStyle(1, 0x00FF00, 0.5);
+				_boundsShape.graphics.beginFill(0xFFFFFF, 0.1);
+				_boundsShape.graphics.drawRect(0, 0, _cullBounds.width, _cullBounds.height);
+				_boundsShape.graphics.endFill();
+				
+				//Position
+				_boundsShape.x = _cullBounds.x;
+				_boundsShape.y = _cullBounds.y;
+			}
 		}
 		
 		/**
@@ -135,6 +195,28 @@ package oni.entities
 		override public function render(support:RenderSupport, parentAlpha:Number):void 
 		{
 			if (_shouldRender) super.render(support, parentAlpha);
+		}
+		
+		override public function get x():Number 
+		{
+			return super.x;
+		}
+		
+		override public function get y():Number 
+		{
+			return super.y;
+		}
+		
+		override public function addChildAt(child:DisplayObject, index:int):DisplayObject 
+		{
+			//Super
+			super.addChildAt(child, index);
+			
+			//Make sure bounds are on top
+			setChildIndex(_boundsShape, numChildren - 1);
+			
+			//Return child
+			return child;
 		}
 	}
 

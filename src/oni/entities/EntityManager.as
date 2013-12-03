@@ -41,6 +41,8 @@ package oni.entities
 		 */
 		private var _space:Space;
 		
+		private var _paused:Boolean;
+		
 		/**
 		 * Creates an entity manager instance, with physics enabled or not
 		 * @param	physics
@@ -164,11 +166,15 @@ package oni.entities
 		 */
 		private function _onUpdate(e:Event):void
 		{
-			//Step physics
-			if (_space != null) _space.step(TIME_STEP);
-			
-			//Relay
-			_relayEvent(e);
+			//Only if not paused
+			if (!_paused)
+			{
+				//Step physics
+				if (_space != null) _space.step(TIME_STEP);
+				
+				//Relay
+				_relayEvent(e);
+			}
 		}
 		
 		/**
@@ -231,6 +237,26 @@ package oni.entities
 		{
 			//Remove all entities
 			for (var i:int = 0; i < entities.length; i++) remove(entities[i], silent);
+		}
+		
+		/**
+		 * Gets an entity by index
+		 * @param	index
+		 * @return
+		 */
+		public function get(index:int):Entity
+		{
+			return entities[index];
+		}
+		
+		public function get paused():Boolean
+		{
+			return _paused;
+		}
+		
+		public function set paused(value:Boolean):void
+		{
+			_paused = value;
 		}
 		
 	}
