@@ -1,6 +1,7 @@
 package com.oniexample.examples 
 {
 	import flash.geom.Point;
+	import oni.core.Scene;
 	import oni.entities.environment.SmartTexture;
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
@@ -52,7 +53,7 @@ package com.oniexample.examples
 			super(oni);
 			
 			//Create a little scene
-			createScene("midday", true);
+			scene = new Scene(true);
 			
 			//Remove the camera
 			components.remove(camera);

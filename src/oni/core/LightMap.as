@@ -38,8 +38,21 @@ package oni.core
 			//Create a blur filkter
 			this.filter = new BlurFilter(blurAmount, blurAmount, blurResolution);
 			
+			//Disable touching
+			this.touchable = false;
+			
 			//Listen for added to stage
 			addEventListener(Event.ADDED_TO_STAGE, _addedToStage);
+		}
+		
+		public function get enabled():Boolean
+		{
+			return this.visible;
+		}
+		
+		public function set enabled(value:Boolean):void
+		{
+			this.visible = value;
 		}
 		
 		public function set ambientLight(light:Light):void

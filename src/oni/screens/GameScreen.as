@@ -22,9 +22,9 @@ package oni.screens
 	{
 		public var camera:Camera;
 		
-		public var scene:Scene;
-		
 		public var entities:EntityManager;
+		
+		private var _scene:Scene;
 		
 		public function GameScreen(oni:Oni, physics:Boolean=true) 
 		{
@@ -49,30 +49,42 @@ package oni.screens
 			//addChild(new EditorScreen(scene, entities)).visible = true;
 		}
 		
+		public function get paused():Boolean
+		{
+			return entities.paused;
+		}
+		
+		public function set paused(value:Boolean):void
+		{
+			entities.paused = value;
+		}
+		
 		/**
 		 * Create a scene
-		 * @param	background
-		 * @param	lighting
 		 */
-		public function createScene(lighting:Boolean=true):void
+		public function set scene(value:Scene):void
 		{
 			//Check if we already have a scene
-			if (scene != null)
+			if (_scene != null)
 			{
 				//Dispose
-				scene.dispose();
-				components.remove(scene);
-				scene = null;
+				_scene.dispose();
+				components.remove(_scene);
 			}
 			
 			//Create a scene instance
-			scene = new Scene(lighting);
+			_scene = value;
 			
 			//Add to components
-			components.add(scene);
+			components.add(_scene);
 			
 			//Add to display list
-			addChild(scene);
+			addChild(_scene);
+		}
+		
+		public function get scene():Scene
+		{
+			return _scene;
 		}
 		
 		/**

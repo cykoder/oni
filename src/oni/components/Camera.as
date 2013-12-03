@@ -17,14 +17,14 @@ package oni.components
 		
 		private var _y:int, _holdY:int;
 		
-		private var _z:Number;
+		private var _z:Number, _holdZ:Number;
 		
 		public function Camera() 
 		{
 			//Initialise variables
 			_x = _y = 0;
 			_z = 1;
-			_holdX = _holdY = -1;
+			_holdX = _holdY = _holdZ = -1;
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
@@ -33,7 +33,7 @@ package oni.components
 		private function _onUpdate(e:Event):void
 		{
 			//Check if we should move
-			if (_holdX != -1 || _holdY != -1)
+			if (_holdX != -1 || _holdY != -1 || _holdZ != -1)
 			{
 				//Linear interpolate X
 				if (_holdX != -1)
@@ -59,6 +59,19 @@ package oni.components
 					
 					//Limit
 					if (limit && _y < 0) _y = 0;
+				}
+				
+				//Linear interpolate Z
+				if (_holdZ != -1)
+				{
+					//Set Z
+					_z += (_holdZ - _z) * smoothing;
+					
+					//Check if we should reset
+					if (_z == _holdZ) _holdZ = -1;
+					
+					//Limit
+					if (_z < 0.25) _z = 0.25;
 				}
 				
 				//Dispatch event
@@ -93,15 +106,7 @@ package oni.components
 		
 		public function set z(value:Number):void
 		{
-			//Limit
-			if (value < 0.25) value = 0.25;
-			if (value > 4) value = 4;
-			
-			//Set
-			_z = value;
-			
-			//Dispatch event
-			dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:_z } );
+			if(value != _holdZ) _holdZ = value;
 		}
 		
 	}

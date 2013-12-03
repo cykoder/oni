@@ -804,7 +804,6 @@ package starling.core
         public function set showStats(value:Boolean):void
         {
             if (value == showStats) return;
-            
             if (value)
             {
                 if (mStatsDisplay) mStage.addChild(mStatsDisplay);

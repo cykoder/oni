@@ -2,6 +2,7 @@ package com.oniexample.examples
 {
 	import flash.geom.Point;
 	import oni.components.weather.WeatherSystem;
+	import oni.core.Scene;
 	import oni.entities.environment.SmartTexture;
 	import oni.entities.environment.StaticTexture;
 	import oni.entities.lights.AmbientLight;
@@ -31,7 +32,7 @@ package com.oniexample.examples
 			super(oni);
 			
 			//Create a little scene
-			createScene(true);
+			scene = new Scene(true);
 			
 			//Add a sky background
 			var skyBG:StaticTexture = new StaticTexture(null, "background_sky");
