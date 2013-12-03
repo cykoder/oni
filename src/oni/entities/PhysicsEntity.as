@@ -182,6 +182,26 @@ package oni.entities
 			if(_physicsBody != null && _physicsBody.rotation != value) _physicsBody.rotation = value;
 		}
 		
+		override public function set width(value:Number):void 
+		{
+			//Don't allow changing width
+		}
+		
+		override public function set height(value:Number):void 
+		{
+			//Don't allow changing height
+		}
+		
+		override public function set scaleX(value:Number):void 
+		{
+			//Don't allow changing scale
+		}
+		
+		override public function set scaleY(value:Number):void 
+		{
+			//Don't allow changing scale
+		}
+		
 		/**
 		 * Whether physics are enabled or not
 		 */
@@ -218,6 +238,12 @@ package oni.entities
 		public function get enabled():Boolean 
 		{
 			return _isPhysicsEnabled;
+		}
+		
+		override public function set z(value:Number):void 
+		{
+			//Only allow Z to be 1
+			super.z = 1;
 		}
 		
 	}

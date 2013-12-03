@@ -70,7 +70,7 @@ package oni.entities.lights
 			if(this.alpha != intensity) this.alpha = intensity;
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, _radius + 64, _radius + 64);
+			cullBounds.setTo(0, 0, _radius, _radius);
 		}
 		
 		/**

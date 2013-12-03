@@ -16,7 +16,9 @@ package oni.entities.environment
 		
 		private var _image:Image;
 		
-		public function StaticTexture(atlas:String, texture:String) 
+		private var _pivot:Boolean;
+		
+		public function StaticTexture(atlas:String, texture:String, pivot:Boolean=true) 
 		{
 			//Create an image
 			if (atlas == "" || atlas == null)
@@ -33,8 +35,11 @@ package oni.entities.environment
 			_texture = texture;
 			_atlas = atlas;
 			
-			//Set cull bounds
-			cullBounds.setTo(0, 0, _image.width, _image.height);
+			//Set pivot or not
+			_pivot = pivot;
+			
+			//Readjust
+			_readjust();
 		}
 		
 		public function get texture():String
@@ -60,8 +65,8 @@ package oni.entities.environment
 					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
 				}
 			
-				//Set cull bounds
-				cullBounds.setTo(0, 0, _image.width, _image.height);
+				//Readjust
+				_readjust();
 			}
 		}
 		
@@ -88,8 +93,8 @@ package oni.entities.environment
 					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
 				}
 			
-				//Set cull bounds
-				cullBounds.setTo(0, 0, _image.width, _image.height);
+				//Readjust
+				_readjust();
 			}
 		}
 		
@@ -101,6 +106,7 @@ package oni.entities.environment
 		override public function set width(value:Number):void 
 		{
 			_image.width = value;
+			_readjust();
 		}
 		
 		override public function get height():Number 
@@ -111,6 +117,44 @@ package oni.entities.environment
 		override public function set height(value:Number):void 
 		{
 			_image.height = value;
+			_readjust();
+		}
+		
+		override public function get x():Number 
+		{
+			return super.x;
+		}
+		
+		override public function set x(value:Number):void 
+		{
+			super.x = value;
+		}
+		
+		override public function get y():Number 
+		{
+			return super.y;
+		}
+		
+		override public function set y(value:Number):void 
+		{
+			super.y = value;
+		}
+		
+		private function _readjust():void
+		{
+			//Set pivot
+			if (_pivot)
+			{
+				pivotX = _image.width / 2;
+				pivotY = _image.height / 2;
+			}
+			else
+			{
+				pivotX = pivotY = 0;
+			}
+			
+			//Set cull bounds
+			cullBounds.setTo(0, 0, _image.width, _image.height);
 		}
 		
 	}

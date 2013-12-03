@@ -47,9 +47,6 @@ package oni.core
 				addChild(_lightMap);
 			}
 			
-			//Non touchable
-			//this.touchable = false;
-			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 		}

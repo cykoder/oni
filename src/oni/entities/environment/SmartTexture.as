@@ -289,6 +289,11 @@ package oni.entities.environment
 			return new Point(p1.x + v12.x * t, p1.y + v12.y * t)
 		}
 		
+		override public function set rotation(value:Number):void 
+		{
+			//Don't allow rotation
+		}
+		
 	}
 
 }

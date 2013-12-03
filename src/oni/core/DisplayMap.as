@@ -60,7 +60,7 @@ package oni.core
 					}
 					
 					//Cullcheck entity
-					entity.cullCheck(this.x, this.y);
+					//entity.cullCheck(this.x, this.y);
 				}
 			}
 		}

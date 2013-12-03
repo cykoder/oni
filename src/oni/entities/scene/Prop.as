@@ -78,12 +78,12 @@ package oni.entities.scene
 			//Check if we have physics data available, if not, disable physics
 			if (physicsEnabled && _physicsData == null) physicsEnabled = false;
 			
-			//Set pivtor
+			//Set pivot
 			this.pivotX = width / 2;
 			this.pivotY = height / 2;
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, width + 64, height + 64);
+			cullBounds.setTo(0, 0, width, height);
 		}
 		
 		/**

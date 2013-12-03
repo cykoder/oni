@@ -19,6 +19,9 @@ package oni.entities.lights
 		{
 			//Super
 			super(colour, intensity, null);
+			
+			//Disable touching
+			this.touchable = false;
 		}
 		
 	}

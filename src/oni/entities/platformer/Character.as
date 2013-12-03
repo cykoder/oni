@@ -63,7 +63,7 @@ package oni.entities.platformer
 			addChild(_shape);
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, bodyWidth + 64, bodyHeight + 64);
+			cullBounds.setTo(0, 0, bodyWidth, bodyHeight);
 			
 			//Listen for interaction
 			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
@@ -201,6 +201,11 @@ package oni.entities.platformer
 		public function set velocity(value:Vec2):void
 		{
 			_physicsBody.velocity = value;
+		}
+		
+		override public function set rotation(value:Number):void 
+		{
+			//Don't allow rotation
 		}
 		
 	}
