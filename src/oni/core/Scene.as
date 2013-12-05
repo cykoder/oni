@@ -62,7 +62,21 @@ package oni.core
 			if (shouldDepthSort)
 			{
 				shouldDepthSort = false;
-				_diffuseMap.sortChildren(depthSort);
+				_diffuseMap.sortChildren( function depthSort(a:DisplayObject, b:DisplayObject):Number
+		{
+			//Calculate z
+			var aZ:Number = 0;
+			var bZ:Number = 0;
+			
+			//Is an entity?
+			if (a is Entity) aZ = (a as Entity).z;
+			if (b is Entity) bZ = (b as Entity).z;
+			
+			//Calculate y difference
+			var ydif:Number = aZ - bZ;
+			if (ydif == 0) ydif = -1;
+			return ydif;
+		});
 			}
 			
 			//Render
@@ -114,28 +128,6 @@ package oni.core
 			
 			//Super
 			super.dispose();
-		}
-		
-		/**
-		 * Depth sorts two entities
-		 * @param	a
-		 * @param	b
-		 * @return
-		 */
-		public static function depthSort(a:DisplayObject, b:DisplayObject):Number
-		{
-			//Calculate z
-			var aZ:Number = 0;
-			var bZ:Number = 0;
-			
-			//Is an entity?
-			if (a is Entity) aZ = (a as Entity).z;
-			if (b is Entity) bZ = (b as Entity).z;
-			
-			//Calculate y difference
-			var ydif:Number = aZ - bZ;
-			if (ydif == 0) ydif = -1;
-			return ydif;
 		}
 		
 	}

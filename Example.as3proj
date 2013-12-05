@@ -53,6 +53,8 @@
   <libraryPaths>
     <element path="lib\nape.swc" />
     <element path="lib\Flox-AS3.swc" />
+    <element path="src\nape.swc" />
+    <element path="src\Flox-AS3.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
