@@ -59,7 +59,7 @@ package oni.components.weather.entities
 			
 			//Set data
 			this.z = params.z;
-			_windDirection = params.windDirection;
+			_windDirection = new Point(params.windDirection.x, params.windDirection.y);
 			_perlinBase = params.perlinBase;
 			_octaves = params.octaves;
 			_seed = uint(Math.random() * 10);

@@ -1,7 +1,9 @@
 package oni.components.weather 
 {
+	import flash.utils.getQualifiedClassName;
 	import oni.components.weather.entities.Clouds;
 	import oni.components.weather.entities.Haze;
+	import oni.core.ISerializable;
 	import oni.core.Scene;
 	import oni.entities.environment.StaticTexture;
 	import oni.Oni;
@@ -11,7 +13,7 @@ package oni.components.weather
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class WeatherSystem extends EventDispatcher
+	public class WeatherSystem extends EventDispatcher implements ISerializable
 	{
 		private var _clouds:Array;
 		
@@ -19,8 +21,13 @@ package oni.components.weather
 		
 		private var _scene:Scene;
 		
+		private var _params:Object;
+		
 		public function WeatherSystem(scene:Scene, params:Object) 
 		{
+			//Set parameters
+			_params = params;
+			
 			//Set scene
 			var i:uint;
 			_scene = scene;
@@ -83,6 +90,14 @@ package oni.components.weather
 		public function get clouds():Array
 		{
 			return _clouds;
+		}
+		
+		public function serialize():Object
+		{
+			return {
+				className: getQualifiedClassName(this),
+				params: _params
+			};
 		}
 		
 	}

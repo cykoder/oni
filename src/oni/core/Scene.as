@@ -2,31 +2,26 @@ package oni.core
 {
 	import flash.display.Bitmap;
 	import flash.geom.Point;
+	import flash.utils.getDefinitionByName;
 	import oni.assets.AssetManager;
 	import oni.components.Camera;
+	import oni.components.ComponentManager;
 	import oni.entities.Entity;
+	import oni.entities.EntityManager;
 	import oni.entities.lights.Light;
 	import oni.Oni;
 	import oni.utils.Platform;
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
-	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
-	import starling.display.Image;
-	import starling.display.Quad;
-	import starling.display.Shape;
 	import starling.events.Event;
-	import starling.events.Touch;
-	import starling.events.TouchEvent;
-	import starling.events.TouchPhase;
-	import starling.textures.Texture;
 	/**
 	 * ...
 	 * @author Sam Hellawell
 	 */
 	public class Scene extends DisplayObjectContainer
-	{
+	{		   
 		public var shouldDepthSort:Boolean;
 		
 		protected var _diffuseMap:DisplayMap;
@@ -62,21 +57,21 @@ package oni.core
 			if (shouldDepthSort)
 			{
 				shouldDepthSort = false;
-				_diffuseMap.sortChildren( function depthSort(a:DisplayObject, b:DisplayObject):Number
-		{
-			//Calculate z
-			var aZ:Number = 0;
-			var bZ:Number = 0;
-			
-			//Is an entity?
-			if (a is Entity) aZ = (a as Entity).z;
-			if (b is Entity) bZ = (b as Entity).z;
-			
-			//Calculate y difference
-			var ydif:Number = aZ - bZ;
-			if (ydif == 0) ydif = -1;
-			return ydif;
-		});
+				_diffuseMap.sortChildren(function depthSort(a:DisplayObject, b:DisplayObject):Number
+				{
+					//Calculate z
+					var aZ:Number = 0;
+					var bZ:Number = 0;
+					
+					//Is an entity?
+					if (a is Entity) aZ = (a as Entity).z;
+					if (b is Entity) bZ = (b as Entity).z;
+					
+					//Calculate y difference
+					var ydif:Number = aZ - bZ;
+					if (ydif == 0) ydif = -1;
+					return ydif;
+				});
 			}
 			
 			//Render
@@ -130,6 +125,34 @@ package oni.core
 			super.dispose();
 		}
 		
+		public function serialize(entities:EntityManager, components:ComponentManager):Object
+		{
+			return { lighting: lighting != null,
+					 entities: entities.serialize(),
+					 components: components.serialize() };
+		}
+		
+		public static function deserialize(data:Object, entities:EntityManager, components:ComponentManager):Scene
+		{
+			//Create a scene
+			var scene:Scene = new Scene(data.lighting);
+			
+			//Add the entities
+			var i:uint;
+			for (i = 0; i < data.entities.length; i++)
+			{
+				scene.addEntity(entities.add(Entity.deserialize(data.entities[i])));
+			}
+			
+			//Add the components
+			for (i = 0; i < data.components.length; i++)
+			{
+				components.add(new (getDefinitionByName(data.components[i].className) as Class)(scene, data.components[i].params));
+			}
+			
+			//Return
+			return scene;
+		}
 	}
 
 }

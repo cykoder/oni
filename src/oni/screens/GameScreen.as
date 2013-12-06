@@ -24,6 +24,9 @@ package oni.screens
 		
 		public var entities:EntityManager;
 		
+		/**
+		 * The game scene
+		 */
 		private var _scene:Scene;
 		
 		public function GameScreen(oni:Oni, physics:Boolean=true) 
@@ -45,15 +48,19 @@ package oni.screens
 			
 			//Listen for camera position update
 			camera.addEventListener(Oni.UPDATE_POSITION, _updatePosition);
-			
-			//addChild(new EditorScreen(scene, entities)).visible = true;
 		}
 		
+		/**
+		 * Whether the game is paused or not
+		 */
 		public function get paused():Boolean
 		{
 			return entities.paused;
 		}
 		
+		/**
+		 * Whether the game is paused or not
+		 */
 		public function set paused(value:Boolean):void
 		{
 			entities.paused = value;
@@ -70,6 +77,7 @@ package oni.screens
 				//Dispose
 				_scene.dispose();
 				components.remove(_scene);
+				removeChild(_scene);
 			}
 			
 			//Create a scene instance
@@ -79,9 +87,12 @@ package oni.screens
 			components.add(_scene);
 			
 			//Add to display list
-			addChild(_scene);
+			addChildAt(_scene, 0);
 		}
 		
+		/**
+		 * The game scene
+		 */
 		public function get scene():Scene
 		{
 			return _scene;

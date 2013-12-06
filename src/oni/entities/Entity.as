@@ -1,7 +1,15 @@
 package oni.entities 
 {
+	import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
 	import oni.core.DisplayMap;
+	import oni.core.ISerializable;
+	import oni.entities.environment.StaticTexture;
+	import oni.entities.environment.SmartTexture;
+	import oni.entities.lights.AmbientLight;
+	import oni.entities.lights.PointLight;
+	import oni.entities.platformer.Character;
+	import oni.entities.scene.Prop;
 	import oni.Oni;
 	import oni.core.Scene;
 	import oni.utils.Platform;
@@ -14,11 +22,20 @@ package oni.entities
 	import starling.display.Sprite;
 	import starling.errors.AbstractClassError;
 	/**
-	 * ...
+	 * A 
 	 * @author Sam Hellawell
 	 */
-	public class Entity extends Sprite
+	public class Entity extends Sprite implements ISerializable
 	{
+		/**
+		 * Linkage classes so we don't get the "Variable [X] is not defined error"
+		 */
+		private static var smartTexture:SmartTexture,
+						   prop:Prop,
+						   pointLight:PointLight,
+						   ambientLight:AmbientLight,
+						   character:Character;
+		
 		/**
 		 * Whether the entity should cull or not
 		 */
@@ -49,8 +66,14 @@ package oni.entities
 		 */
 		private var _cullBounds:Rectangle;
 		
+		/**
+		 * The shape for displaying the entity's bounds
+		 */
 		private var _boundsShape:Shape;
 		
+		/**
+		 * The parameters used when the entity is initialised
+		 */
 		private var _params:Object;
 		
 		/**
@@ -62,8 +85,7 @@ package oni.entities
 			_params = params;
 			
 			//Not allowed to init this class directly fam
-            if (Platform.debugEnabled && 
-                getQualifiedClassName(this) == "oni.entities::Entity")
+            if (getQualifiedClassName(this) == "oni.entities::Entity")
             {
                 throw new AbstractClassError();
             }
@@ -224,6 +246,10 @@ package oni.entities
 			return child;
 		}
 		
+		/**
+		 * Serializes data to an object
+		 * @return
+		 */
 		public function serialize():Object
 		{
 			return {
@@ -232,7 +258,7 @@ package oni.entities
 				y: this.y,
 				z: this.z,
 				scaleX: this.scaleX,
-				scaleX: this.scaleY,
+				scaleY: this.scaleY,
 				rotation: this.rotation,
 				blendMode: this.blendMode,
 				cull: this.cull,
@@ -242,6 +268,34 @@ package oni.entities
 				height: this.height,
 				params: _params
 			};
+		}
+		
+		/**
+		 * Deserializes an object to an entity
+		 * @param	data
+		 * @return
+		 */
+		public static function deserialize(data:Object):Entity
+		{
+			//Initialise entity based on class name, god I love AS3
+			var entity:Entity = new (getDefinitionByName(data.className) as Class)(data.params);
+			
+			//Set data
+			if(data.x != null) entity.x = data.x;
+			if(data.y != null) entity.y = data.y;
+			if(data.z != null) entity.z = data.z;
+			if(data.scaleX != null) entity.scaleX = data.scaleX;
+			if(data.scaleY != null) entity.scaleY = data.scaleY;
+			if(data.rotation != null) entity.rotation = data.rotation;
+			if(data.blendMode != null) entity.blendMode = data.blendMode;
+			if(data.cull != null) entity.cull = data.cull;
+			if(data.scrollX != null) entity.scrollX = data.scrollX;
+			if(data.scrollY != null) entity.scrollY = data.scrollY;
+			if(data.width != null) entity.width = data.width;
+			if(data.height != null) entity.height = data.height;
+			
+			//Return
+			return entity;
 		}
 	}
 

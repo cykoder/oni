@@ -1,5 +1,6 @@
 package oni.entities 
 {
+	import flash.geom.Point;
 	import nape.callbacks.CbEvent;
 	import nape.callbacks.CbType;
 	import nape.callbacks.InteractionCallback;
@@ -7,6 +8,7 @@ package oni.entities
 	import nape.callbacks.InteractionType;
 	import nape.util.Debug;
 	import oni.assets.AssetManager;
+	import oni.core.ISerializable;
 	import oni.Oni;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
@@ -19,7 +21,7 @@ package oni.entities
 	 * ...
 	 * @author Sam Hellawell
 	 */
-	public class EntityManager extends EventDispatcher
+	public class EntityManager extends EventDispatcher implements ISerializable
 	{
 		/**
 		 * The physics time step
@@ -34,13 +36,16 @@ package oni.entities
 		/**
 		 * A list of current entities
 		 */
-		public var entities:Array;
+		public var entities:Vector.<Entity>;
 		
 		/**
 		 * The physics space
 		 */
 		private var _space:Space;
 		
+		/**
+		 * Whether the entities should update or not
+		 */
 		private var _paused:Boolean;
 		
 		/**
@@ -50,8 +55,8 @@ package oni.entities
 		 */
 		public function EntityManager(physics:Boolean=true, gravity:Vec2=null) 
 		{
-			//Create an entities array
-			entities = new Array();
+			//Create an entities vector
+			entities = new Vector.<Entity>();
 			
 			//Setup physics
 			if (physics) setupPhysics(gravity);
@@ -249,14 +254,34 @@ package oni.entities
 			return entities[index];
 		}
 		
+		/**
+		 * Whether the entities should update or not
+		 */
 		public function get paused():Boolean
 		{
 			return _paused;
 		}
 		
+		/**
+		 * Whether the entities should update or not
+		 */
 		public function set paused(value:Boolean):void
 		{
 			_paused = value;
+		}
+		
+		/**
+		 * Serializes data to an object
+		 * @return
+		 */
+		public function serialize():Object
+		{
+			var data:Array = new Array();
+			for (var i:uint = 0; i < entities.length; i++)
+			{
+				data.push(entities[i].serialize());
+			}
+			return data;
 		}
 		
 	}
