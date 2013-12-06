@@ -49,12 +49,12 @@ package oni.entities.debug
 			_shape = new Shape();
 			_shape.graphics.beginFill(0x000000);
 			_shape.graphics.lineStyle(1, 0xFFFFFF);
-			_shape.graphics.drawRect(0, 0, wh, wh);
+			_shape.graphics.drawRect(0, 0, _wh, _wh);
 			_shape.graphics.endFill();
 			addChild(_shape);
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, wh + 64, wh + 64);
+			cullBounds.setTo(0, 0, _wh + 64, _wh + 64);
 		}
 		
 		/**

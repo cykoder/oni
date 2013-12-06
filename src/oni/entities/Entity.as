@@ -4,10 +4,14 @@ package oni.entities
     import flash.utils.getQualifiedClassName;
 	import oni.core.DisplayMap;
 	import oni.core.ISerializable;
+	import oni.entities.debug.DebugCircle;
+	import oni.entities.debug.DebugSquare;
 	import oni.entities.environment.StaticTexture;
 	import oni.entities.environment.SmartTexture;
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.PointLight;
+	import oni.entities.lights.PolygonLight;
+	import oni.entities.lights.TexturedLight;
 	import oni.entities.platformer.Character;
 	import oni.entities.scene.Prop;
 	import oni.Oni;
@@ -32,9 +36,14 @@ package oni.entities
 		 */
 		private static var smartTexture:SmartTexture,
 						   prop:Prop,
-						   pointLight:PointLight,
+						   character:Character,
+						   staticTexture:StaticTexture,
+						   debugCircle:DebugCircle,
+						   debugSquare:DebugSquare,
 						   ambientLight:AmbientLight,
-						   character:Character;
+						   polygonLight:PolygonLight,
+						   pointLight:PointLight,
+						   texturedLight:TexturedLight;
 		
 		/**
 		 * Whether the entity should cull or not

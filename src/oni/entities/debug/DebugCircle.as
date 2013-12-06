@@ -52,7 +52,7 @@ package oni.entities.debug
 			addChild(_shape);
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, radius*2, radius*2);
+			cullBounds.setTo(0, 0, _radius*2, _radius*2);
 		}
 		
 		/**
