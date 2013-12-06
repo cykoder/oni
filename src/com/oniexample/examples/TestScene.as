@@ -15,6 +15,7 @@ package com.oniexample.examples
 	import oni.Oni;
 	import oni.assets.AssetManager;
 	import oni.screens.GameScreen;
+	import starling.display.BlendMode;
 	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
@@ -35,14 +36,15 @@ package com.oniexample.examples
 			scene = new Scene(true);
 			
 			//Add a sky background
-			var skyBG:StaticTexture = new StaticTexture(null, "background_sky");
+			var skyBG:StaticTexture = new StaticTexture({atlas: null, texture: "background_sky", pivot: false});
 			skyBG.width = Platform.STAGE_WIDTH;
 			skyBG.height = Platform.STAGE_HEIGHT;
 			skyBG.z = -1;
+			skyBG.blendMode = BlendMode.NONE;
 			entities.add(skyBG);
 			
 			//Create grass!
-			var debugTexture:SmartTexture = new SmartTexture("grass", [new Point(0, 100),
+			var debugTexture:SmartTexture = new SmartTexture({texture: "grass", collisionData: [new Point(0, 100),
 									   new Point(250, 100),
 									   new Point(500, 128),
 									   new Point(700, 200),
@@ -70,18 +72,17 @@ package com.oniexample.examples
 									   new Point(3325, 425),
 									   new Point(3400, 440),
 									   new Point(3500, 450),
-									   
 									   new Point(5000, 450),
 									   new Point(5000, 1000),
 									   new Point(0, 1000),
-									   new Point(0, 100)], true);
+									   new Point(0, 100)] });
 									   debugTexture.y = 300;
 									   debugTexture.x = 0;
 									   debugTexture.z = 1;
 									   debugTexture.cull = false;
 			entities.add(debugTexture);
 			
-			debugTexture = new SmartTexture("factory_metal", [new Point(0,256), new Point(20,0), new Point(256,30), new Point(300,300)], false);
+			debugTexture = new SmartTexture({texture: "factory_metal", collisionData: [new Point(0,256), new Point(20,0), new Point(256,30), new Point(300,300)], physicsEnabled:false});
 									   debugTexture.y = 230;
 									   debugTexture.x = 450;
 									   debugTexture.z = 0.8;
@@ -90,10 +91,10 @@ package com.oniexample.examples
 			//Ambient!
 			//entities.add(new AmbientLight(0x1B2D54, 1));
 			//entities.add(new AmbientLight(0x000033, 1));
-			entities.add(new AmbientLight(0xFFFFFF, 1));
+			entities.add(new AmbientLight({colour: 0xFFFFFF, intensity: 1}));
 			
 			//Create a prop, read from the physics data file
-			var prop:Prop = new Prop("factory", "bottom_support");
+			var prop:Prop = new Prop({atlas: "factory", name: "bottom_support"});
 			prop.x = 400;
 			prop.y = 300;
 			entities.add(prop);
@@ -104,11 +105,11 @@ package com.oniexample.examples
 				//Just spawning a few heads for physics testing
 				if ((Math.floor(Math.random() * (1 + 1))) == 0)
 				{
-					entities.add(new Prop("factory", "wardenjordan")).x = 600;
+					entities.add(new Prop({atlas: "factory", name: "wardenjordan"})).x = 600;
 				}
 				else
 				{
-					entities.add(new Prop("factory", "klankywanky")).x = 600;
+					entities.add(new Prop({atlas: "factory", name: "klankywanky"})).x = 600;
 				}
 			}
 			

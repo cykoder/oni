@@ -81,14 +81,14 @@ package oni.entities
 		 */
 		public function Entity(params:Object)
 		{
-			//Set startup parameters
-			_params = params;
-			
 			//Not allowed to init this class directly fam
             if (getQualifiedClassName(this) == "oni.entities::Entity")
             {
                 throw new AbstractClassError();
             }
+			
+			//Set startup parameters
+			_params = params;
 			
 			//Create base culling rectangle
 			_cullBounds = new Rectangle();
@@ -97,6 +97,9 @@ package oni.entities
 			_boundsShape = new Shape();
 			_boundsShape.visible = false;
 			addChild(_boundsShape);
+			
+			//Apply data
+			_applyEntityData(params, this);
 		}
 		
 		/**
@@ -281,6 +284,14 @@ package oni.entities
 			var entity:Entity = new (getDefinitionByName(data.className) as Class)(data.params);
 			
 			//Set data
+			_applyEntityData(data, entity);
+			
+			//Return
+			return entity;
+		}
+		
+		private static function _applyEntityData(data:Object, entity:Entity):void
+		{
 			if(data.x != null) entity.x = data.x;
 			if(data.y != null) entity.y = data.y;
 			if(data.z != null) entity.z = data.z;
@@ -293,9 +304,6 @@ package oni.entities
 			if(data.scrollY != null) entity.scrollY = data.scrollY;
 			if(data.width != null) entity.width = data.width;
 			if(data.height != null) entity.height = data.height;
-			
-			//Return
-			return entity;
 		}
 	}
 

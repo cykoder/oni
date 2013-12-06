@@ -30,6 +30,8 @@ package com.oniexample
 		private function _init(e:Event):void
 		{
 			//Add test scene
+			//screens.add(new PointLights(this));
+			//screens.add(new OtherLights(this));
 			screens.add(new TestScene(this));
 			
 			//screenManager.changeTo(ScreenManager.SCREEN_GAME);

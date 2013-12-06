@@ -59,53 +59,53 @@ package com.oniexample.examples
 			components.remove(camera);
 			
 			//Create a background
-			var debugTexture:SmartTexture = new SmartTexture("debug", [new Point(0, 0),
+			var debugTexture:SmartTexture = new SmartTexture({texture: "debug", collisionData: [new Point(0, 0),
 																	   new Point(Platform.STAGE_WIDTH, 0),
 																	   new Point(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT),
 																	   new Point(0, Platform.STAGE_HEIGHT),
-																	   new Point(0, 0)], false);
+																	   new Point(0, 0)], physicsEnabled: false});
 			entities.add(debugTexture);
 			
 			//Create an ambient light
-			entities.add(new AmbientLight(0xFFFFFF, 0.05));
+			entities.add(new AmbientLight({colour: 0xFFFFFF, intensity: 0.05}));
 			
 			//Create 3 static point lights (red, green, blue)
 			var light:Light;
-			light = new PointLight(0xFF0000, 1, 256);
+			light = new PointLight({colour: 0xFF0000, intensity: 1, radius: 256});
 			light.x = 300+100;
 			light.y = 100+128;
 			entities.add(light);
 			
-			light = new PointLight(0x00FF00, 1, 256);
+			light = new PointLight({colour: 0x00FF00, intensity: 1, radius: 256});
 			light.x = 428+100;
 			light.y = 100+128;
 			entities.add(light);
 			
-			light = new PointLight(0x0000FF, 1, 256);
+			light = new PointLight({colour: 0x0000FF, intensity: 1, radius: 256});
 			light.x = 364+100;
 			light.y = 228-32+128;
 			entities.add(light);
 			
 			//Create a radius changing light
-			_radiusChangeLight = new PointLight(0xFF00FF, 1, 128);
+			_radiusChangeLight = new PointLight({colour: 0xFF00FF, intensity: 1, radius: 128});
 			_radiusChangeLight.x = 150;
 			_radiusChangeLight.y = 128;
 			entities.add(_radiusChangeLight);
 			
 			//Create a radius changing light
-			_intensityChangeLight = new PointLight(0x00FFFF, 1, 256);
+			_intensityChangeLight = new PointLight({colour: 0x00FFFF, intensity: 1, radius: 256});
 			_intensityChangeLight.x = 150;
 			_intensityChangeLight.y = 400;
 			entities.add(_intensityChangeLight);
 			
 			//Create a colour change light
-			_colourChangeLight = new PointLight(_coloursChange[0], 1, 256);
+			_colourChangeLight = new PointLight({colour: _coloursChange[0], intensity: 1, radius: 256});
 			_colourChangeLight.x = 800;
 			_colourChangeLight.y = 128;
 			entities.add(_colourChangeLight);
 			
 			//Create a light we can move
-			_moveLight = new PointLight(0xFFFFFF, 1, 256);
+			_moveLight = new PointLight({colour: 0xFFFFFF, intensity: 1, radius: 256});
 			_moveLight.x = 800;
 			_moveLight.y = 400;
 			entities.add(_moveLight);

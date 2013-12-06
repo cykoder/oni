@@ -28,7 +28,14 @@ package oni.entities.lights
 			super(params);
 			
 			//Create a base image
-			_baseImage = new Image(params.texture);
+			if (params.atlas == "" || params.atlas == null)
+			{
+				_baseImage = new Image(AssetManager.getTexture(params.texture));
+			}
+			else
+			{
+				_baseImage = new Image(AssetManager.getTextureAtlas(params.atlas).getTexture(params.texture));
+			}
 			_baseImage.color = params.colour;
 			_baseImage.alpha = params.intensity;
 			addChild(_baseImage);
