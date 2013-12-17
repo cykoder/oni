@@ -48,7 +48,7 @@ package oni.entities
 		 * @param	physics
 		 * @param	gravity
 		 */
-		public function EntityManager(physics:Boolean=true, gravity:Vec2=null) 
+		public function EntityManager(physics:Boolean=true, gravity:Point=null) 
 		{
 			//Create an entities vector
 			entities = new Vector.<Entity>();
@@ -68,22 +68,22 @@ package oni.entities
 		 * Sets up a physics space with the given parameters
 		 * @param	gravity
 		 */
-		public function setupPhysics(gravity:Vec2=null):void
+		public function setupPhysics(gravity:Point=null):void
 		{
 			//Set default gravity
-			if (gravity == null) gravity = new Vec2(0, 600);
+			if (gravity == null) gravity = new Point(0, 600);
 			
 			//Check if we already have a physics space
 			if (_space != null)
 			{
 				//Clear and set gravity
 				_space.clear();
-				_space.gravity = gravity;
+				_space.gravity = new Vec2(gravity.x, gravity.y);
 			}
 			else
 			{
 				//Create a physics space
-				_space = new Space(new Vec2(0, 600));
+				_space = new Space(new Vec2(gravity.x, gravity.y));
 			
 				//Create collision interaction listeners
 				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
@@ -260,6 +260,23 @@ package oni.entities
 		public function set paused(value:Boolean):void
 		{
 			_paused = value;
+		}
+		
+		/**
+		 * The physics space's gravity
+		 */
+		public function get gravity():Point
+		{
+			if (_space != null) return new Point(_space.gravity.x, _space.gravity.y);
+			return new Point(0,600);
+		}
+		
+		/**
+		 * The physics space's gravity
+		 */
+		public function set gravity(value:Point):void
+		{
+			if (_space != null) _space.gravity = new Vec2(value.x, value.y);
 		}
 		
 		/**

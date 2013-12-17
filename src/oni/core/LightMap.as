@@ -4,6 +4,7 @@ package oni.core
 	import oni.core.DisplayMap;
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
+	import oni.Oni;
 	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
@@ -21,6 +22,8 @@ package oni.core
 		private var _backgroundQuad:Quad;
 		
 		private var _ambientQuad:Quad;
+		
+		private var _ambientLight:Light;
 		
 		public function LightMap(blurAmount:Number=0.5, blurResolution:Number=1) 
 		{
@@ -55,13 +58,36 @@ package oni.core
 			this.visible = value;
 		}
 		
+		public function get ambientLight():Light
+		{
+			return _ambientLight;
+		}
+		
 		public function set ambientLight(light:Light):void
 		{
+			//Check if we have a light
+			if (_ambientLight != null)
+			{
+				_ambientLight.removeEventListener(Oni.UPDATE_DATA, _onAmbientDataUpdated);
+			}
+			
+			//Set actual light
+			_ambientLight = light;
+			
+			//Listen for data update
+			_ambientLight.addEventListener(Oni.UPDATE_DATA, _onAmbientDataUpdated);
+			
+			//Update data
+			_onAmbientDataUpdated(null);
+		}
+		
+		private function _onAmbientDataUpdated(e:Event):void
+		{
 			//Set colour
-			_ambientQuad.color = light.colour;
+			_ambientQuad.color = _ambientLight.colour;
 			
 			//Set intensity
-			_ambientQuad.alpha = light.intensity;
+			_ambientQuad.alpha = _ambientLight.intensity;
 		}
 		
 		override public function addChild(child:DisplayObject):DisplayObject 

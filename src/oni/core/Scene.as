@@ -128,6 +128,8 @@ package oni.core
 		public function serialize(entities:EntityManager, components:ComponentManager):Object
 		{
 			return { lighting: lighting != null,
+					 physicsEnabled: entities.physicsEnabled,
+					 gravity: entities.gravity,
 					 entities: entities.serialize(),
 					 components: components.serialize() };
 		}
