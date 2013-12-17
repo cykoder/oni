@@ -146,6 +146,17 @@ package oni.entities.environment
 			super.y = value;
 		}
 		
+		public function get pivot():Boolean
+		{
+			return _pivot;
+		}
+		
+		public function set pivot(value:Boolean):void
+		{
+			_pivot = value;
+			_readjust();
+		}
+		
 		private function _readjust():void
 		{
 			//Set pivot
