@@ -14,10 +14,6 @@ package oni.core
 	{
 		public function reposition(nx:int, ny:int, nz:Number):void
 		{
-			//Set position
-			this.x = -nx;
-			this.y = -ny;
-			
 			//Set scale
 			this.scaleX = nz;
 			this.scaleY = nz;
@@ -63,6 +59,10 @@ package oni.core
 					//entity.cullCheck(this.x, this.y);
 				}
 			}
+			
+			//Set position
+			this.x = -nx;
+			this.y = -ny;
 		}
 		
 	}

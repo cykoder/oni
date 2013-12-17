@@ -26,6 +26,11 @@ package oni.assets
         private static var _sounds:Dictionary = new Dictionary();
 		
 		/**
+		 * The objects dictionary
+		 */
+		private static var _objects:Dictionary = new Dictionary();
+		
+		/**
 		 * Asset stores
 		 */
 		public static var AssetStoreSD:Class, AssetStoreHD:Class;
@@ -197,21 +202,25 @@ package oni.assets
 		 */
 		public static function getJSON(name:String):Object
 		{
-			//Get file as byte array
-			var contentByteArray:ByteArray = getAsset(name) as ByteArray;
+			//Is it in the dictionary?
+			if (_objects[name] == undefined)
+			{
+				//Get asset as byte array
+				var contentByteArray:ByteArray = getAsset(name) as ByteArray;
+				
+				//Get content as string
+				var contentString:String = contentByteArray.readUTFBytes(contentByteArray.length);
+				
+				//Create a JSON object
+				_objects[name] = JSON.parse(contentString);
 			
-			//Get content as string
-			var contentString:String = contentByteArray.readUTFBytes(contentByteArray.length);
+				//Do some GC
+				contentByteArray=null;
+				contentString=null;
+			}
 			
-			//Create a JSON object
-			var json:Object = JSON.parse(contentString);
-			
-			//Do some GC
-			contentByteArray=null;
-			contentString=null;
-			
-			//Return JSON
-			return json;
+			//Return the texture
+			return _objects[name];
 		}
 	}
 
