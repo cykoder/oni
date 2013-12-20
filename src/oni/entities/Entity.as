@@ -20,6 +20,7 @@ package oni.entities
 	import flash.display.Scene;
 	import flash.geom.Rectangle;
 	import starling.core.RenderSupport;
+	import starling.core.Starling;
 	import starling.display.DisplayObject;
 	import starling.display.Shape;
 	import starling.events.Event;
@@ -264,7 +265,8 @@ package oni.entities
 		 */
 		public function serialize():Object
 		{
-			return {
+			//Get base data
+			var data:Object = {
 				className: getQualifiedClassName(this),
 				x: this.x,
 				y: this.y,
@@ -280,6 +282,13 @@ package oni.entities
 				height: this.height,
 				params: _params
 			};
+			
+			//Check if we should always match stage dimensions
+			if (data.width == Starling.current.stage.stageWidth) data.width = "stageWidth";
+			if (data.height == Starling.current.stage.stageHeight) data.height = "stageHeight";
+			
+			//Return data
+			return data;
 		}
 		
 		/**
@@ -311,6 +320,10 @@ package oni.entities
 			if(data.cull != null) entity.cull = data.cull;
 			if(data.scrollX != null) entity.scrollX = data.scrollX;
 			if(data.scrollY != null) entity.scrollY = data.scrollY;
+			
+			if(data.width == "stageWidth") data.width = Starling.current.stage.stageWidth;
+			if(data.height == "stageHeight") data.height = Starling.current.stage.stageHeight;
+			
 			if(data.width != null) entity.width = data.width;
 			if(data.height != null) entity.height = data.height;
 		}

@@ -157,6 +157,11 @@ package oni.entities.environment
 			_readjust();
 		}
 		
+		public function get image():Image
+		{
+			return _image;
+		}
+		
 		private function _readjust():void
 		{
 			//Set pivot
