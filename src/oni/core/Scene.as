@@ -16,19 +16,54 @@ package oni.core
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.events.Event;
+	import starling.filters.ColorMatrixFilter;
 	/**
 	 * ...
 	 * @author Sam Hellawell
 	 */
 	public class Scene extends DisplayObjectContainer
 	{		   
+		/**
+		 * Whether we should depth sort the scene or not
+		 */
 		public var shouldDepthSort:Boolean;
 		
+		/**
+		 * The scene's diffuse map
+		 */
 		protected var _diffuseMap:DisplayMap;
 		
+		/**
+		 * The scene's light map
+		 */
 		protected var _lightMap:LightMap;
 		
-		public function Scene(lighting:Boolean=true)
+		/**
+		 * The scene's hue, values range between -1 and 1
+		 */
+		protected var _hue:Number;
+		
+		/**
+		 * The scene's saturation, values range between -1 and 1
+		 */
+		protected var _saturation:Number;
+		
+		/**
+		 * The scene's brightness, values range between -1 and 1
+		 */
+		protected var _brightness:Number;
+		
+		/**
+		 * The scene's contrast, values range between -1 and 1
+		 */
+		protected var _contrast:Number;
+		
+		/**
+		 * The scene's color filter
+		 */
+		private var _colorFilter:ColorMatrixFilter;
+		
+		public function Scene(lighting:Boolean=true, effects:Boolean=true)
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
@@ -42,8 +77,30 @@ package oni.core
 				addChild(_lightMap);
 			}
 			
+			//Create a color filter
+			_colorFilter = new ColorMatrixFilter();
+			if (effects) filter = _colorFilter;
+			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
+		}
+		
+		public function get effectsEnabled():Boolean
+		{
+			return filter != null;
+		}
+		
+		public function set effectsEnabled(value:Boolean):void
+		{
+			//Check to apply filter or not
+			if (filter == null)
+			{
+				filter = _colorFilter;
+			}
+			else
+			{
+				filter = null;
+			}
 		}
 		
 		public function get lighting():LightMap
@@ -134,6 +191,118 @@ package oni.core
 					 components: components.serialize() };
 		}
 		
+		/**
+		 * The scene's brightness, values range between -1 and 1
+		 */
+		public function get brightness():Number
+		{
+			return _brightness;
+		}
+		
+		/**
+		 * The scene's brightness, values range between -1 and 1
+		 */
+		public function set brightness(value:Number):void
+		{
+			//Only adjust if different
+			if (value != _brightness)
+			{
+				//Get difference
+				var diff:Number = value - _brightness;
+				if (isNaN(diff)) diff = value;
+				
+				//Set value
+				_brightness = value;
+				
+				//Adjust
+				_colorFilter.adjustBrightness(diff);
+			}
+		}
+		
+		/**
+		 * The scene's contrast, values range between -1 and 1
+		 */
+		public function get contrast():Number
+		{
+			return _contrast;
+		}
+		
+		/**
+		 * The scene's contrast, values range between -1 and 1
+		 */
+		public function set contrast(value:Number):void
+		{
+			//Only adjust if different
+			if (value != _contrast)
+			{
+				//Get difference
+				var diff:Number = value - _contrast;
+				if (isNaN(diff)) diff = value;
+				
+				//Set value
+				_contrast = value;
+				
+				//Adjust
+				_colorFilter.adjustBrightness(diff);
+			}
+		}
+		
+		/**
+		 * The scene's saturation, values range between -1 and 1
+		 */
+		public function get saturation():Number
+		{
+			return _saturation;
+		}
+		
+		/**
+		 * The scene's saturation, values range between -1 and 1
+		 */
+		public function set saturation(value:Number):void
+		{
+			//Only adjust if different
+			if (value != _saturation)
+			{
+				//Get difference
+				var diff:Number = value - _saturation;
+				if (isNaN(diff)) diff = value;
+				
+				//Set value
+				_saturation = value;
+				
+				//Adjust
+				_colorFilter.adjustSaturation(diff);
+			}
+		}
+		
+		/**
+		 * The scene's hue, values range between -1 and 1
+		 */
+		public function get hue():Number
+		{
+			return _hue;
+		}
+		
+		/**
+		 * The scene's hue, values range between -1 and 1
+		 */
+		public function set hue(value:Number):void
+		{
+			//Only adjust if different
+			if (value != _hue)
+			{
+				//Get difference
+				var diff:Number = value - _hue;
+				if (isNaN(diff)) diff = value;
+				
+				//Set value
+				_hue = value;
+				
+				//Adjust
+				_colorFilter.adjustHue(diff);
+			}
+		}
+		
 		public static function deserialize(data:Object, entities:EntityManager, components:ComponentManager):Scene
 		{
 			//Create a scene
@@ -155,6 +324,7 @@ package oni.core
 			//Return
 			return scene;
 		}
+		
 	}
 
 }

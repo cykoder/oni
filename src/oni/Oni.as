@@ -27,6 +27,16 @@ package oni
 	public class Oni extends Sprite
 	{
 		/**
+		 * Event fired when the current level has been completed
+		 */
+		public static const LEVEL_COMPLETED:String = "level_complete";
+		
+		/**
+		 * Event fired when the current level has been failed
+		 */
+		public static const LEVEL_FAILED:String = "level_fail";
+		
+		/**
 		 * Event fired when there is a physics interaction
 		 */
 		public static const PHYSICS_INTERACTION:String = "physicsinteraction";

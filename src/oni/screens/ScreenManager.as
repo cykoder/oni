@@ -81,29 +81,51 @@ package oni.screens
 		public function switchTo(index:int):void
 		{
 			//Base child index
-			var childIndex:int = _oni.numChildren;
+			var childIndex:int = -1;
+			var prevScreen:Screen = _currentScreen;
 			
 			//Check if we have a screen
 			if (_currentScreen != null)
 			{
 				//Set child index
-				childIndex = _oni.getChildIndex(_currentScreen);
+				if (_oni.contains(_currentScreen) && !_currentScreen.overlay)
+				{
+					childIndex = _oni.getChildIndex(_currentScreen);
+				}
 				
-				//Remove
-				_currentScreen.remove();
+				//Check if overlay or not
+				if (!_screens[index].overlay)
+				{
+					//Remove all screens
+					for (var i:uint = 0; i < _screens.length; i++)
+					{
+						_screens[i].remove(_screens[index]);
+					}
+				}
 			}
 			
 			//Set current screen
 			_currentScreen = _screens[index];
+			
+			//Check if added
+			if (!_oni.contains(_currentScreen))
+			{
+				//Add at right index
+				if (childIndex == -1) childIndex = _oni.numChildren;
+				_oni.addChildAt(_currentScreen, childIndex);
+				
+				//Check if should overlay
+				if (_currentScreen.overlay && _oni.contains(prevScreen))
+				{
+					_oni.swapChildren(prevScreen, _currentScreen);
+				}
+			}
 			
 			//Tell screen we've changed
 			_currentScreen.dispatchEventWith(Oni.SCREEN_ADDED);
 			
 			//Dispatch event
 			dispatchEventWith(Oni.SCREEN_CHANGED, false, { screen: _currentScreen } );
-			
-			//Add
-			if(!_oni.contains(_screens[index])) _oni.addChildAt(_screens[index], childIndex);
 		}
 		
 		/**
