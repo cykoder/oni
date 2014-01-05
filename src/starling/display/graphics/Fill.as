@@ -3,12 +3,15 @@ package starling.display.graphics
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	
+	import starling.display.graphics.util.TriangleUtil;
+	
 	public class Fill extends Graphic
 	{
 		public static const VERTEX_STRIDE	:int = 9;
 		
 		protected var fillVertices	:VertexList;
 		protected var _numVertices	:int;
+		protected var _isConvex:Boolean = true; 
 		
 		public function Fill()
 		{
@@ -36,7 +39,8 @@ package starling.display.graphics
 			_numVertices = 0;
 			VertexList.dispose(fillVertices);
 			fillVertices = null;
-			isInvalid = true;
+			setGeometryInvalid();
+			_isConvex = true;
 		}
 		
 		override public function dispose():void
@@ -64,7 +68,18 @@ package starling.display.graphics
 			addVertex(destX, destY, color, alpha);
 		}
 		
+		public function addVertexInConvexShape(x:Number, y:Number, color:uint = 0xFFFFFF, alpha:Number = 1 ):void
+		{
+			addVertexInternal(x, y, color, alpha);
+		}
+		
 		public function addVertex( x:Number, y:Number, color:uint = 0xFFFFFF, alpha:Number = 1 ):void
+		{
+			_isConvex = false;
+			addVertexInternal(x, y, color, alpha);
+		}
+		
+		protected function addVertexInternal( x:Number, y:Number, color:uint = 0xFFFFFF, alpha:Number = 1 ):void
 		{
 			var r:Number = (color >> 16) / 255;
 			var g:Number = ((color & 0x00FF00) >> 8) / 255;
@@ -106,7 +121,7 @@ package starling.display.graphics
 			
 			_numVertices++;
 			
-			isInvalid = true;
+			setGeometryInvalid();
 		}
 		
 		override protected function buildGeometry():void
@@ -115,8 +130,9 @@ package starling.display.graphics
 			
 			vertices = new Vector.<Number>();
 			indices = new Vector.<uint>();
-			
-			triangulate(fillVertices, _numVertices, vertices, indices);
+		
+			triangulate(fillVertices, _numVertices, vertices, indices, _isConvex);
+				
 		}
 		
 		override public function shapeHitTest( stageX:Number, stageY:Number ):Boolean
@@ -133,6 +149,15 @@ package starling.display.graphics
 			return wn == 0;
 		}
 		
+		override protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean
+		{ // This method differs from shapeHitTest - the isClockWise test is compared with false rather than true. Not sure why, but this yields the correct result for me.
+			var wn:int = windingNumberAroundPoint(fillVertices, localX, localY);
+			if ( isClockWise(fillVertices) == false )
+			{
+				return  wn != 0;
+			}
+			return wn == 0;
+		}
 		/**
 		 * Takes a list of arbitrary vertices. It will first decompose this list into
 		 * non intersecting polygons, via convertToSimple. Then it uses an ear-clipping
@@ -142,10 +167,18 @@ package starling.display.graphics
 		 * @return 
 		 * 
 		 */		
-		protected static function triangulate( vertices:VertexList, _numVertices:int, outputVertices:Vector.<Number>, outputIndices:Vector.<uint> ):void
+		protected static function triangulate( vertices:VertexList, _numVertices:int, outputVertices:Vector.<Number>, outputIndices:Vector.<uint>, isConvex:Boolean ):void
 		{
 			vertices = VertexList.clone(vertices);
-			var openList:Vector.<VertexList> = convertToSimple(vertices);
+			var openList:Vector.<VertexList> = null;
+			if ( isConvex == false )
+				openList = convertToSimple(vertices);
+			else
+			{
+				openList = new Vector.<VertexList>();
+				openList.push(vertices); // If the shape is convex, no need to run it through expensive convertToSimple
+			}
+			
 			flatten(openList, outputVertices);
 			
 			while ( openList.length > 0 )
@@ -204,7 +237,7 @@ package starling.display.graphics
 					while ( n != n0 )
 					{
 						//trace("Testing if point is in triangle : " + n.index);
-						if ( isPointInTriangle(v0x, v0y, v1x, v1y, v2x, v2y, n.vertex[0], n.vertex[1]) )
+						if ( TriangleUtil.isPointInTriangle(v0x, v0y, v1x, v1y, v2x, v2y, n.vertex[0], n.vertex[1]) )
 						{
 							found = true;
 							break;
@@ -415,29 +448,11 @@ package starling.display.graphics
 			return wn;
 		}
 		
-		protected static function isLeft(v0x:Number, v0y:Number, v1x:Number, v1y:Number, px:Number, py:Number):Boolean
-		{
-			return ((v1x - v0x) * (py - v0y) - (v1y - v0y) * (px - v0x)) < 0;
-		}
-		
-		protected static function isPointInTriangle(v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, px:Number, py:Number ):Boolean
-		{
-			if ( isLeft( v0x, v0y, v1x, v1y, px, py ) ) return false;
-			if ( isLeft( v1x, v1y, v2x, v2y, px, py ) ) return false;
-			if ( isLeft( v2x, v2y, v0x, v0y, px, py ) ) return false;
-			
-			// Inline version of above ( this prevents the fill to be drawn on iOS with AIR > 3.6, so we roll back to isLeft())
-			//if ( ((v1x - v0x) * (py - v0y) - (px - v0x) * (v1y - v0y)) < 0 ) return false;
-			//if ( ((v2x - v1x) * (py - v1y) - (px - v1x) * (v2y - v1y)) < 0 ) return false;
-			//if ( ((v0x - v2x) * (py - v2y) - (px - v2x) * (v0y - v2y)) < 0 ) return false;
-			
-			return true;
-		}
 		
 		protected static function isReflex( v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number ):Boolean
 		{
-			if ( isLeft( v0x, v0y, v1x, v1y, v2x, v2y ) ) return false;
-			if ( isLeft( v1x, v1y, v2x, v2y, v0x, v0y ) ) return false;
+			if ( TriangleUtil.isLeft( v0x, v0y, v1x, v1y, v2x, v2y ) ) return false;
+			if ( TriangleUtil.isLeft( v1x, v1y, v2x, v2y, v0x, v0y ) ) return false;
 			
 			// Inline version of above ( this prevents the fill to be drawn on iOS with AIR > 3.6, so we roll back to isLeft())
 			//if ( ((v1x - v0x) * (v2y - v0y) - (v2x - v0x) * (v1y - v0y)) < 0 ) return false;

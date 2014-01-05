@@ -14,6 +14,7 @@ package starling.display.graphics
 	
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
+	import starling.display.graphics.util.TriangleUtil;
 
 	public class NGon extends Graphic
 	{
@@ -25,6 +26,8 @@ package starling.display.graphics
 		private var _endAngle		:Number;
 		private var _numSides		:int;
 		
+		private static var _uv		:Point;
+		
 		public function NGon( radius:Number = 100, numSides:int = 10, innerRadius:Number = 0, startAngle:Number = 0, endAngle:Number = 360 )
 		{
 			this.radius = radius;
@@ -32,6 +35,11 @@ package starling.display.graphics
 			this.innerRadius = innerRadius;
 			this.startAngle = startAngle;
 			this.endAngle = endAngle;
+			
+			if ( !_uv )
+			{
+				_uv = new Point();
+			}
 		}
 		
 		public function get endAngle():Number
@@ -42,7 +50,7 @@ package starling.display.graphics
 		public function set endAngle(value:Number):void
 		{
 			_endAngle = value;
-			isInvalid = true;
+			setGeometryInvalid();
 		}
 
 		public function get startAngle():Number
@@ -53,7 +61,7 @@ package starling.display.graphics
 		public function set startAngle(value:Number):void
 		{
 			_startAngle = value;
-			isInvalid = true;
+			setGeometryInvalid();
 		}
 
 		public function get radius():Number
@@ -67,8 +75,8 @@ package starling.display.graphics
 			_radius = value;
 			var maxRadius:Number = Math.max(_radius, _innerRadius);
 			minBounds.x = minBounds.y = -maxRadius;
-			maxBounds.x = minBounds.y = maxRadius;
-			isInvalid = true;
+			maxBounds.x = maxBounds.y = maxRadius;
+			setGeometryInvalid();
 		}
 		
 		public function get innerRadius():Number
@@ -82,8 +90,8 @@ package starling.display.graphics
 			_innerRadius = value;
 			var maxRadius:Number = Math.max(_radius, _innerRadius);
 			minBounds.x = minBounds.y = -maxRadius;
-			maxBounds.x = minBounds.y = maxRadius;
-			isInvalid = true;
+			maxBounds.x = maxBounds.y = maxRadius;
+			setGeometryInvalid();
 		}
 
 		public function get numSides():int
@@ -95,7 +103,7 @@ package starling.display.graphics
 		{
 			value = value < 3 ? 3 : value;
 			_numSides = value;
-			isInvalid = true;
+			setGeometryInvalid();
 		}
 		
 		override protected function buildGeometry():void
@@ -137,26 +145,63 @@ package starling.display.graphics
 			var isSegment:Boolean = sa != 0 || ea != 0;
 			if ( innerRadius == 0 && !isSegment )
 			{
-				buildSimpleNGon(radius, _numSides, vertices, indices);
+				buildSimpleNGon(radius, _numSides, vertices, indices, _uvMatrix );
 			}
 			else if ( innerRadius != 0 && !isSegment )
 			{
-				buildHoop(innerRadius, radius, _numSides, vertices, indices);
+				buildHoop(innerRadius, radius, _numSides, vertices, indices, _uvMatrix );
 			}
 			else if ( innerRadius == 0 )
 			{
-				buildFan(radius, sa, ea, _numSides, vertices, indices);
+				buildFan(radius, sa, ea, _numSides, vertices, indices, _uvMatrix );
 			}
 			else
 			{
-				buildArc( innerRadius, radius, sa, ea, _numSides, vertices, indices);
+				buildArc( innerRadius, radius, sa, ea, _numSides, vertices, indices, _uvMatrix );
 			}
 		}
 		
-		private static function buildSimpleNGon( radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint> ):void
+		override protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean
+		{
+			var numIndices:int = indices.length;
+			if ( numIndices < 2 )
+				return false;
+			
+			if ( _innerRadius == 0 && _radius > 0 && _startAngle == 0 && _endAngle == 360 && _numSides > 20 )  
+			{  // simple - faster - if ngon is circle shape and numsides more than 20, assume circle is desired.
+				if ( Math.sqrt( localX * localX + localY * localY ) < _radius )
+					return true;
+				return false;	
+			}
+				
+			for ( var i:int = 2; i < numIndices; i+=3 )
+			{ // slower version - should be complete though. For all triangles, check if point is in triangle
+				var i0:int = indices[(i - 2)];
+				var i1:int = indices[(i - 1)];
+				var i2:int = indices[(i - 0)];
+				
+				var v0x:Number = vertices[VERTEX_STRIDE * i0 + 0];
+				var v0y:Number = vertices[VERTEX_STRIDE * i0 + 1];
+				var v1x:Number = vertices[VERTEX_STRIDE * i1 + 0];
+				var v1y:Number = vertices[VERTEX_STRIDE * i1 + 1];
+				var v2x:Number = vertices[VERTEX_STRIDE * i2 + 0];
+				var v2y:Number = vertices[VERTEX_STRIDE * i2 + 1];
+				if ( TriangleUtil.isPointInTriangle(v0x, v0y, v1x, v1y, v2x, v2y, localX, localY) )
+					return true;
+			}
+			return false;
+		}
+		
+		private static function buildSimpleNGon( radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
 		{
 			var numVertices:int = 0;
-			vertices.push( 0, 0, 0, 1, 1, 1, 1, 0.5, 0.5 );
+			
+			_uv.x = 0;
+			_uv.y = 0;
+			if ( uvMatrix ) 
+				_uv = uvMatrix.transformPoint(_uv);
+			
+			vertices.push( 0, 0, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 			numVertices++;
 			
 			var anglePerSide:Number = (Math.PI * 2) / numSides;
@@ -169,7 +214,12 @@ package starling.display.graphics
 			{
 				var x:Number = s * radius;
 				var y:Number = -c * radius;
-				vertices.push( x, y, 0, 1, 1, 1, 1, x/(radius*2)+0.5, y/(radius*2)+0.5 );
+				_uv.x = x;
+				_uv.y = y;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
+				
+				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				numVertices++;
 				indices.push( 0, numVertices-1, i == numSides-1 ? 1 : numVertices );
 				
@@ -180,7 +230,7 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildHoop( innerRadius:Number, radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint> ):void
+		private static function buildHoop( innerRadius:Number, radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
 		{
 			var numVertices:int = 0;
 			
@@ -194,13 +244,22 @@ package starling.display.graphics
 			{
 				var x:Number = s * radius;
 				var y:Number = -c * radius;
+				_uv.x = x;
+				_uv.y = y;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, x/(radius*2)+0.5, y/(radius*2)+0.5 );
+				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				numVertices++;
 				
 				x = s * innerRadius;
 				y = -c * innerRadius;
-				vertices.push( x, y, 0, 1, 1, 1, 1, x/(radius*2)+0.5, y/(radius*2)+0.5 );
+				_uv.x = x;
+				_uv.y = y;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
+				
+				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				numVertices++;
 			
 				if ( i == numSides-1 )
@@ -209,7 +268,7 @@ package starling.display.graphics
 				}
 				else
 				{
-					indices.push( numVertices-2, numVertices-1, numVertices, numVertices, numVertices-1, numVertices+1 );
+					indices.push( numVertices - 2, numVertices , numVertices-1, numVertices, numVertices + 1, numVertices - 1 );
 				}
 				
 				const ns:Number = sinB*c + cosA*s;
@@ -219,7 +278,7 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildFan( radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint> ):void
+		private static function buildFan( radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
 		{
 			var numVertices:int = 0;
 			vertices.push( 0, 0, 0, 1, 1, 1, 1, 0.5, 0.5 );
@@ -258,7 +317,12 @@ package starling.display.graphics
 					y = prevY + t * (y-prevY);
 				}
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, x/(radius*2)+0.5, y/(radius*2)+0.5 );
+				_uv.x = x;
+				_uv.y = y;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
+				
+				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				numVertices++;
 				
 				if ( vertices.length > 2*9 )
@@ -273,7 +337,7 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildArc( innerRadius:Number, radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint> ):void
+		private static function buildArc( innerRadius:Number, radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
 		{
 			var nv:int = 0;
 			var radiansPerDivision:Number = (Math.PI * 2) / numSides;
@@ -327,15 +391,26 @@ package starling.display.graphics
 					y2 = prevY2 + t * (y2-prevY2);
 				}
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, x/(radius*2)+0.5, y/(radius*2)+0.5 );
+				_uv.x = x;
+				_uv.y = y;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
+				
+				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				nv++;
 				
-				vertices.push( x2, y2, 0, 1, 1, 1, 1, x2/(radius*2)+0.5, y2/(radius*2)+0.5 );
+				_uv.x = x2;
+				_uv.y = y2;
+				if ( uvMatrix ) 
+					_uv = uvMatrix.transformPoint(_uv);
+				
+				vertices.push( x2, y2, 0, 1, 1, 1, 1, _uv.x, _uv.y );
 				nv++;
 				
 				if ( vertices.length > 3*9 )
 				{
-					indices.push( nv-1, nv-2, nv-3, nv-3, nv-2, nv-4 );
+					//indices.push( nv-1, nv-2, nv-3, nv-3, nv-2, nv-4 );
+					indices.push( nv-3, nv-2, nv-1, nv-3, nv-4, nv-2 );
 				}
 				
 				if ( angle >= endAngle )

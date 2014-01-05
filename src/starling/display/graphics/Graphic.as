@@ -6,6 +6,7 @@ package starling.display.graphics
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
 	
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
@@ -27,8 +28,8 @@ package starling.display.graphics
 	{
 		protected static const VERTEX_STRIDE		:int = 9;
 		protected static var sHelperMatrix			:Matrix = new Matrix();
-		protected static var defaultVertexShader	:StandardVertexShader;
-		protected static var defaultFragmentShader	:VertexColorFragmentShader;
+		protected static var defaultVertexShaderDictionary		:Dictionary = new Dictionary(true);
+		protected static var defaultFragmentShaderDictionary	:Dictionary = new Dictionary(true);
 		
 		protected var _material		:IMaterial;
 		private var vertexBuffer	:VertexBuffer3D;
@@ -39,30 +40,57 @@ package starling.display.graphics
 		protected var isInvalid		:Boolean = false;
 		protected var uvsInvalid	:Boolean = false;
 		
+		protected var hasValidatedGeometry:Boolean = false;
+				
+		private static var sGraphicHelperRect:Rectangle = new Rectangle();
+		private static var sGraphicHelperPoint:Point = new Point();
+		
 		// Filled-out with min/max vertex positions
 		// during addVertex(). Used during getBounds().
 		protected var minBounds			:Point;
 		protected var maxBounds			:Point;
+		
+		// used for geometry level hit tests. False gives boundingbox results, True gives geometry level results. 
+		// True is a lot more exact, but also slower.
+		protected var _precisionHitTest:Boolean = false;
+		protected var _precisionHitTestDistance:Number = 0; // This is added to the thickness of the line when doing precisionHitTest to make it easier to hit 1px lines etc
 		
 		public function Graphic()
 		{
 			indices = new Vector.<uint>();
 			vertices = new Vector.<Number>();
 			
-			if ( defaultVertexShader == null )
+			var currentStarling:Starling = Starling.current;
+			
+			var vertexShader:StandardVertexShader = defaultVertexShaderDictionary[currentStarling];
+			if ( vertexShader == null )
 			{
-				defaultVertexShader = new StandardVertexShader();
-				defaultFragmentShader = new VertexColorFragmentShader();
+				vertexShader = new StandardVertexShader();
+				defaultVertexShaderDictionary[currentStarling] = vertexShader;
 			}
-			_material = new StandardMaterial( defaultVertexShader, defaultFragmentShader );
+			
+			var fragmentShader:VertexColorFragmentShader = defaultFragmentShaderDictionary[currentStarling];
+			if ( fragmentShader == null )
+			{
+				fragmentShader = new VertexColorFragmentShader();
+				defaultFragmentShaderDictionary[currentStarling] = fragmentShader;
+			}
+			
+			_material = new StandardMaterial( vertexShader, fragmentShader );
+			
 			minBounds = new Point();
 			maxBounds = new Point();
-			
-			Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+
+			if (Starling.current)
+			{
+				Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+			}
 		}
 		
 		private function onContextCreated( event:Event ):void
 		{
+			hasValidatedGeometry = false;
+			
 			isInvalid = true;
 			uvsInvalid = true;
 			_material.restoreOnLostContext();
@@ -96,6 +124,8 @@ package starling.display.graphics
 			_uvMatrix = null;
 			minBounds = null;
 			maxBounds = null;
+			
+			hasValidatedGeometry = false;
 		}
 		
 		public function set material( value:IMaterial ):void
@@ -117,13 +147,61 @@ package starling.display.graphics
 		{
 			_uvMatrix = value;
 			uvsInvalid = true;
+			hasValidatedGeometry = false;
 		}
+		
 		
 		public function shapeHitTest( stageX:Number, stageY:Number ):Boolean
 		{
 			var pt:Point = globalToLocal(new Point(stageX,stageY));
 			return pt.x >= minBounds.x && pt.x <= maxBounds.x && pt.y >= minBounds.y && pt.y <= maxBounds.y;
 		}
+		
+		public function set precisionHitTest(value:Boolean) : void
+		{
+			_precisionHitTest = value;
+		}
+		public function get precisionHitTest() : Boolean 
+		{
+			return _precisionHitTest;
+		}
+		public function set precisionHitTestDistance(value:Number) : void
+		{
+			_precisionHitTestDistance = value;
+		}
+		public function get precisionHitTestDistance() : Number
+		{
+			return _precisionHitTestDistance;
+		}
+		
+		protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean
+		{
+			return localX >= (minBounds.x-_precisionHitTestDistance) && localX <= (maxBounds.x+_precisionHitTestDistance) && localY >= (minBounds.y-_precisionHitTestDistance) && localY <= (maxBounds.y+_precisionHitTestDistance);
+		}
+		
+		/** Returns the object that is found topmost beneath a point in local coordinates, or nil if 
+         *  the test fails. If "forTouch" is true, untouchable and invisible objects will cause
+         *  the test to fail. */
+        override public function hitTest(localPoint:Point, forTouch:Boolean=false):DisplayObject
+        {
+            // on a touch test, invisible or untouchable objects cause the test to fail
+            if (forTouch && (visible == false || touchable == false )) return null;
+            
+			// otherwise, check bounding box
+			if (getBounds(this, sGraphicHelperRect).containsPoint(localPoint))
+			{
+				if ( _precisionHitTest )
+				{
+					if ( shapeHitTestLocalInternal(localPoint.x, localPoint.y ) )
+						return this;
+				}
+				else
+					return this;
+			}
+				
+			return null;
+			
+        }
 		
 		override public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle
 		{
@@ -135,6 +213,13 @@ package starling.display.graphics
 				resultRect.y = minBounds.y;
 				resultRect.right = maxBounds.x;
 				resultRect.bottom = maxBounds.y;
+				if ( _precisionHitTest )
+				{	
+					resultRect.x -= _precisionHitTestDistance;
+					resultRect.y -= _precisionHitTestDistance;
+					resultRect.width += _precisionHitTestDistance * 2;
+					resultRect.height += _precisionHitTestDistance * 2;
+				}
 				return resultRect;
 			}
 			
@@ -153,7 +238,13 @@ package starling.display.graphics
 			resultRect.y = Math.min(TL.y, BR.y, tr.y, bl.y);
 			resultRect.right = Math.max(TL.x, BR.x, tr.x, bl.x);
 			resultRect.bottom = Math.max(TL.y, BR.y, tr.y, bl.y);
-			
+			if ( _precisionHitTest )
+			{
+				resultRect.x -= _precisionHitTestDistance;
+				resultRect.y -= _precisionHitTestDistance;
+				resultRect.width += _precisionHitTestDistance * 2;
+				resultRect.height += _precisionHitTestDistance * 2;
+			}
 			return resultRect;
 		}
 		
@@ -180,6 +271,11 @@ package starling.display.graphics
 		
 		public function validateNow():void
 		{
+			if ( hasValidatedGeometry )
+				return;
+			
+			hasValidatedGeometry = true;
+			
 			if ( vertexBuffer && (isInvalid || uvsInvalid) )
 			{
 				vertexBuffer.dispose();
@@ -195,6 +291,12 @@ package starling.display.graphics
 			{
 				applyUVMatrix();
 			}
+		}
+		
+		protected function setGeometryInvalid() : void
+		{
+			isInvalid = true;
+			hasValidatedGeometry = false;
 		}
 		
 		override public function render( renderSupport:RenderSupport, parentAlpha:Number ):void

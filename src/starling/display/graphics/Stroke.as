@@ -1,7 +1,9 @@
 package starling.display.graphics
 {
-	import starling.textures.Texture;
+	import flash.geom.Point;
+	
 	import starling.display.graphics.StrokeVertex;
+	import starling.textures.Texture;
 		
 	public class Stroke extends Graphic
 	{
@@ -41,7 +43,7 @@ package starling.display.graphics
 			}
 			_line = new Vector.<StrokeVertex>;
 			_numVertices = 0;
-			isInvalid = true;
+			setGeometryInvalid();
 		}
 		
 		public function addDegenerates(destX:Number, destY:Number):void
@@ -125,17 +127,31 @@ package starling.display.graphics
 			if ( maxBounds.y == Number.NEGATIVE_INFINITY )	
 				maxBounds.y = y;
 			
-			isInvalid = true;
+			setGeometryInvalid();
+		}
+		
+		public function getVertexPosition(index:int, prealloc:Point = null):Point
+		{
+			var point:Point = prealloc;
+			if ( point == null ) 
+				point = new Point();
+				
+			point.x = _line[index].x;
+			point.y = _line[index].y;
+			return point;
 		}
 		
 		override protected function buildGeometry():void
 		{
 			//buildGeometryOriginal();
-			 buildGeometryPreAllocatedVectors();
+			buildGeometryPreAllocatedVectors();
 		}
 		
 		protected function buildGeometryOriginal() : void
 		{
+			if ( _line == null || _line.length == 0 )
+				return; // block against odd cases.
+				
 			// This is the original (slower) code that does not preallocate the vectors for vertices and indices.	
 			vertices = new Vector.<Number>();
 			indices = new Vector.<uint>();
@@ -144,18 +160,21 @@ package starling.display.graphics
 					
 			var oldVerticesLength:int = vertices.length;
 			const oneOverVertexStride:Number = 1 / VERTEX_STRIDE;	
-			fixUpPolyLine( _line );
+			_numVertices = fixUpPolyLine( _line );
 			createPolyLine( _line, vertices, indices, indexOffset);
 			indexOffset += (vertices.length - oldVerticesLength) * oneOverVertexStride;
 		}
 		
 		protected function buildGeometryPreAllocatedVectors() : void
 		{
+			if ( _line == null || _line.length == 0 )
+				return; // block against odd cases.
+				
 			// This is the code that uses the preAllocated code path for createPolyLinePreAlloc
 			var indexOffset:int = 0;
 			// First remove all deformed things in _line
-			fixUpPolyLine( _line );
-
+			_numVertices = fixUpPolyLine( _line );
+			
 			// Then use the line lenght to pre allocate the vertex vectors
 			var numVerts:int = _line.length * 18; // this looks odd, but for each StrokeVertex, we generate 18 verts in createPolyLine
 			var numIndices:int = (_line.length - 1) * 6; // this looks odd, but for each StrokeVertex-1, we generate 6 indices in createPolyLine
@@ -415,15 +434,51 @@ package starling.display.graphics
 			}
 		}
 		
-		protected static function fixUpPolyLine( vertices:Vector.<StrokeVertex> ):void
+		protected static function fixUpPolyLine( vertices:Vector.<StrokeVertex> ): int
 		{
+			
 			if ( vertices.length > 0 && vertices[0].degenerate > 0 ) { throw ( new Error("Degenerate on first line vertex") ); }
-			var idx:uint = vertices.length - 1;
+			var idx:int = vertices.length - 1;
 			while ( idx > 0 && vertices[idx].degenerate > 0 )
 			{
 				vertices.pop();
 				idx--;
 			}
+			return vertices.length;
+		}
+		
+		override protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean
+		{
+			if ( _line == null ) return false;
+			if ( _line.length < 2 ) return false;
+			
+			var numLines:int = _line.length;
+			
+			for ( var i: int = 1; i < numLines; i++ )
+			{
+				var v0:StrokeVertex = _line[i - 1];
+				var v1:StrokeVertex = _line[i];
+				
+				var lineLengthSquared:Number = (v1.x - v0.x) * (v1.x - v0.x) + (v1.y - v0.y) * (v1.y - v0.y);
+				
+				var interpolation:Number = ( ( ( localX - v0.x ) * ( v1.x - v0.x ) ) + ( ( localY - v0.y ) * ( v1.y - v0.y ) ) )  /	( lineLengthSquared );
+				if( interpolation < 0.0 || interpolation > 1.0 )
+					continue;   // closest point does not fall within the line segment
+					
+				var intersectionX:Number = v0.x + interpolation * ( v1.x - v0.x );
+				var intersectionY:Number = v0.y + interpolation * ( v1.y - v0.y );
+				
+				var distanceSquared:Number = (localX - intersectionX) * (localX - intersectionX) + (localY - intersectionY) * (localY - intersectionY);
+				
+				var intersectThickness:Number = (v0.thickness * (1.0 - interpolation) + v1.thickness * interpolation); // Support for varying thicknesses
+				
+				intersectThickness += _precisionHitTestDistance;
+				
+				if ( distanceSquared <= intersectThickness * intersectThickness)
+					return true;
+			}
+				
+			return false;
 		}
 		
 	}
