@@ -39,10 +39,14 @@ package oni.screens
 		
 		public function remove(nextScreen:Screen=null):void
 		{
-			//Remove from parent
+			//Check if the screen has a parent
 			if (_oni.contains(this))
 			{
+				//Remove from parent
 				_oni.removeChild(this);
+				
+				//Dispatch removed event
+				dispatchEventWith(Oni.SCREEN_REMOVED, false, { nextScreen: nextScreen });
 			}
 		}
 		

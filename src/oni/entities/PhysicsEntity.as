@@ -68,8 +68,8 @@ package oni.entities
 		protected function _onAdded(e:Event):void
 		{
 			//Listen for update
-			if(_physicsBody != null) e.data.manager.removeEventListener(Oni.UPDATE, _onUpdate);
-			if(_isPhysicsEnabled) e.data.manager.addEventListener(Oni.UPDATE, _onUpdate);
+			if(_physicsBody != null) removeEventListener(Oni.UPDATE, _onUpdate);
+			if(_isPhysicsEnabled) addEventListener(Oni.UPDATE, _onUpdate);
 			
 			//Set physics world
 			if(e.data.space != null) _space = e.data.space;
@@ -139,10 +139,16 @@ package oni.entities
 			{
 				if (_physicsBody.type == BodyType.STATIC)
 				{
+					//Get rid of the current body
+					_physicsBody.shapes.clear();
+					_physicsBody.space = null;
+					
+					//Create a new physics body
 					_createBody();
 				}
 				else
 				{
+					//Set the position
 					_physicsBody.position.x = value;
 				}
 			}
@@ -164,10 +170,16 @@ package oni.entities
 			{
 				if (_physicsBody.type == BodyType.STATIC)
 				{
+					//Get rid of the current body
+					_physicsBody.shapes.clear();
+					_physicsBody.space = null;
+					
+					//Create a new physics body
 					_createBody();
 				}
 				else
 				{
+					//Set the position
 					_physicsBody.position.y = value;
 				}
 			}
@@ -181,11 +193,15 @@ package oni.entities
 			//Only update if new
 			if (super.rotation == value) return;
 			
-			//Set rotation for starling
-			super.rotation = value;
-			
-			//Set physics body rotation
-			if(_physicsBody != null && _physicsBody.rotation != value) _physicsBody.rotation = value;
+			//Only allow rotation if its not a static body
+			if (_physicsBody != null && _physicsBody.type != BodyType.STATIC)
+			{
+				//Set rotation for starling
+				super.rotation = value;
+				
+				//Set physics body rotation
+				if (_physicsBody.rotation != value) _physicsBody.rotation = value;
+			}
 		}
 		
 		override public function set width(value:Number):void 
@@ -246,12 +262,21 @@ package oni.entities
 			return _isPhysicsEnabled;
 		}
 		
+		public function get body():Body
+		{
+			return _physicsBody;
+		}
+		
 		override public function set z(value:Number):void 
 		{
 			//Only allow Z to be 1
 			super.z = 1;
 		}
 		
+		protected function _forceZ(value:Number):void
+		{
+			super.z = value;
+		}
 	}
 
 }

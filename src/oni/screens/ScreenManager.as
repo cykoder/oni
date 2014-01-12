@@ -93,13 +93,26 @@ package oni.screens
 					childIndex = _oni.getChildIndex(_currentScreen);
 				}
 				
-				//Check if overlay or not
-				if (!_screens[index].overlay)
+				//Remove all screens
+				for (var i:uint = 0; i < _screens.length; i++)
 				{
-					//Remove all screens
-					for (var i:uint = 0; i < _screens.length; i++)
+					//Check if screen is still in the diosplay list
+					if (_screens[i].parent != null)
 					{
-						_screens[i].remove(_screens[index]);
+						//Check if overlay or not
+						if (!_screens[index].overlay)
+						{
+							//Remove screen
+							_screens[i].remove(_screens[index]);
+						}
+						else if(i != index && _screens[i].overlay)
+						{
+							//Remove from parent
+							trace("swag " + i + " " + _screens[i].name);
+							//_screens[i].parent.removeChild(_screens[i]);
+							_screens[i].remove();
+							_screens[i].visible = false;
+						}
 					}
 				}
 			}
@@ -119,6 +132,11 @@ package oni.screens
 				{
 					_oni.swapChildren(prevScreen, _currentScreen);
 				}
+			}
+			else
+			{
+				_currentScreen.visible = true;
+				_currentScreen.alpha = 1;
 			}
 			
 			//Tell screen we've changed

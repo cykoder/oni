@@ -1,5 +1,9 @@
 package oni.entities.environment 
 {
+	import flash.display.Shader;
+	import nape.geom.AABB;
+	import nape.geom.IsoFunction;
+	import nape.geom.MarchingSquares;
 	import oni.assets.AssetManager;
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
@@ -16,6 +20,7 @@ package oni.entities.environment
 	import nape.phys.Material;
 	import nape.shape.Polygon;
 	import nape.space.Space;
+	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Shape;
 	import starling.events.Event;
@@ -35,7 +40,9 @@ package oni.entities.environment
 		
 		private var _shape:Shape;
 		
-		private var _collisionData:Array;
+		private var _points:Array;
+		
+		private var _physicsShape:flash.display.Shape;
 		
 		public function SmartTexture(params:Object)
 		{
@@ -52,6 +59,8 @@ package oni.entities.environment
 			_shape = new Shape();
 			addChild(_shape);
 			
+			_physicsShape = new flash.display.Shape();
+			
 			//Listen for collision update
 			addEventListener(Oni.UPDATE_DATA, _updateCollision);
 			
@@ -59,7 +68,7 @@ package oni.entities.environment
 			dispatchEventWith(Oni.UPDATE_DATA, false, params);
 			
 			//TODO: remove this bug line
-			//addEventListener(TouchEvent.TOUCH, _touch);
+			addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
 		override protected function _onAdded(e:Event):void 
@@ -76,55 +85,10 @@ package oni.entities.environment
 			super._onAdded(e);
 		}
 		
-		override protected function _createBody():void 
-		{
-			//Remove current physics body
-			if (_physicsBody != null)
-			{
-				_physicsBody.space = null;
-				_physicsBody.shapes.clear();
-				_physicsBody = null;
-			}
-			
-			//Create a physics body
-			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
-				
-			//Transform collision data into nape vertices
-			var vertices:Array = [];
-			for (var i:uint = 0; i < _collisionData.length; i++) vertices.push(new Vec2(_collisionData[i].x, _collisionData[i].y));
-			
-			//Check if not a complete polygon (line)
-			if (_collisionData[0].x != _collisionData[_collisionData.length - 1].x || _collisionData[0].y != _collisionData[_collisionData.length - 1].y)
-			{
-				//Find maximum y
-				var maxY:int=64;
-				for (i = 0; i < _collisionData.length; i++)
-				{
-					if (_collisionData[i].y > maxY) maxY = _collisionData[i].y;
-				}
-				
-				//Add verts to make physics work
-				vertices.push(new Vec2(_collisionData[_collisionData.length - 1].x, _collisionData[_collisionData.length - 1].y + maxY));
-				vertices.push(new Vec2(_collisionData[0].x, _collisionData[_collisionData.length - 1].y + maxY));
-				vertices.push(new Vec2(_collisionData[0].x, _collisionData[0].y));
-			}
-			
-			//Create a poly list and add shapes
-			var polys:GeomPolyList = new GeomPoly(vertices).convexDecomposition();
-			polys.foreach(function (p:GeomPoly):void
-			{
-				_physicsBody.shapes.add(new Polygon(p));
-			});
-			polys.clear();
-			
-			//Set physics space
-			_physicsBody.space = _space;
-		}
-		
 		private function _updateCollision(e:Event):void
 		{
 			//Get collision data
-			_collisionData = e.data.collisionData;
+			_points = e.data.points;
 			
 			//Init physics
 			_createBody();
@@ -136,23 +100,27 @@ package oni.entities.environment
 			
 			//Clear shape graphics
 			_shape.graphics.clear();
+			_physicsShape.graphics.clear();
 			
 			//Fill with the background texture
 			_shape.graphics.beginTextureFill(backgroundTexture);
+			_physicsShape.graphics.beginFill(0x0, 1);
 			
 			//Loop through each point and redraw
 			var i:uint;
-			for (i = 0; i < _collisionData.length; ++i)
+			for (i = 0; i < _points.length; ++i)
 			{
+				//Check if first point
 				if (i == 0)
 				{
-					_shape.graphics.moveTo(_collisionData[i].x, _collisionData[i].y);
+					_physicsShape.graphics.moveTo(_points[i].x, _points[i].y);
+					_shape.graphics.moveTo(_points[i].x, _points[i].y);
 				}
 				else
 				{
 					//Calculate angles
-					var x1:int = _collisionData[i-1].x, y1:int = _collisionData[i-1].y;
-					var x2:int = _collisionData[i].x, y2:int = _collisionData[i].y;
+					var x1:int = _points[i-1].x, y1:int = _points[i-1].y;
+					var x2:int = _points[i].x, y2:int = _points[i].y;
 					var radians:Number = Math.atan2(y2 - y1,x2 - x1);
 					var degrees:Number = radians / (Math.PI / 180);
 					var positiveDegrees:Number = degrees;
@@ -177,83 +145,165 @@ package oni.entities.environment
 					}
 					
 					//Draw line
-					_shape.graphics.lineTo(_collisionData[i].x, _collisionData[i].y);
-					//_shape.graphics.curveTo(_collisionData[i].x, _collisionData[i].y, _collisionData[i].x, _collisionData[i].y + 100);
+					if (_points[i].control == null)
+					{
+						_physicsShape.graphics.lineTo(_points[i].x, _points[i].y);
+						_shape.graphics.lineTo(_points[i].x, _points[i].y);
+					}
+					else
+					{
+						_physicsShape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
+						_shape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
+					}
 				}
 			}
 			
 			//End fill
+			_physicsShape.graphics.endFill();
 			_shape.graphics.endFill();
 			
 			//Draw debug outlines
-			/*_shape.graphics.lineStyle(5, 0xFFFFFF);
-			for (i = 0; i < _collisionData.length; ++i)
+			_shape.graphics.lineStyle(5, 0xFFFFFF);
+			for (i = 0; i < _points.length; ++i)
 			{
 				if (i == 0)
 				{
-					_shape.graphics.moveTo(_collisionData[i].x, _collisionData[i].y);
+					_shape.graphics.moveTo(_points[i].x, _points[i].y);
 				}
 				else
 				{
-					_shape.graphics.lineTo(_collisionData[i].x, _collisionData[i].y);
+					_shape.graphics.lineTo(_points[i].x, _points[i].y);
 				}
 			}
 			
 			//Draw debug points
 			_shape.graphics.lineStyle(1, 0xCCCCCC);
 			_shape.graphics.beginFill(0xFFFFFF, 1);
-			for (i = 0; i < _collisionData.length; ++i)
+			for (i = 0; i < _points.length; i++)
 			{
-				_shape.graphics.drawCircle(_collisionData[i].x, _collisionData[i].y, 10);
+				_shape.graphics.drawCircle(_points[i].x, _points[i].y, 10);
+				
+				if (_points[i].control != null)
+				{
+					_shape.graphics.drawCircle(_points[i].control.x, _points[i].control.y, 5);
+				}
 			}
-			_shape.graphics.endFill();*/
+			_shape.graphics.endFill();
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width + 256, height + 256);
 		}
 		
-		private var selectedPoint:int=-1, _lastClick:Point = new Point();
+		override protected function _createBody():void 
+		{
+			//Remove current physics body
+			if (_physicsBody != null)
+			{
+				_physicsBody.space = null;
+				_physicsBody.shapes.clear();
+				_physicsBody = null;
+			}
+			
+			//Create a physics body
+			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
+			
+			//Create an iso fucntion with the physics shape
+            var objIso:DisplayObjectIso = new DisplayObjectIso(_physicsShape);
+			
+			//Flash requires the object to be on stage for hitTestPoint
+			Starling.current.nativeStage.addChild(_physicsShape);
+			
+			//Create a list of polygons to make up the collider
+			var polys:GeomPolyList = MarchingSquares.run(objIso, objIso.bounds, Vec2.weak(8, 8), 2);
+			for (var i:int = 0; i < polys.length; i++)
+			{
+				var p:GeomPoly = polys.at(i);
+
+				//Decompose into workable polygons
+				var qolys:GeomPolyList = p.simplify(1.5).convexDecomposition(true);
+				for (var j:int = 0; j < qolys.length; j++)
+				{
+					var q:GeomPoly = qolys.at(j);
+					
+					//Add the shape
+					_physicsBody.shapes.add(new Polygon(q));
+
+					//Recycle GeomPoly and its vertices
+					q.dispose();
+				}
+				
+				//Recycle list nodes
+				qolys.clear();
+
+				//Recycle GeomPoly and its vertices
+				p.dispose();
+			}
+			
+			//Recycle list nodes
+			polys.clear();
+			
+			//Remove the physics shape
+			Starling.current.nativeStage.removeChild(_physicsShape);
+			
+			//Set physics space
+			_physicsBody.space = _space;
+		}
+		
+		private var selectedPoint:int=-1, _hasSelectedControlPoint:Boolean;
 		private function _touch(e:TouchEvent):void
 		{
 			var touch:Touch = e.getTouch(this);
 			if (touch != null)
 			{
+				var touchLocation:Point = touch.getLocation(this);
+				
 				if (touch.phase == TouchPhase.BEGAN)
 				{
-					if (_lastClick.x == touch.globalX-this.x && _lastClick.y == touch.globalY-this.y)
-					{
-						_collisionData.push(_collisionData[0]);
+						_points.push(_points[0]);
 						
-						for (var j:int = 1; j < _collisionData.length; j++)
+						var a:Point = new Point();
+						var b:Point = new Point();
+						
+						for (var j:int = 1; j < _points.length; j++)
 						{
-							if (_lastClick.x < 0)_lastClick.x = 0;
-							if (_lastClick.y < 0)_lastClick.y = 0;
+							a.setTo(_points[j].x, _points[j].y);
 							
-							var a:Point = _collisionData[j];
-							var b:Point = _collisionData[j + 1];
-							if (b == null) b = _collisionData[0];
+							if (j + 1 >= _points.length)
+							{
+								b.setTo(_points[0].x, _points[0].y);
+							}
+							else
+							{
+								b.setTo(_points[j + 1].x, _points[j + 1].y);
+							}
 							
-							if(intersect(a, b, new Point(_lastClick.x-50,_lastClick.y-50),new Point(_lastClick.x+50, _lastClick.y+50)))
+							/*if(intersect(a, b, new Point(_lastClick.x-50,_lastClick.y-50),new Point(_lastClick.x+50, _lastClick.y+50)))
 							{
 								_shape.graphics.lineStyle(10, 0xff0000);
 								_shape.graphics.moveTo(a.x, a.y);
 								_shape.graphics.lineTo(b.x, b.y);
-								_collisionData.splice(j+1, 0, _lastClick);
-								dispatchEventWith(Oni.UPDATE_DATA, false, { collisionData:_collisionData } );
+								_points.splice(j+1, 0, _lastClick);
+								dispatchEventWith(Oni.UPDATE_DATA, false, { points:_points } );
 								break;
-							}
+							}*/
 						}
-						_collisionData.pop();
-					}
-					_lastClick.setTo(touch.globalX-this.x, touch.globalY-this.y);
+						_points.pop();
 					
 					var w:int = 50;
-					var touchRect:Rectangle = new Rectangle(touch.globalX-this.x-w, touch.globalY-this.y-w, w*2, w*2);
-					for (var i:int = 0; i < _collisionData.length; i++)
+					
+					var touchRect:Rectangle = new Rectangle(touchLocation.x-w, touchLocation.y-w, w*2, w*2);
+					for (var i:int = 0; i < _points.length; i++)
 					{
-						if (touchRect.containsPoint(new Point(_collisionData[i].x, _collisionData[i].y)))
+						if (touchRect.contains(_points[i].x, _points[i].y))
 						{
 							selectedPoint = i;
+							_hasSelectedControlPoint = false;
+							break;
+						}
+						else if (_points[i].control != null && touchRect.contains(_points[i].control.x, _points[i].control.y))
+						{
+							selectedPoint = i;
+							_hasSelectedControlPoint = true;
 							break;
 						}
 					}
@@ -262,15 +312,25 @@ package oni.entities.environment
 				{
 					if (selectedPoint > -1)
 					{
-						_collisionData[selectedPoint] = new Point((touch.globalX - this.x), (touch.globalY - this.y));
-						if (_collisionData[selectedPoint].x < 0) _collisionData[selectedPoint].x = 0;
-						if (_collisionData[selectedPoint].y < 0) _collisionData[selectedPoint].y = 0;
-						dispatchEventWith(Oni.UPDATE_DATA, false, { collisionData:_collisionData } );
+						if (_hasSelectedControlPoint)
+						{
+							_points[selectedPoint].control = { x: touchLocation.x, y: touchLocation.y };
+						}
+						else
+						{
+							_points[selectedPoint].x = touchLocation.x;
+							_points[selectedPoint].y = touchLocation.y;
+							if (_points[selectedPoint].x < 0) _points[selectedPoint].x = 0;
+							if (_points[selectedPoint].y < 0) _points[selectedPoint].y = 0;
+						}
+						
+						dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points } );
 					}
 				}
 				else if (touch.phase == TouchPhase.ENDED)
 				{
 					selectedPoint = -1;
+					_hasSelectedControlPoint = false;
 				}
 			}
 		}
@@ -292,8 +352,27 @@ package oni.entities.environment
 		override public function set rotation(value:Number):void 
 		{
 			//Don't allow rotation
-		}
-		
+		}	
 	}
+}
 
+import flash.display.DisplayObject;
+import nape.geom.AABB;
+import nape.geom.IsoFunction;
+
+class DisplayObjectIso implements IsoFunction
+{
+	public var displayObject:DisplayObject;
+	public var bounds:AABB;
+
+	public function DisplayObjectIso(displayObject:DisplayObject):void
+	{
+		this.displayObject = displayObject;
+		this.bounds = AABB.fromRect(displayObject.getBounds(displayObject));
+	}
+	
+	public function iso(x:Number, y:Number):Number
+	{
+		return (displayObject.hitTestPoint(x, y, true) ? -1.0 : 1.0);
+	}
 }

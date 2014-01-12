@@ -6,6 +6,7 @@ package oni.entities
 	import oni.core.ISerializable;
 	import oni.entities.debug.DebugCircle;
 	import oni.entities.debug.DebugSquare;
+	import oni.entities.environment.FluidBody;
 	import oni.entities.environment.StaticTexture;
 	import oni.entities.environment.SmartTexture;
 	import oni.entities.lights.AmbientLight;
@@ -52,6 +53,11 @@ package oni.entities
 		public var cull:Boolean = true;
 		
 		/**
+		 * The parameters used when the entity is initialised
+		 */
+		protected var _params:Object;
+		
+		/**
 		 * The entity's Z co-ordinate
 		 */
 		private var _z:Number = 1;
@@ -80,11 +86,6 @@ package oni.entities
 		 * The shape for displaying the entity's bounds
 		 */
 		private var _boundsShape:Shape;
-		
-		/**
-		 * The parameters used when the entity is initialised
-		 */
-		private var _params:Object;
 		
 		/**
 		 * Initialises an entity instance
@@ -310,6 +311,7 @@ package oni.entities
 		
 		private static function _applyEntityData(data:Object, entity:Entity):void
 		{
+			//Set basic properties
 			if(data.x != null) entity.x = data.x;
 			if(data.y != null) entity.y = data.y;
 			if(data.z != null) entity.z = data.z;
@@ -325,7 +327,11 @@ package oni.entities
 			if(data.height == "stageHeight") data.height = Starling.current.stage.stageHeight;
 			
 			if(data.width != null) entity.width = data.width;
-			if(data.height != null) entity.height = data.height;
+			if (data.height != null) entity.height = data.height;
+			
+			//Check if startup params contains anything we don't need
+			if (data.x != null) delete(data.x);
+			if (data.y != null) delete(data.y);
 		}
 	}
 

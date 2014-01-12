@@ -68,7 +68,7 @@ package oni.entities.platformer
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _bodyWidth, _bodyHeight);
 			
-			//Listen for interaction
+			//Listen for physics interaction
 			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
 			
 			//Listen for update
@@ -81,7 +81,7 @@ package oni.entities.platformer
 			_physicsBody = new Body(BodyType.DYNAMIC, new Vec2(x, y));
 			
 			//Create a body material
-			_material = new Material(Number.NEGATIVE_INFINITY, 0.4, 2, 1);
+			_material = new Material(Number.NEGATIVE_INFINITY, 0.4, 2, 10);
 			
 			//Create a body shape
 			var angle:int = 4;
