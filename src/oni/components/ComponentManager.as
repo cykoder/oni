@@ -32,8 +32,6 @@ package oni.components
 			
 			//Listen for events to relay
 			addEventListener(Oni.UPDATE, _relayEvent);
-			addEventListener(Oni.ENABLE_DEBUG, _relayEvent);
-			addEventListener(Oni.DISABLE_DEBUG, _relayEvent);
 		}
 		
 		/**

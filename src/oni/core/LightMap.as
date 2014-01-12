@@ -25,7 +25,7 @@ package oni.core
 		
 		private var _ambientLight:Light;
 		
-		public function LightMap(blurAmount:Number=0.5, blurResolution:Number=1) 
+		public function LightMap() 
 		{
 			//Create a background quad 
 			_backgroundQuad = new Quad(1, 1, 0x000000);
@@ -37,9 +37,6 @@ package oni.core
 			
 			//Set the blend mode
 			this.blendMode = BlendMode.MULTIPLY;
-			
-			//Create a blur filkter
-			this.filter = new BlurFilter(blurAmount, blurAmount, blurResolution);
 			
 			//Disable touching
 			this.touchable = false;

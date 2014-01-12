@@ -7,6 +7,7 @@ package oni.entities
 	import nape.callbacks.InteractionListener;
 	import nape.callbacks.InteractionType;
 	import nape.util.Debug;
+	import nape.util.ShapeDebug;
 	import oni.assets.AssetManager;
 	import oni.core.ISerializable;
 	import oni.Oni;
@@ -43,6 +44,8 @@ package oni.entities
 		 */
 		private var _paused:Boolean;
 		
+		private var _napeDebug:ShapeDebug;
+		
 		/**
 		 * Creates an entity manager instance, with physics enabled or not
 		 * @param	physics
@@ -58,10 +61,6 @@ package oni.entities
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
-			
-			//Listen for events to relay
-			addEventListener(Oni.ENABLE_DEBUG, _relayEvent);
-			addEventListener(Oni.DISABLE_DEBUG, _relayEvent);
 		}
 		
 		/**
@@ -88,10 +87,20 @@ package oni.entities
 				//Create collision interaction listeners
 				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
 				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, _onCollisionInteraction));
+			
+				//Create fluid interaction listeners
+				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.FLUID, CbType.ANY_BODY , CbType.ANY_BODY, _onFluidInteraction));
+				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.FLUID, CbType.ANY_BODY, CbType.ANY_BODY, _onFluidInteraction));
 				
 				//Create sensor interaction listeners
 				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
 				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
+				
+				//Create a debug display
+				_napeDebug = new ShapeDebug(Starling.current.stage.stageWidth, Starling.current.stage.stageHeight, 0xFFFFFF);
+				_napeDebug.display.scaleX = Starling.current.nativeStage.stageWidth / Starling.current.stage.stageWidth;
+				_napeDebug.display.scaleY = Starling.current.nativeStage.stageHeight / Starling.current.stage.stageHeight;
+				//Starling.current.nativeStage.addChild(_napeDebug.display);
 			}
 		}
 		
@@ -109,8 +118,26 @@ package oni.entities
 			var data:Object = { type: InteractionType.COLLISION, event: callback.event, arbiters: callback.arbiters, a: a, b: b };
 			
 			//Callback
-			a.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
-			b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+			if(a != null) a.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+			if(b != null) b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+		}
+		
+		/**
+		 * Called when there is a fluid interaction
+		 * @param	callback
+		 */
+		private function _onFluidInteraction(callback:InteractionCallback):void
+		{
+			//Get contacts
+			var a:PhysicsEntity = callback.int1.userData.entity;
+			var b:PhysicsEntity = callback.int2.userData.entity;
+			
+			//Set data
+			var data:Object = { type: InteractionType.FLUID, event: callback.event, arbiters: callback.arbiters, a: a, b: b };
+			
+			//Callback
+			if(a != null) a.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+			if(b != null) b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
 		}
 		
 		/**
@@ -127,8 +154,8 @@ package oni.entities
 			var data:Object = { type:InteractionType.SENSOR, event: callback.event, arbiters: callback.arbiters, a: a, b: b };
 			
 			//Callback
-			a.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
-			b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+			if(a != null) a.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
+			if(b != null) b.dispatchEventWith(Oni.PHYSICS_INTERACTION, false, data);
 		}
 		
 		/**
@@ -166,8 +193,17 @@ package oni.entities
 			//Only if not paused
 			if (!_paused)
 			{
-				//Step physics
-				if (_space != null) _space.step(TIME_STEP);
+				//Check if we should update physics
+				if (_space != null) 
+				{
+					//Step physics time
+					_space.step(TIME_STEP);
+					
+					//Redraw debug view
+					_napeDebug.clear();
+					_napeDebug.draw(_space);
+					_napeDebug.flush();
+				}
 				
 				//Relay
 				_relayEvent(e);
@@ -196,7 +232,7 @@ package oni.entities
 		public function add(entity:Entity, silent:Boolean=false):Entity
 		{
 			//Dispatch added event
-			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { manager:this, space: _space } );
+			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { space: _space } );
 			
 			//Add to list
 			entities.push(entity);
@@ -217,7 +253,7 @@ package oni.entities
 		public function remove(entity:Entity, silent:Boolean=false):void
 		{
 			//Dispatch removed event
-			entity.dispatchEventWith(Oni.ENTITY_REMOVED, false, { manager:this } );
+			entity.dispatchEventWith(Oni.ENTITY_REMOVED);
 			
 			//Remove
 			entities.splice(entities.indexOf(entity), 1);
