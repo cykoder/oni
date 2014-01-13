@@ -96,7 +96,7 @@ package oni.entities.scene
 			{
 				//Create a physics body
 				_physicsBody = new Body(_physicsData.dynamic ? BodyType.DYNAMIC : BodyType.STATIC, new Vec2(x, y));
-						
+				
 				//Go through fixtures (shapes)
 				var shapes:Array = _physicsData.fixtures;
 				var material:Material;
@@ -104,7 +104,7 @@ package oni.entities.scene
 				{
 					//Update material
 					if (material == null) material = new Material(shapes[i].restitution, shapes[i].friction, shapes[i].friction * 1.5, shapes[i].density);
-							
+					
 					//Circle
 					if (shapes[i].type == "CIRCLE")
 					{

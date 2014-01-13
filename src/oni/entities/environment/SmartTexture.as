@@ -36,8 +36,6 @@ package oni.entities.environment
 	 */
 	public class SmartTexture extends PhysicsEntity
 	{
-		private var _texture:String;
-		
 		private var _shape:Shape;
 		
 		private var _points:Array;
@@ -49,16 +47,11 @@ package oni.entities.environment
 			//Super
 			super(params);
 			
-			//Set texture
-			_texture = params.texture;
-			
-			//Set touchable
-			this.touchable = true;
-			
 			//Create a shape for graphics
 			_shape = new Shape();
 			addChild(_shape);
 			
+			//Create a physics shape for the collision data
 			_physicsShape = new flash.display.Shape();
 			
 			//Listen for collision update
@@ -68,7 +61,7 @@ package oni.entities.environment
 			dispatchEventWith(Oni.UPDATE_DATA, false, params);
 			
 			//TODO: remove this bug line
-			addEventListener(TouchEvent.TOUCH, _touch);
+			//addEventListener(TouchEvent.TOUCH, _touch);
 		}
 		
 		override protected function _onAdded(e:Event):void 
@@ -91,20 +84,18 @@ package oni.entities.environment
 			_points = e.data.points;
 			
 			//Init physics
-			_createBody();
+			if(e.data.collision) _createBody();
 			
 			//Get the textiures
-			var backgroundTexture:Texture = AssetManager.getTexture("smarttexture_" + _texture + "_background");
-			var floorTexture:Texture = AssetManager.getTexture("smarttexture_" + _texture + "_floor");
-			var wallTexture:Texture = AssetManager.getTexture("smarttexture_" + _texture + "_wall");
+			var backgroundTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_background");
+			var floorTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_floor");
+			var wallTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_wall");
 			
 			//Clear shape graphics
 			_shape.graphics.clear();
-			_physicsShape.graphics.clear();
 			
 			//Fill with the background texture
 			_shape.graphics.beginTextureFill(backgroundTexture);
-			_physicsShape.graphics.beginFill(0x0, 1);
 			
 			//Loop through each point and redraw
 			var i:uint;
@@ -113,7 +104,6 @@ package oni.entities.environment
 				//Check if first point
 				if (i == 0)
 				{
-					_physicsShape.graphics.moveTo(_points[i].x, _points[i].y);
 					_shape.graphics.moveTo(_points[i].x, _points[i].y);
 				}
 				else
@@ -147,23 +137,20 @@ package oni.entities.environment
 					//Draw line
 					if (_points[i].control == null)
 					{
-						_physicsShape.graphics.lineTo(_points[i].x, _points[i].y);
 						_shape.graphics.lineTo(_points[i].x, _points[i].y);
 					}
 					else
 					{
-						_physicsShape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
 						_shape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
 					}
 				}
 			}
 			
 			//End fill
-			_physicsShape.graphics.endFill();
 			_shape.graphics.endFill();
 			
 			//Draw debug outlines
-			_shape.graphics.lineStyle(5, 0xFFFFFF);
+			/*_shape.graphics.lineStyle(5, 0xFFFFFF);
 			for (i = 0; i < _points.length; ++i)
 			{
 				if (i == 0)
@@ -188,10 +175,10 @@ package oni.entities.environment
 					_shape.graphics.drawCircle(_points[i].control.x, _points[i].control.y, 5);
 				}
 			}
-			_shape.graphics.endFill();
+			_shape.graphics.endFill();*/
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, width + 256, height + 256);
+			cullBounds.setTo(0, 0, _shape.width, _shape.height);
 		}
 		
 		override protected function _createBody():void 
@@ -207,6 +194,36 @@ package oni.entities.environment
 			//Create a physics body
 			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
 			
+			//Begin drawing the physics shape
+			_physicsShape.graphics.beginFill(0x0, 1);
+			_physicsShape.graphics.lineStyle(8, 0x0);
+			
+			//Loop all points
+			var i:uint;
+			for (i = 0; i < _points.length; ++i)
+			{
+				//Check if first point
+				if (i == 0)
+				{
+					_physicsShape.graphics.moveTo(_points[i].x, _points[i].y);
+				}
+				else
+				{
+					//Draw line
+					if (_points[i].control == null)
+					{
+						_physicsShape.graphics.lineTo(_points[i].x, _points[i].y);
+					}
+					else
+					{
+						_physicsShape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
+					}
+				}
+			}
+			
+			//End drawing
+			_physicsShape.graphics.endFill();
+			
 			//Create an iso fucntion with the physics shape
             var objIso:DisplayObjectIso = new DisplayObjectIso(_physicsShape);
 			
@@ -215,7 +232,7 @@ package oni.entities.environment
 			
 			//Create a list of polygons to make up the collider
 			var polys:GeomPolyList = MarchingSquares.run(objIso, objIso.bounds, Vec2.weak(8, 8), 2);
-			for (var i:int = 0; i < polys.length; i++)
+			for (i = 0; i < polys.length; i++)
 			{
 				var p:GeomPoly = polys.at(i);
 
@@ -244,6 +261,9 @@ package oni.entities.environment
 			
 			//Remove the physics shape
 			Starling.current.nativeStage.removeChild(_physicsShape);
+			
+			//Clear the physics shape graphics
+			_physicsShape.graphics.clear();
 			
 			//Set physics space
 			_physicsBody.space = _space;
@@ -324,13 +344,14 @@ package oni.entities.environment
 							if (_points[selectedPoint].y < 0) _points[selectedPoint].y = 0;
 						}
 						
-						dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points } );
+						dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points, collision: false } );
 					}
 				}
 				else if (touch.phase == TouchPhase.ENDED)
 				{
 					selectedPoint = -1;
 					_hasSelectedControlPoint = false;
+					dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points, collision: true } );
 				}
 			}
 		}

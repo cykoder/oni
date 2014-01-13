@@ -8,22 +8,16 @@ package oni.entities.environment
 	import nape.geom.Vec2;
 	import nape.phys.Body;
 	import nape.phys.BodyType;
-	import nape.shape.Circle;
 	import nape.shape.Polygon;
 	import nape.space.Space;
+	import oni.utils.Platform;
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
 	import starling.display.BlendMode;
+	import starling.display.DisplayObject;
 	import starling.display.graphics.Fill;
-	import starling.display.graphics.Plane;
 	import starling.display.graphics.TriangleStrip;
 	import starling.display.Image;
-	import starling.display.materials.StandardMaterial;
-	import starling.display.materials.TextureMaterial;
-	import starling.display.shaders.fragment.TextureFragmentShader;
-	import starling.display.shaders.fragment.TextureVertexColorFragmentShader;
-	import starling.display.shaders.fragment.VertexColorFragmentShader;
-	import starling.display.shaders.vertex.StandardVertexShader;
 	import starling.display.Shape;
 	import starling.events.Event;
 	import starling.textures.RenderTexture;
@@ -42,7 +36,7 @@ package oni.entities.environment
 		 */
 		private var _triangleStrip:TriangleStrip;
 		
-		private var _displayImage:Image;
+		private var _displayObject:DisplayObject;
 		
 		private var _renderTexture:RenderTexture;
 		
@@ -54,9 +48,9 @@ package oni.entities.environment
 		
 		private var rDeltas:Vector.<Number>;
 		
-		private var _columnAmount:int;
+		private var _renderMatrix:Matrix;
 		
-		private var _waveDamping:Number;
+		private var _columnAmount:int;
 		
 		/**
 		 * Creates a debug circle with the given width/height
@@ -65,16 +59,13 @@ package oni.entities.environment
 		public function FluidBody(params:Object) 
 		{
 			//Default parameters
-			if (params.waveQuality == null) params.waveQuality = 2.5;
+			if (params.waveQuality == null) params.waveQuality = 1;
 			if (params.density == null) params.density = 3;
-			if (params.viscosity == null) params.viscosity = 3;
-			if (params.yOffset == null) params.yOffset = 32;
+			if (params.viscosity == null) params.viscosity = 5;
+			if (params.splashDampening == null) params.splashDampening = 0.5;
+			if (params.yOffset == null) params.yOffset = 256;
 			if (params.topColor == null) params.topColor = 0x6FA8FF;
 			if (params.bottomColor == null) params.bottomColor = 0x000F28;
-			
-			//Calculate wave damping
-			_waveDamping = (params.density + params.viscosity) * 0.02;
-			if (_waveDamping > 1) _waveDamping = 1;
 			
 			//Super
 			super(params);
@@ -83,111 +74,147 @@ package oni.entities.environment
 			//No culling
 			this.cull = false;
 			
-			//Create a columns vector
-			_fluidColumns = new Vector.<Object>();
-			
-			//Create a triangle strip to draw to
-			_triangleStrip = new TriangleStrip();
-			
-			//Get the amount of columns
+			//Calculate the amount of columns
 			_columnAmount = _params.width / params.waveQuality;
 			
-			//Create a render texture to draw to
-			_renderTexture = new RenderTexture(_params.width, _columnAmount+_params.yOffset, false);
-			
-			//Create an image to render the water
-			_displayImage = new Image(_renderTexture);
-			_displayImage.y = -_params.yOffset;
-			_displayImage.scaleX = _params.width / _columnAmount;
-			_displayImage.scaleY = (_params.height) / _columnAmount;
-			addChild(_displayImage);
-			
-			//Set cull bounds
-			cullBounds.setTo(0, 0, _params.width, _params.height);
+			if (Platform.isDesktop())
+			{
+				//Create a columns vector
+				_fluidColumns = new Vector.<Object>();
+				for (var i:uint = 0; i < _columnAmount+1; i++)
+				{
+					_fluidColumns.push({ height: 0, targetHeight: 0, speed: 0 });
+				}
+				
+				//Create a triangle strip to draw to
+				_triangleStrip = new TriangleStrip();
+				
+				//Create a render texture to draw to
+				_renderTexture = new RenderTexture(_params.width, _params.height + _params.yOffset, false);
+				
+				//Create a render matrix
+				_renderMatrix = new Matrix();
+				MatrixUtil.prependTranslation(_renderMatrix, 0, _params.yOffset);
+				
+				//Create an image to render the water
+				_displayObject = new Image(_renderTexture);
+				_displayObject.y = -_params.yOffset;
+				_displayObject.scaleX = _params.width / _columnAmount;
+				addChild(_displayObject);
+				
+				//Listen for update
+				addEventListener(Oni.UPDATE, _onUpdate);
+				
+				//Reset the column vector and repopulate
+				/*if (_fluidColumns != null)
+				{
+					_fluidColumns.length = 0;
+					for (var i:uint = 0; i < _columnAmount+1; i++)
+					{
+						_fluidColumns.push({ height: 0, targetHeight: 0, speed: 0 });
+					}
+				}*/
+			}
+			else
+			{
+				//Create a gradient filled quad on lower end devices
+				_displayObject = new Fill();
+				(_displayObject as Fill).addVertex(0, 0, _params.topColor);
+				(_displayObject as Fill).addVertex(_params.width, 0, _params.topColor);
+				(_displayObject as Fill).addVertex(_params.width, _params.height,  _params.bottomColor);
+				(_displayObject as Fill).addVertex(0, _params.height,  _params.bottomColor);
+				addChild(_displayObject);
+			}
 			
 			//Listen for physics interaction
 			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
 			
-			//Listen for update
-			addEventListener(Oni.UPDATE, _onUpdate);
-			
 			//Set blendmode
 			this.blendMode = BlendMode.MULTIPLY;
+			
+			//Set cull bounds
+			cullBounds.setTo(0, 0, _params.width, _params.height);
 		}
 		
 		override public function render(support:RenderSupport, parentAlpha:Number):void 
 		{
-			//Clear the triangle strip
-			_triangleStrip.clear();
-			
-			//Get the RGB values for the top colour
-			var topR:Number = ((_params.topColor & 0xFF0000) >> 16) / 255;
-			var topG:Number = ((_params.topColor & 0x00FF00) >> 8) / 255;
-			var topB:Number = ((_params.topColor & 0x0000FF) / 255);
-			
-			//Get the RGB values for the bottom colour
-			var bottomR:Number = ((_params.bottomColor & 0xFF0000) >> 16) / 255;
-			var bottomG:Number = ((_params.bottomColor & 0x00FF00) >> 8) / 255;
-			var bottomB:Number = ((_params.bottomColor & 0x0000FF) / 255);
-			
-			//Calculate the bottom and the scale
-			var bottom:Number = _columnAmount;
-			var scale:Number = 1; // _params.width / _columnAmount;
-			
-			//Draw each column
-			for (var i:uint = 1; i < _fluidColumns.length; i++)
+			//Check if we're using a triangle strip
+			if (_triangleStrip != null)
 			{
-				//Calculate each column point
-				var p1:Point = new Point((i - 1) * scale, _fluidColumns[i - 1].height);
-				var p2:Point = new Point(i * scale, _fluidColumns[i].height);
-				var p3:Point = new Point(p2.x, bottom);
-				var p4:Point = new Point(p1.x, bottom);
+				//Clear the triangle strip
+				_triangleStrip.clear();
 				
-				//Create the first triangle
-				_triangleStrip.addVertex(p1.x, p1.y, p1.x * 0.01, p1.y * 0.01, topR, topG, topB, 1);
-				_triangleStrip.addVertex(p2.x, p2.y, p2.x * 0.01, p2.y * 0.01, topR, topG, topB, 1);
-				_triangleStrip.addVertex(p3.x, p3.y, p3.x * 0.01, p3.y * 0.01, bottomR, bottomG, bottomB, 1);
+				//Get the RGB values for the top colour
+				var topR:Number = ((_params.topColor & 0xFF0000) >> 16) / 255;
+				var topG:Number = ((_params.topColor & 0x00FF00) >> 8) / 255;
+				var topB:Number = ((_params.topColor & 0x0000FF) / 255);
 				
-				//Create the second triangle, to make a quad
-				_triangleStrip.addVertex(p1.x, p1.y, p1.x * 0.01, p1.y * 0.01, topR, topG, topB, 1);
-				_triangleStrip.addVertex(p3.x, p3.y, p3.x * 0.01, p3.y * 0.01, bottomR, bottomG, bottomB, 1);
-				_triangleStrip.addVertex(p4.x, p4.y, p4.x * 0.01, p4.y * 0.01, bottomR, bottomG, bottomB, 1);
+				//Get the RGB values for the bottom colour
+				var bottomR:Number = ((_params.bottomColor & 0xFF0000) >> 16) / 255;
+				var bottomG:Number = ((_params.bottomColor & 0x00FF00) >> 8) / 255;
+				var bottomB:Number = ((_params.bottomColor & 0x0000FF) / 255);
+				
+				//Calculate the scale
+				var scale:Number = 1; // _params.width / _columnAmount;
+				
+				//Draw each column
+				var p1:Point = new Point();
+				var p2:Point = new Point();
+				var p3:Point = new Point();
+				var p4:Point = new Point();
+				for (var i:uint = 1; i < _fluidColumns.length; i++)
+				{
+					//Calculate each column point
+					p1.setTo((i - 1) * scale, _fluidColumns[i - 1].height);
+					p2.setTo(i * scale, _fluidColumns[i].height);
+					p3.setTo(p2.x, _params.height);
+					p4.setTo(p1.x, _params.height);
+					
+					//Create the first triangle
+					_triangleStrip.addVertex(p1.x, p1.y, p1.x * 0.01, p1.y * 0.01, topR, topG, topB, 1);
+					_triangleStrip.addVertex(p2.x, p2.y, p2.x * 0.01, p2.y * 0.01, topR, topG, topB, 1);
+					_triangleStrip.addVertex(p3.x, p3.y, p3.x * 0.01, p3.y * 0.01, bottomR, bottomG, bottomB, 1);
+					
+					//Create the second triangle, to make a quad
+					_triangleStrip.addVertex(p1.x, p1.y, p1.x * 0.01, p1.y * 0.01, topR, topG, topB, 1);
+					_triangleStrip.addVertex(p3.x, p3.y, p3.x * 0.01, p3.y * 0.01, bottomR, bottomG, bottomB, 1);
+					_triangleStrip.addVertex(p4.x, p4.y, p4.x * 0.01, p4.y * 0.01, bottomR, bottomG, bottomB, 1);
+				}
+				
+				//Render the triangle strip
+				_renderTexture.draw(_triangleStrip, _renderMatrix);
 			}
 			
-			//Render the triangle strip
+			//Render this
 			super.render(support, parentAlpha);
 		}
 		
 		private function _onPhysicsInteraction(e:Event):void
 		{
 			//Only allow fluid interactions!
-			if (e.data.type == InteractionType.FLUID)
+			if (e.data.type == InteractionType.FLUID && _fluidColumns != null)
 			{
 				//Check which body is ours
 				var collider:PhysicsEntity = e.data.a;
 				if (e.data.a == this) collider = e.data.b;
 				
-				//Get nearest column to the intersection
-				var index:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, (collider.x - this.x) / _displayImage.scaleX)));
+				//Get nearest column to the start and the end of the collider
+				var minIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, (collider.x - collider.pivotX - this.x) / _displayObject.scaleX)));
+				var maxIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, ((collider.x + (collider.width-collider.pivotX)) - this.x) / _displayObject.scaleX)));
 				
+				//Calculate the speed
+				var speed:Number = (collider.body.velocity.y * _params.splashDampening) * (maxIndex - minIndex) / 1000;
+					
 				//Gotta go fast, make a splash!
-				_fluidColumns[index].speed = collider.body.velocity.y * 0.25;
+				for (var i:uint = minIndex; i < maxIndex; i++)
+				{
+					_fluidColumns[i].speed = speed;
+				}
 			}
 		}
 		
 		private function _onUpdate(e:Event):void
 		{
-			var i:uint, j:uint;
-			for (i = 0; i < _fluidColumns.length; i++)
-			{
-				if (_fluidColumns[i].speed != 0)
-				{
-					var x:Number = _fluidColumns[i].targetHeight - _fluidColumns[i].height;
-					_fluidColumns[i].speed += _waveDamping * x - _fluidColumns[i].speed * 0.025;
-					_fluidColumns[i].height += _fluidColumns[i].speed;
-				}
-			}
-			
 			//Create detlas vectors
 			if (lDeltas == null || rDeltas == null)
 			{
@@ -201,6 +228,16 @@ package oni.entities.environment
 				}
 			}
 			
+			var i:uint, j:uint;
+			for (i = 0; i < _fluidColumns.length; i++)
+			{
+				if (_fluidColumns[i].speed != 0)
+				{
+					var hx:Number = _fluidColumns[i].targetHeight - _fluidColumns[i].height;
+					_fluidColumns[i].speed += (hx - _fluidColumns[i].speed) * Math.max(0, Math.min(1, (_params.density * _params.viscosity) /  200));
+					_fluidColumns[i].height += _fluidColumns[i].speed;
+				}
+			}
 			
 			// do some passes where columns pull on their neighbours
 			for (j = 0; j < 8; j++)
@@ -231,13 +268,6 @@ package oni.entities.environment
 					}
 				}
 			}
-			
-			var matrix:Matrix = new Matrix();
-			MatrixUtil.prependTranslation(matrix, 0, 32);
-			
-			_renderTexture.draw(_triangleStrip, matrix);
-			
-			//trace(_triangleStrip.width + " # " + _renderTexture.width);
 		}
 		
 		/**
@@ -257,13 +287,6 @@ package oni.entities.environment
 			
 			//Set the physics space
 			_physicsBody.space = _space;
-			
-			//Rset column vector Populate columns
-			_fluidColumns.length = 0;
-			for (var i:uint = 0; i < _columnAmount+1; i++)
-			{
-				_fluidColumns.push({ height: 0, targetHeight: 0, speed: 0 });
-			}
 		}
 		
 		public function get density():Number

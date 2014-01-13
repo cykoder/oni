@@ -3,6 +3,7 @@ package com.oniexample
 	import com.oniexample.examples.OtherLights;
 	import com.oniexample.examples.PointLights;
 	import com.oniexample.examples.TestScene;
+	import com.oniexample.examples.FluidScene;
 	import oni.Oni;
 	import oni.utils.Backend;
 	import starling.events.Event;
@@ -32,7 +33,7 @@ package com.oniexample
 			//Add test scene
 			//screens.add(new PointLights(this));
 			//screens.add(new OtherLights(this));
-			screens.add(new TestScene(this));
+			screens.add(new FluidScene(this));
 			
 			//screenManager.changeTo(ScreenManager.SCREEN_GAME);
 		}

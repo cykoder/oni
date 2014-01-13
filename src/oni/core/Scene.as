@@ -8,6 +8,7 @@ package oni.core
 	import oni.components.ComponentManager;
 	import oni.entities.Entity;
 	import oni.entities.EntityManager;
+	import oni.entities.environment.FluidBody;
 	import oni.entities.lights.Light;
 	import oni.Oni;
 	import oni.utils.Platform;
@@ -123,6 +124,10 @@ package oni.core
 					//Is an entity?
 					if (a is Entity) aZ = (a as Entity).z;
 					if (b is Entity) bZ = (b as Entity).z;
+					
+					//Make sure fluid is always slightly on top
+					if (a is FluidBody) aZ += 0.0001;
+					if (b is FluidBody) bZ += 0.0001;
 					
 					//Calculate y difference
 					var ydif:Number = aZ - bZ;
