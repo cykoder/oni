@@ -95,7 +95,7 @@ package oni.components
 			//Relay event to all components
 			for (var i:uint = 0; i < components.length; i++)
 			{
-				components[i].dispatchEvent(e);
+				if(components[i] != null) components[i].dispatchEvent(e);
 			}
 		}
 		

@@ -269,7 +269,10 @@ package oni.entities
 		public function removeAll(silent:Boolean=false):void
 		{
 			//Remove all entities
-			for (var i:int = 0; i < entities.length; i++) remove(entities[i], silent);
+			while (entities.length > 0)
+			{
+				remove(entities[0], silent);
+			}
 		}
 		
 		/**
@@ -313,6 +316,11 @@ package oni.entities
 		public function set gravity(value:Point):void
 		{
 			if (_space != null) _space.gravity = new Vec2(value.x, value.y);
+		}
+		
+		public function get length():int
+		{
+			return entities.length;
 		}
 		
 		/**

@@ -112,7 +112,7 @@ package oni.screens
 				scene.dispose();
 				components.remove(scene);
 				if (contains(scene)) removeChild(scene);
-				scene = null;
+				_scene = null;
 			}
 		}
 		

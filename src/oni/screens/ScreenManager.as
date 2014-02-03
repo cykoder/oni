@@ -108,7 +108,6 @@ package oni.screens
 						else if(i != index && _screens[i].overlay)
 						{
 							//Remove from parent
-							trace("swag " + i + " " + _screens[i].name);
 							//_screens[i].parent.removeChild(_screens[i]);
 							_screens[i].remove();
 							_screens[i].visible = false;

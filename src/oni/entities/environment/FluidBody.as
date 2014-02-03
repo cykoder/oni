@@ -105,6 +105,9 @@ package oni.entities.environment
 				//Listen for update
 				addEventListener(Oni.UPDATE, _onUpdate);
 				
+				//Listen for physics interaction
+				addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
+				
 				//Reset the column vector and repopulate
 				/*if (_fluidColumns != null)
 				{
@@ -125,9 +128,6 @@ package oni.entities.environment
 				(_displayObject as Fill).addVertex(0, _params.height,  _params.bottomColor);
 				addChild(_displayObject);
 			}
-			
-			//Listen for physics interaction
-			addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
 			
 			//Set blendmode
 			this.blendMode = BlendMode.MULTIPLY;

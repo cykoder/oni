@@ -68,7 +68,18 @@ package oni.utils
 		 */
 		public static function isDesktop():Boolean
 		{
-			return Capabilities.playerType == "Desktop";
+			return Capabilities.playerType == "Desktop" ||
+				   Capabilities.playerType == "StandAlone" ||
+				   Capabilities.playerType == "External";
+		}
+
+		/**
+		 * Checks if the engine is running on a web plugin
+		 * @return
+		 */
+		public static function isWeb():Boolean
+		{
+			return Capabilities.playerType == "PlugIn";
 		}
 
 		/**

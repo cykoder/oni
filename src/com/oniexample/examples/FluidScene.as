@@ -65,14 +65,17 @@ package com.oniexample.examples
 			}));
 			
 			//C++, hah!
-			var c:int
-			for (c = 0; c < 1; c++)
+			for (var c:int = 0; c < 4; c++)
 			{
-				//entities.add(new Prop( { atlas: "factory", name: "wardenjordan", x: 500, y: -200 } )).x = 300 + (c*100);
-			}
-			for (c = 0; c < 1; c++)
-			{
-				//entities.add(new Prop( { atlas: "factory", name: "bottom_support", y: -100, x: 500+(c*200) } ));
+				//Just spawning a few heads for physics testing
+				if ((Math.floor(Math.random() * (1 + 1))) == 0)
+				{
+					entities.add(new Prop({ atlas: "factory", name: "wardenjordan", x: 350+(c*100), y: -200 }));
+				}
+				else
+				{
+					entities.add(new Prop({ atlas: "factory", name: "klankywanky", x: 350+(c*100), y: -200 }));
+				}
 			}
 			
 			hero = new Character({bodyWidth: 64, bodyHeight: 128});
@@ -118,7 +121,6 @@ package com.oniexample.examples
 	
 		private function _onKeyUp(e:KeyboardEvent):void
 		{
-			trace(e.keyCode);
 			if (e.keyCode == 38)
 			{
 				hero.stopJumping();
