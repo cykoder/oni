@@ -6,4 +6,5 @@ cert/*
 # This is private :o
 src/com/oniworks
 lib/oniworld/
+lib/data/oniphysics.json
 OniEngine.as3proj
