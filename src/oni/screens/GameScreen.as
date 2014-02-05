@@ -116,6 +116,15 @@ package oni.screens
 			}
 		}
 		
+		public function serialize():Object
+		{
+			//Check if we have a scene to serialize
+			if (scene == null) return null;
+			
+			//Return scene serialized with entities and components
+			return scene.serialize(entities, components);
+		}
+		
 		/**
 		 * Called when an entity needs to be added to the scene
 		 * @param	e

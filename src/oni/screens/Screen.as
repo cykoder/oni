@@ -55,11 +55,6 @@ package oni.screens
 			return _oni.components;
 		}
 		
-		public function get oni():Oni
-		{
-			return _oni;
-		}
-		
 		public function get overlay():Boolean
 		{
 			return _overlay;
