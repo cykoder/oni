@@ -51,17 +51,13 @@ package oni.entities.environment
 			_shape = new Shape();
 			addChild(_shape);
 			
-			//Create a physics shape for the collision data
-			_physicsShape = new flash.display.Shape();
-			
 			//Listen for collision update
-			addEventListener(Oni.UPDATE_DATA, _updateCollision);
+			addEventListener(Oni.UPDATE_DATA, _onUpdateData);
 			
-			//Update collision
+			//Update data
 			dispatchEventWith(Oni.UPDATE_DATA, false, params);
 			
-			//TODO: remove this bug line
-			//addEventListener(TouchEvent.TOUCH, _touch);
+			touchable = false;
 		}
 		
 		override protected function _onAdded(e:Event):void 
@@ -78,13 +74,17 @@ package oni.entities.environment
 			super._onAdded(e);
 		}
 		
-		private function _updateCollision(e:Event):void
+		private function _onUpdateData(e:Event):void
 		{
-			//Get collision data
-			_points = e.data.points;
-			
-			//Init physics
-			if(e.data.collision) _createBody();
+			//Check if we have any data
+			if (e.data != null)
+			{
+				//Set points
+				_points = e.data.points;
+				
+				//Init physics
+				if (e.data.collision) _createBody();
+			}
 			
 			//Get the textiures
 			var backgroundTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_background");
@@ -95,7 +95,10 @@ package oni.entities.environment
 			_shape.graphics.clear();
 			
 			//Fill with the background texture
-			_shape.graphics.beginTextureFill(backgroundTexture);
+			if (backgroundTexture != null) 
+			{
+				_shape.graphics.beginTextureFill(backgroundTexture);
+			}
 			
 			//Loop through each point and redraw
 			var i:uint;
@@ -116,22 +119,14 @@ package oni.entities.environment
 					var positiveDegrees:Number = degrees;
 					if (positiveDegrees < 0) positiveDegrees = degrees * -1;
 					
-					//Set line style
-					if (degrees == 90) //Corner
+					//Check if we have a wall texture
+					if (wallTexture != null && !((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180))
 					{
-						_shape.graphics.lineTexture(128, wallTexture);
+						_shape.graphics.lineTexture(128, wallTexture); //Walls
 					}
-					else if (degrees == -90) //Inside corner
+					else
 					{
-						_shape.graphics.lineTexture(128, wallTexture);
-					}
-					else if ((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180) //Floors
-					{
-						_shape.graphics.lineTexture(128, floorTexture);
-					}
-					else //Walls
-					{
-						_shape.graphics.lineTexture(128, wallTexture);
+						_shape.graphics.lineTexture(128, floorTexture); //Floors
 					}
 					
 					//Draw line
@@ -147,25 +142,14 @@ package oni.entities.environment
 			}
 			
 			//End fill
-			_shape.graphics.endFill();
-			
-			//Draw debug outlines
-			/*_shape.graphics.lineStyle(5, 0xFFFFFF);
-			for (i = 0; i < _points.length; ++i)
+			if (backgroundTexture != null) 
 			{
-				if (i == 0)
-				{
-					_shape.graphics.moveTo(_points[i].x, _points[i].y);
-				}
-				else
-				{
-					_shape.graphics.lineTo(_points[i].x, _points[i].y);
-				}
+				_shape.graphics.endFill();
 			}
 			
 			//Draw debug points
-			_shape.graphics.lineStyle(1, 0xCCCCCC);
-			_shape.graphics.beginFill(0xFFFFFF, 1);
+			_shape.graphics.lineStyle(1, 0xCCCCCC, 0);
+			_shape.graphics.beginFill(0xFFFFFF, 0);
 			for (i = 0; i < _points.length; i++)
 			{
 				_shape.graphics.drawCircle(_points[i].x, _points[i].y, 10);
@@ -175,10 +159,10 @@ package oni.entities.environment
 					_shape.graphics.drawCircle(_points[i].control.x, _points[i].control.y, 5);
 				}
 			}
-			_shape.graphics.endFill();*/
+			_shape.graphics.endFill();
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, _shape.width, _shape.height);
+			cullBounds.setTo(0, 0, width, height+16);
 		}
 		
 		override protected function _createBody():void 
@@ -189,6 +173,12 @@ package oni.entities.environment
 				_physicsBody.space = null;
 				_physicsBody.shapes.clear();
 				_physicsBody = null;
+			}
+			
+			//Create a physics shape for the collision data
+			if (_physicsShape == null)
+			{
+				_physicsShape = new flash.display.Shape();
 			}
 			
 			//Create a physics body
@@ -269,111 +259,38 @@ package oni.entities.environment
 			_physicsBody.space = _space;
 		}
 		
-		private var selectedPoint:int=-1, _hasSelectedControlPoint:Boolean;
-		private function _touch(e:TouchEvent):void
-		{
-			var touch:Touch = e.getTouch(this);
-			if (touch != null)
-			{
-				var touchLocation:Point = touch.getLocation(this);
-				
-				if (touch.phase == TouchPhase.BEGAN)
-				{
-						_points.push(_points[0]);
-						
-						var a:Point = new Point();
-						var b:Point = new Point();
-						
-						for (var j:int = 1; j < _points.length; j++)
-						{
-							a.setTo(_points[j].x, _points[j].y);
-							
-							if (j + 1 >= _points.length)
-							{
-								b.setTo(_points[0].x, _points[0].y);
-							}
-							else
-							{
-								b.setTo(_points[j + 1].x, _points[j + 1].y);
-							}
-							
-							/*if(intersect(a, b, new Point(_lastClick.x-50,_lastClick.y-50),new Point(_lastClick.x+50, _lastClick.y+50)))
-							{
-								_shape.graphics.lineStyle(10, 0xff0000);
-								_shape.graphics.moveTo(a.x, a.y);
-								_shape.graphics.lineTo(b.x, b.y);
-								_points.splice(j+1, 0, _lastClick);
-								dispatchEventWith(Oni.UPDATE_DATA, false, { points:_points } );
-								break;
-							}*/
-						}
-						_points.pop();
-					
-					var w:int = 50;
-					
-					var touchRect:Rectangle = new Rectangle(touchLocation.x-w, touchLocation.y-w, w*2, w*2);
-					for (var i:int = 0; i < _points.length; i++)
-					{
-						if (touchRect.contains(_points[i].x, _points[i].y))
-						{
-							selectedPoint = i;
-							_hasSelectedControlPoint = false;
-							break;
-						}
-						else if (_points[i].control != null && touchRect.contains(_points[i].control.x, _points[i].control.y))
-						{
-							selectedPoint = i;
-							_hasSelectedControlPoint = true;
-							break;
-						}
-					}
-				}
-				else if (touch.phase == TouchPhase.MOVED)
-				{
-					if (selectedPoint > -1)
-					{
-						if (_hasSelectedControlPoint)
-						{
-							_points[selectedPoint].control = { x: touchLocation.x, y: touchLocation.y };
-						}
-						else
-						{
-							_points[selectedPoint].x = touchLocation.x;
-							_points[selectedPoint].y = touchLocation.y;
-							if (_points[selectedPoint].x < 0) _points[selectedPoint].x = 0;
-							if (_points[selectedPoint].y < 0) _points[selectedPoint].y = 0;
-						}
-						
-						dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points, collision: false } );
-					}
-				}
-				else if (touch.phase == TouchPhase.ENDED)
-				{
-					selectedPoint = -1;
-					_hasSelectedControlPoint = false;
-					dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points, collision: true } );
-				}
-			}
-		}
-		
-		private function intersect(p1:Point, p2:Point, p3:Point, p4:Point):Point
-		{
-			var v12:Object = {x:p2.x - p1.x, y:p2.y - p1.y};
-			var v34:Object = {x:p4.x - p3.x, y:p4.y - p3.y};
-			var d:Number = v12.x * v34.y - v12.y * v34.x
-			if(!d) return null; //points are collinear
-			var a:Number = p3.x - p1.x;
-			var b:Number = p3.y - p1.y
-			var t:Number = (a * v34.y - b * v34.x) / d;
-			var s:Number = (b * v12.x - a * v12.y) / -d;
-			if(t < 0 || t > 1 || s < 0 || s > 1) return null; //line segments don't intersect
-			return new Point(p1.x + v12.x * t, p1.y + v12.y * t)
-		}
-		
 		override public function set rotation(value:Number):void 
 		{
 			//Don't allow rotation
-		}	
+		}
+		
+		override public function set z(value:Number):void 
+		{
+			if (_isPhysicsEnabled)
+			{
+				super.z = value;
+			}
+			else
+			{
+				_forceZ(value);
+			}
+		}
+		
+		public function get points():Array
+		{
+			return _points;
+		}
+		
+		public function set texture(value:String):void
+		{
+			_params.texture = value;
+			dispatchEventWith(Oni.UPDATE_DATA);
+		}
+		
+		public function get texture():String
+		{
+			return _params.texture;
+		}
 	}
 }
 

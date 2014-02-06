@@ -37,6 +37,9 @@ package oni.components.weather.entities
 			
 			//Set color
 			this.color = startupParameters.colour;
+			
+			//Make it never touchable
+			touchable = false;
 		}
 		
 		public function get intensity():Number
@@ -67,6 +70,12 @@ package oni.components.weather.entities
 		public function set color(value:uint):void
 		{
 			(getChildAt(0) as Image).color = value;
+		}
+		
+		override public function set touchable(value:Boolean):void 
+		{
+			//Make it never touchable
+			super.touchable = false;
 		}
 		
 	}

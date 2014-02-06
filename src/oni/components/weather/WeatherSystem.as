@@ -59,10 +59,12 @@ package oni.components.weather
 		private function _onAdded(e:Event):void
 		{
 			//Add clouds
-			var i:uint;
-			for (i = 0; i < _clouds.length; i++)
+			if (_clouds != null)
 			{
-				_scene.addEntity(_clouds[i]);
+				for (var i:uint = 0; i < _clouds.length; i++)
+				{
+					_scene.addEntity(_clouds[i]);
+				}
 			}
 			
 			//Add haze
@@ -72,10 +74,12 @@ package oni.components.weather
 		private function _onRemoved(e:Event):void
 		{
 			//Remove clouds
-			var i:uint;
-			for (i = 0; i < _clouds.length; i++)
+			if (_clouds != null)
 			{
-				_scene.removeEntity(_clouds[i]);
+				for (var i:uint = 0; i < _clouds.length; i++)
+				{
+					_scene.removeEntity(_clouds[i]);
+				}
 			}
 			
 			//Add haze

@@ -107,6 +107,7 @@ package oni.entities
 			//Create a bounds shape
 			_boundsShape = new Shape();
 			_boundsShape.visible = false;
+			_boundsShape.touchable = false;
 			addChild(_boundsShape);
 			
 			//Apply data

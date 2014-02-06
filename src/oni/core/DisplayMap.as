@@ -25,8 +25,7 @@ package oni.core
 				entity = getChildAt(i) as Entity;
 				if (entity != null)
 				{
-					//Static
-					if (entity.z < 0)
+					if (!entity.scrollX && !entity.scrollY)
 					{
 						entity.x = nx / nz;
 						entity.y = ny / nz;
@@ -35,23 +34,32 @@ package oni.core
 					}
 					else
 					{
-						//Parallax
-						if (entity.scrollX)
+						//Static
+						if (entity.z < 0)
 						{
-							if(entity.z != 1) entity.x -= (-nx - this.x) * (1 - entity.z);
+							entity.x = nx / nz;
+							entity.y = ny / nz;
 						}
 						else
 						{
-							entity.x = nx;
-						}
-						
-						if (entity.scrollY) 
-						{
-							if(entity.z != 1) entity.y -= (-ny - this.y) * (1 - entity.z);
-						}
-						else
-						{
-							entity.y = ny;
+							//Parallax
+							if (entity.scrollX)
+							{
+								if(entity.z != 1) entity.x -= (-nx - this.x) * (1 - entity.z);
+							}
+							else
+							{
+								entity.x = nx;
+							}
+							
+							if (entity.scrollY) 
+							{
+								if(entity.z != 1) entity.y -= (-ny - this.y) * (1 - entity.z);
+							}
+							else
+							{
+								entity.y = ny;
+							}
 						}
 					}
 					

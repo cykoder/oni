@@ -187,13 +187,13 @@ package oni.core
 			super.dispose();
 		}
 		
-		public function serialize(entities:EntityManager, components:ComponentManager):Object
+		public function serialize(entities:EntityManager = null, components:ComponentManager = null):Object
 		{
 			return { lighting: lighting != null,
 					 physicsEnabled: entities.physicsEnabled,
 					 gravity: entities.gravity,
-					 entities: entities.serialize(),
-					 components: components.serialize() };
+					 entities: (entities != null) ? entities.serialize() : null,
+					 components: (components != null) ? components.serialize() : null };
 		}
 		
 		/**
@@ -212,15 +212,12 @@ package oni.core
 			//Only adjust if different
 			if (value != _brightness)
 			{
-				//Get difference
-				var diff:Number = value - _brightness;
-				if (isNaN(diff)) diff = value;
-				
 				//Set value
 				_brightness = value;
 				
 				//Adjust
-				_colorFilter.adjustBrightness(diff);
+				_colorFilter.reset();
+				_colorFilter.adjustBrightness(value);
 			}
 		}
 		
@@ -240,15 +237,12 @@ package oni.core
 			//Only adjust if different
 			if (value != _contrast)
 			{
-				//Get difference
-				var diff:Number = value - _contrast;
-				if (isNaN(diff)) diff = value;
-				
 				//Set value
 				_contrast = value;
 				
 				//Adjust
-				_colorFilter.adjustBrightness(diff);
+				_colorFilter.reset();
+				_colorFilter.adjustContrast(value);
 			}
 		}
 		
@@ -268,15 +262,12 @@ package oni.core
 			//Only adjust if different
 			if (value != _saturation)
 			{
-				//Get difference
-				var diff:Number = value - _saturation;
-				if (isNaN(diff)) diff = value;
-				
 				//Set value
 				_saturation = value;
 				
 				//Adjust
-				_colorFilter.adjustSaturation(diff);
+				_colorFilter.reset();
+				_colorFilter.adjustSaturation(value);
 			}
 		}
 		
@@ -296,15 +287,12 @@ package oni.core
 			//Only adjust if different
 			if (value != _hue)
 			{
-				//Get difference
-				var diff:Number = value - _hue;
-				if (isNaN(diff)) diff = value;
-				
 				//Set value
 				_hue = value;
 				
 				//Adjust
-				_colorFilter.adjustHue(diff);
+				_colorFilter.reset();
+				_colorFilter.adjustHue(value);
 			}
 		}
 		
