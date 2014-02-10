@@ -10,13 +10,7 @@ package oni.entities.environment
 	 */
 	public class StaticTexture extends Entity
 	{
-		private var _texture:String;
-		
-		private var _atlas:String;
-		
 		private var _image:Image;
-		
-		private var _pivot:Boolean;
 		
 		public function StaticTexture(params:Object) 
 		{
@@ -37,38 +31,31 @@ package oni.entities.environment
 			}
 			addChild(_image);
 			
-			//Set texture and atlas
-			_texture = params.texture;
-			_atlas = params.atlas;
-			
-			//Set pivot or not
-			_pivot = params.pivot;
-			
 			//Readjust
 			_readjust();
 		}
 		
 		public function get texture():String
 		{
-			return _texture;
+			return _params.texture;
 		}
 		
 		public function set texture(value:String):void
 		{
 			//Only change if different
-			if (_texture != value)
+			if (_params.texture != value)
 			{
 				//Set
-				_texture = value;
+				_params.texture = value;
 				
 				//Set image texture
-				if (atlas == "" || atlas == null)
+				if (_params.atlas == "" || _params.atlas == null)
 				{
 					_image.texture = AssetManager.getTexture(value);
 				}
 				else
 				{
-					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
+					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(_params.texture);
 				}
 			
 				//Readjust
@@ -78,25 +65,25 @@ package oni.entities.environment
 		
 		public function get atlas():String
 		{
-			return _atlas;
+			return _params.atlas;
 		}
 		
 		public function set atlas(value:String):void
 		{
 			//Only change if different
-			if (_atlas != value)
+			if (_params.atlas != value)
 			{
 				//Set
-				_atlas = value;
+				_params.atlas = value;
 				
 				//Set image texture
-				if (atlas == "" || atlas == null)
+				if (_params.atlas == "" || _params.atlas == null)
 				{
 					_image.texture = AssetManager.getTexture(value);
 				}
 				else
 				{
-					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(texture);
+					_image.texture = AssetManager.getTextureAtlas(atlas).getTexture(_params.texture);
 				}
 			
 				//Readjust
@@ -148,12 +135,12 @@ package oni.entities.environment
 		
 		public function get pivot():Boolean
 		{
-			return _pivot;
+			return _params.pivot;
 		}
 		
 		public function set pivot(value:Boolean):void
 		{
-			_pivot = value;
+			_params.pivot = value;
 			_readjust();
 		}
 		
@@ -165,7 +152,7 @@ package oni.entities.environment
 		private function _readjust():void
 		{
 			//Set pivot
-			if (_pivot)
+			if (_params.pivot)
 			{
 				pivotX = _image.width / 2;
 				pivotY = _image.height / 2;

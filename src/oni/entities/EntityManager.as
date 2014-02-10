@@ -32,7 +32,7 @@ package oni.entities
 		/**
 		 * A list of current entities
 		 */
-		public var entities:Vector.<Entity>;
+		private var _entities:Vector.<Entity>;
 		
 		/**
 		 * The physics space
@@ -54,7 +54,7 @@ package oni.entities
 		public function EntityManager(physics:Boolean=true, gravity:Point=null) 
 		{
 			//Create an entities vector
-			entities = new Vector.<Entity>();
+			_entities = new Vector.<Entity>();
 			
 			//Setup physics
 			if (physics) setupPhysics(gravity);
@@ -217,9 +217,9 @@ package oni.entities
 		private function _relayEvent(e:Event):void
 		{
 			//Relay event to all entities
-			for (var i:uint = 0; i < entities.length; i++)
+			for (var i:uint = 0; i < _entities.length; i++)
 			{
-				entities[i].dispatchEvent(e);
+				_entities[i].dispatchEvent(e);
 			}
 		}
 		
@@ -235,10 +235,10 @@ package oni.entities
 			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { space: _space } );
 			
 			//Add to list
-			entities.push(entity);
+			_entities.push(entity);
 			
 			//Dispatch event
-			if(!silent) dispatchEventWith(Oni.ENTITY_ADDED, false, { entity:entity } );
+			if(!silent) dispatchEventWith(Oni.ENTITY_ADDED, false, { entity: entity } );
 			
 			//Return
 			return entity;
@@ -256,10 +256,10 @@ package oni.entities
 			entity.dispatchEventWith(Oni.ENTITY_REMOVED);
 			
 			//Remove
-			entities.splice(entities.indexOf(entity), 1);
+			_entities.splice(_entities.indexOf(entity), 1);
 			
 			//Dispatch event
-			if(!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity:entity } );
+			if(!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity: entity } );
 		}
 		
 		/**
@@ -269,9 +269,9 @@ package oni.entities
 		public function removeAll(silent:Boolean=false):void
 		{
 			//Remove all entities
-			while (entities.length > 0)
+			while (_entities.length > 0)
 			{
-				remove(entities[0], silent);
+				remove(_entities[0], silent);
 			}
 		}
 		
@@ -282,7 +282,7 @@ package oni.entities
 		 */
 		public function get(index:int):Entity
 		{
-			return entities[index];
+			return _entities[index];
 		}
 		
 		/**
@@ -318,9 +318,12 @@ package oni.entities
 			if (_space != null) _space.gravity = new Vec2(value.x, value.y);
 		}
 		
+		/**
+		 * The amount of entities in the scene
+		 */
 		public function get length():int
 		{
-			return entities.length;
+			return _entities.length;
 		}
 		
 		/**
@@ -330,9 +333,9 @@ package oni.entities
 		public function serialize():Object
 		{
 			var data:Array = new Array();
-			for (var i:uint = 0; i < entities.length; i++)
+			for (var i:uint = 0; i < _entities.length; i++)
 			{
-				data.push(entities[i].serialize());
+				data.push(_entities[i].serialize());
 			}
 			return data;
 		}

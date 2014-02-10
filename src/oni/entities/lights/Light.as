@@ -16,16 +16,6 @@ package oni.entities.lights
 	public class Light extends Entity
 	{
 		/**
-		 * The colour of the light
-		 */
-		protected var _colour:uint;
-		
-		/**
-		 * The intensity of the light
-		 */
-		protected var _intensity:Number;
-		
-		/**
 		 * Creates a new light with specified colour, intensity and blend
 		 * @param	colour
 		 * @param	intensity
@@ -33,6 +23,11 @@ package oni.entities.lights
 		 */
 		public function Light(params:Object) 
 		{
+			//Default parameters
+			if (params.colour == null) params.colour = 0xFFFFFF;
+			if (params.intensity == null) params.intensity = 1;
+			if (params.blendMode == null) params.blendMode = BlendMode.ADD;
+			
 			//Super
 			super(params);
 			
@@ -43,14 +38,8 @@ package oni.entities.lights
                 throw new AbstractClassError();
             }
 			
-			//Set colour
-			_colour = params.colour;
-			
-			//Set intensity
-			_intensity = params.intensity;
-			
-			//Set blend mode (additive or multiply, usually)
-			if(blendMode != null) this.blendMode = BlendMode.ADD;
+			//Set the blend mode
+			this.blendMode = params.blendMode;
 		}
 		
 		/**
@@ -58,7 +47,7 @@ package oni.entities.lights
 		 */
 		public function get colour():uint
 		{
-			return _colour;
+			return _params.colour;
 		}
 		
 		/**
@@ -67,7 +56,7 @@ package oni.entities.lights
 		public function set colour(value:uint):void
 		{
 			//Set colour
-			_colour = value;
+			_params.colour = value;
 			
 			//Dispatch update data event
 			dispatchEventWith(Oni.UPDATE_DATA);
@@ -78,7 +67,7 @@ package oni.entities.lights
 		 */
 		public function get intensity():Number
 		{
-			return _intensity;
+			return _params.intensity;
 		}
 		
 		/**
@@ -87,7 +76,7 @@ package oni.entities.lights
 		public function set intensity(value:Number):void
 		{
 			//Set intensity
-			_intensity = value;
+			_params.intensity = value;
 			
 			//Dispatch update data event
 			dispatchEventWith(Oni.UPDATE_DATA);

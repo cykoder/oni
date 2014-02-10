@@ -26,23 +26,18 @@ package oni.entities
 		protected var _physicsBody:Body;
 		
 		/**
-		 * Whether physics are enabled or not
-		 */
-		protected var _isPhysicsEnabled:Boolean;
-		
-		/**
 		 * The physics space
 		 */
 		protected var _space:Space;
 		
 		/**
 		 * Creates a physics entity, should not be called directly you naughty boy!
-		 * @param	physicsEnabled
+		 * @param	params
 		 */
 		public function PhysicsEntity(params:Object) 
 		{
 			//Default parameters
-			if (params.physicsEnabled == null) params.physicsEnabled = true;
+			if (params.physics == null) params.physics = true;
 			
 			//Super
 			super(params);
@@ -53,9 +48,6 @@ package oni.entities
             {
                 throw new AbstractClassError();
             }
-			
-			//Set enabled
-			_isPhysicsEnabled = params.physicsEnabled;
 			
 			//Listen for added
 			addEventListener(Oni.ENTITY_ADDED, _onAdded);
@@ -69,13 +61,13 @@ package oni.entities
 		{
 			//Listen for update
 			if(_physicsBody != null) removeEventListener(Oni.UPDATE, _onUpdate);
-			if(_isPhysicsEnabled) addEventListener(Oni.UPDATE, _onUpdate);
+			if(_params.physics) addEventListener(Oni.UPDATE, _onUpdate);
 			
 			//Set physics world
 			if(e.data.space != null) _space = e.data.space;
 			
 			//Can only update if we have access to the world
-			if (_isPhysicsEnabled && _space != null)
+			if (_params.physics && _space != null)
 			{
 				//Update if we've already initialised
 				if (_physicsBody != null)
@@ -227,7 +219,7 @@ package oni.entities
 		/**
 		 * Whether physics are enabled or not
 		 */
-		public function set enabled(value:Boolean):void 
+		public function set physics(value:Boolean):void 
 		{
 			//Do we already have a body?
 			if (_physicsBody == null)
@@ -251,15 +243,15 @@ package oni.entities
 			}
 			
 			//Set
-			_isPhysicsEnabled = value;
+			_params.physics = value;
 		}
 		
 		/**
 		 * Whether physics are enabled or not
 		 */
-		public function get enabled():Boolean 
+		public function get physics():Boolean 
 		{
-			return _isPhysicsEnabled;
+			return _params.physics;
 		}
 		
 		public function get body():Body

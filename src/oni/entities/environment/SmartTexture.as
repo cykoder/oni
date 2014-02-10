@@ -266,7 +266,7 @@ package oni.entities.environment
 		
 		override public function set z(value:Number):void 
 		{
-			if (_isPhysicsEnabled)
+			if (_params.physics)
 			{
 				super.z = value;
 			}

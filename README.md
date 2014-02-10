@@ -15,7 +15,7 @@ The Oni Engine is built from the ground up to support console/desktop quality 2D
 Features
 ===
 *	[Smart textures](http://www.youtube.com/watch?feature=player_embedded&v=6qXzrqnizQo)
-*	2D lighting system
+*	Deferred 2D lighting engine
 *	Weather system
 *	Post processing effects
 *	Automatic support for lower-end devices

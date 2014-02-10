@@ -37,9 +37,7 @@ package oni.entities.scene
 		
 		/**
 		 * Creates a new prop from with the given parameters
-		 * @param	atlas
-		 * @param	name
-		 * @param	physicsEnabled
+		 * @param	params
 		 */
 		public function Prop(params:Object) 
 		{
@@ -76,7 +74,7 @@ package oni.entities.scene
 			_physicsData = AssetManager.getJSON("physics_data")[params.name];
 			
 			//Check if we have physics data available, if not, disable physics
-			if (params.physicsEnabled && _physicsData == null) _isPhysicsEnabled = false;
+			if (params.physics && _physicsData == null) physics = false;
 			
 			//Set pivot
 			this.pivotX = width / 2;

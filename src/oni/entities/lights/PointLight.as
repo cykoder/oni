@@ -1,16 +1,22 @@
 package oni.entities.lights 
 {
+	import flash.display.GradientType;
+	import flash.geom.Matrix;
 	import oni.assets.AssetManager;
 	import oni.Oni;
 	import starling.display.Image;
 	import starling.display.Shape;
 	import starling.events.Event;
+	import starling.textures.GradientTexture;
+	import starling.textures.Texture;
 	/**
 	 * ...
 	 * @author Sam Hellawell
 	 */
 	public class PointLight extends Light
 	{
+		private static var _lightTexture:Texture;
+		
 		/**
 		 * The radius of the point light
 		 */
@@ -32,8 +38,25 @@ package oni.entities.lights
 			//Super
 			super(params);
 			
+			//Do we need to create a texture?
+			if (_lightTexture == null)
+			{
+				//Create a background matrix 
+				var bgMatrix:Matrix = new Matrix();
+				bgMatrix.createGradientBox(params.radius, params.radius, Math.PI / 2);
+				
+				//Create the texture
+				_lightTexture = GradientTexture.create(params.radius,
+													   params.radius,
+													   "radial",
+													   [0xFFFFFF, 0x0],
+													   [1, 1], 
+													   [0, 255], 
+													   bgMatrix)
+			}
+			
 			//Create a base image
-			_baseImage = new Image(AssetManager.getTexture("light_point"));
+			_baseImage = new Image(_lightTexture);
 			addChild(_baseImage);
 			
 			//Listen for data update
@@ -67,7 +90,7 @@ package oni.entities.lights
 			if(_baseImage.color != colour) _baseImage.color = colour;
 			
 			//Set alpha
-			if(this.alpha != intensity) this.alpha = intensity;
+			if (this.alpha != intensity) this.alpha = intensity;
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _radius, _radius);

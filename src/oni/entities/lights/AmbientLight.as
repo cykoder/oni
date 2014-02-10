@@ -20,7 +20,7 @@ package oni.entities.lights
 			//Super
 			super(params);
 			
-			//Disable touching
+			//Untouchable, like kevin costner
 			this.touchable = false;
 		}
 		
