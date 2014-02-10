@@ -5,6 +5,7 @@ package oni.core
 	import oni.entities.lights.AmbientLight;
 	import oni.entities.lights.Light;
 	import oni.Oni;
+	import oni.utils.Platform;
 	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
@@ -19,40 +20,22 @@ package oni.core
 	 */
 	public class LightMap extends DisplayMap
 	{
-		private var _backgroundQuad:Quad;
-		
 		private var _ambientQuad:Quad;
 		
 		private var _ambientLight:Light;
 		
 		public function LightMap() 
 		{
-			//Create a background quad 
-			_backgroundQuad = new Quad(1, 1, 0x000000);
-			addChild(_backgroundQuad);
-			
 			//Create an ambient quad
-			_ambientQuad = new Quad(1, 1, 0xFFFFFF);
-			addChild(_ambientQuad);
-			
-			//Set the blend mode
-			this.blendMode = BlendMode.MULTIPLY;
+			_ambientQuad = new Quad(1, 1, 0x0);
 			
 			//Disable touching
 			this.touchable = false;
-			
-			//Listen for added to stage
-			addEventListener(Event.ADDED_TO_STAGE, _addedToStage);
 		}
 		
-		public function get enabled():Boolean
+		public function get ambientQuad():Quad
 		{
-			return this.visible;
-		}
-		
-		public function set enabled(value:Boolean):void
-		{
-			this.visible = value;
+			return _ambientQuad;
 		}
 		
 		public function get ambientLight():Light
@@ -99,33 +82,6 @@ package oni.core
 			{
 				//Add child
 				return super.addChild(child);
-			}
-		}
-		
-		private function _addedToStage(e:Event):void
-		{
-			//Resize background quad
-			_ambientQuad.width = _backgroundQuad.width = stage.stageWidth;
-			_ambientQuad.height = _backgroundQuad.height = stage.stageHeight;
-			
-			//Remove event listener
-			removeEventListener(Event.ADDED_TO_STAGE, _addedToStage);
-		}
-		
-		override public function reposition(nx:int, ny:int, nz:Number):void 
-		{
-			//Super
-			super.reposition(nx, ny, nz);
-			
-			if (stage != null)
-			{
-				//Scale background
-				_ambientQuad.width = _backgroundQuad.width = stage.stageWidth / nz;
-				_ambientQuad.height = _backgroundQuad.height = stage.stageHeight / nz;
-				
-				//Position background
-				_ambientQuad.x = _backgroundQuad.x = nx / nz;
-				_ambientQuad.y = _backgroundQuad.y = ny / nz;
 			}
 		}
 		

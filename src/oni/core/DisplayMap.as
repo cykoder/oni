@@ -66,6 +66,14 @@ package oni.core
 					//Cullcheck entity
 					//entity.cullCheck(this.x, this.y);
 				}
+				else
+				{
+					
+						getChildAt(i).x = nx / nz;
+						getChildAt(i).y = ny / nz;
+						getChildAt(i).scaleX = 1 / nz;
+						getChildAt(i).scaleY = 1 / nz;
+				}
 			}
 			
 			//Set position

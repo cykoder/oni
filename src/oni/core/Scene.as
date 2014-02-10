@@ -14,10 +14,14 @@ package oni.core
 	import oni.utils.Platform;
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
+	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
+	import starling.display.Quad;
 	import starling.events.Event;
 	import starling.filters.ColorMatrixFilter;
+	import starling.textures.RenderTexture;
+	import starling.textures.Texture;
 	/**
 	 * ...
 	 * @author Sam Hellawell
@@ -40,68 +44,53 @@ package oni.core
 		protected var _lightMap:LightMap;
 		
 		/**
-		 * The scene's hue, values range between -1 and 1
-		 */
-		protected var _hue:Number;
-		
-		/**
-		 * The scene's saturation, values range between -1 and 1
-		 */
-		protected var _saturation:Number;
-		
-		/**
-		 * The scene's brightness, values range between -1 and 1
-		 */
-		protected var _brightness:Number;
-		
-		/**
-		 * The scene's contrast, values range between -1 and 1
-		 */
-		protected var _contrast:Number;
-		
-		/**
 		 * The scene's color filter
 		 */
 		private var _colorFilter:ColorMatrixFilter;
 		
-		public function Scene(lighting:Boolean=true, effects:Boolean=true)
+		private var _backQuad:Quad;
+		
+		public function Scene(lighting:Boolean=true, background:uint=0)
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
-			addChild(_diffuseMap);
+			
+			//Add a background quad
+			if (background != 0)
+			{
+				_diffuseMap.addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background));
+			}
 			
 			//Is lighting enabled?
 			if (lighting)
 			{
 				//Create a light map
 				_lightMap = new LightMap();
-				addChild(_lightMap);
+				
+				//Create a composite filter
+				this.filter = new CompositeFilter();
+				
+				//Create a render texture for the diffuse map
+				(this.filter as CompositeFilter).diffuseMap = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+				
+				//Create a render texture for the light map
+				(this.filter as CompositeFilter).lightMap = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+				
+				//Create a render texture for the ambient map
+				(this.filter as CompositeFilter).ambientMap = new RenderTexture(1, 1);
+				
+				//Create background quad (this is needed so the scene gets rendered)
+				_backQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0);
+				addChild(_backQuad);
+				
 			}
-			
-			//Create a color filter
-			_colorFilter = new ColorMatrixFilter();
-			if (effects) filter = _colorFilter;
+			else //No lighting, just render like normal
+			{
+				addChild(_diffuseMap);
+			}
 			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
-		}
-		
-		public function get effectsEnabled():Boolean
-		{
-			return filter != null;
-		}
-		
-		public function set effectsEnabled(value:Boolean):void
-		{
-			//Check to apply filter or not
-			if (filter == null)
-			{
-				filter = _colorFilter;
-			}
-			else
-			{
-				filter = null;
-			}
 		}
 		
 		public function get lighting():LightMap
@@ -136,6 +125,18 @@ package oni.core
 				});
 			}
 			
+			//Draw diffuse map
+			((this.filter as CompositeFilter).diffuseMap as RenderTexture).clear();
+			((this.filter as CompositeFilter).diffuseMap as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
+			
+			//Draw light map
+			((this.filter as CompositeFilter).lightMap as RenderTexture).clear();
+			((this.filter as CompositeFilter).lightMap as RenderTexture).draw(_lightMap, _lightMap.transformationMatrix);
+			
+			//Draw light map
+			((this.filter as CompositeFilter).ambientMap as RenderTexture).clear();
+			((this.filter as CompositeFilter).ambientMap as RenderTexture).draw(_lightMap.ambientQuad);
+			
 			//Render
 			super.render(support, parentAlpha);
 		}
@@ -144,7 +145,7 @@ package oni.core
 		{
 			//Position maps
 			_diffuseMap.reposition(e.data.x, e.data.y, e.data.z);
-			if(_lightMap != null) _lightMap.reposition(e.data.x, e.data.y, e.data.z);
+			if (_lightMap != null) _lightMap.reposition(e.data.x, e.data.y, e.data.z);
 		}
 		
 		public function getContainer(child:DisplayObject):DisplayObjectContainer
@@ -189,117 +190,19 @@ package oni.core
 		
 		public function serialize(entities:EntityManager = null, components:ComponentManager = null):Object
 		{
-			return { lighting: lighting != null,
+			return { name: name,
+					 lighting: lighting != null,
 					 physicsEnabled: entities.physicsEnabled,
 					 gravity: entities.gravity,
 					 entities: (entities != null) ? entities.serialize() : null,
 					 components: (components != null) ? components.serialize() : null };
 		}
 		
-		/**
-		 * The scene's brightness, values range between -1 and 1
-		 */
-		public function get brightness():Number
-		{
-			return _brightness;
-		}
-		
-		/**
-		 * The scene's brightness, values range between -1 and 1
-		 */
-		public function set brightness(value:Number):void
-		{
-			//Only adjust if different
-			if (value != _brightness)
-			{
-				//Set value
-				_brightness = value;
-				
-				//Adjust
-				_colorFilter.reset();
-				_colorFilter.adjustBrightness(value);
-			}
-		}
-		
-		/**
-		 * The scene's contrast, values range between -1 and 1
-		 */
-		public function get contrast():Number
-		{
-			return _contrast;
-		}
-		
-		/**
-		 * The scene's contrast, values range between -1 and 1
-		 */
-		public function set contrast(value:Number):void
-		{
-			//Only adjust if different
-			if (value != _contrast)
-			{
-				//Set value
-				_contrast = value;
-				
-				//Adjust
-				_colorFilter.reset();
-				_colorFilter.adjustContrast(value);
-			}
-		}
-		
-		/**
-		 * The scene's saturation, values range between -1 and 1
-		 */
-		public function get saturation():Number
-		{
-			return _saturation;
-		}
-		
-		/**
-		 * The scene's saturation, values range between -1 and 1
-		 */
-		public function set saturation(value:Number):void
-		{
-			//Only adjust if different
-			if (value != _saturation)
-			{
-				//Set value
-				_saturation = value;
-				
-				//Adjust
-				_colorFilter.reset();
-				_colorFilter.adjustSaturation(value);
-			}
-		}
-		
-		/**
-		 * The scene's hue, values range between -1 and 1
-		 */
-		public function get hue():Number
-		{
-			return _hue;
-		}
-		
-		/**
-		 * The scene's hue, values range between -1 and 1
-		 */
-		public function set hue(value:Number):void
-		{
-			//Only adjust if different
-			if (value != _hue)
-			{
-				//Set value
-				_hue = value;
-				
-				//Adjust
-				_colorFilter.reset();
-				_colorFilter.adjustHue(value);
-			}
-		}
-		
 		public static function deserialize(data:Object, entities:EntityManager, components:ComponentManager):Scene
 		{
 			//Create a scene
 			var scene:Scene = new Scene(data.lighting);
+			scene.name = data.name;
 			
 			//Add the entities
 			var i:uint;
