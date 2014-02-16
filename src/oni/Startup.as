@@ -1,10 +1,10 @@
 package oni
 {
-	import flash.display.StageDisplayState;
 	import oni.Oni;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
-    //import flash.desktop.NativeApplication;
+    import flash.desktop.NativeApplication;
+	import flash.display.StageDisplayState;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.display.StageAlign;
@@ -82,23 +82,21 @@ package oni
 													  
 			//Create instance
 			_starling = new Starling(StartupClass, stage, viewport);
-			_starling.antiAliasing = 1;
-            _starling.simulateMultitouch = Platform.isDesktop();
-			_starling.showStats = false;// Platform.debugEnabled;
-            _starling.enableErrorChecking = Platform.debugEnabled;
+            _starling.simulateMultitouch = !Platform.isMobile();
 			_starling.stage.stageWidth  = Platform.STAGE_WIDTH;
 			_starling.stage.stageHeight = Platform.STAGE_HEIGHT;
+            _starling.enableErrorChecking = false;
 			
 			//Start!
 			_starling.start();
 			
 			//Listen for application activate
-            /*NativeApplication.nativeApplication.addEventListener(
+            NativeApplication.nativeApplication.addEventListener(
                 Event.ACTIVATE, function (e:*):void { _starling.start(); });
             
 			//Listen for application deactivate
             NativeApplication.nativeApplication.addEventListener(
-                Event.DEACTIVATE, function (e:*):void { _starling.stop(true); });*/
+                Event.DEACTIVATE, function (e:*):void { _starling.stop(true); });
 		}
 	}
 	

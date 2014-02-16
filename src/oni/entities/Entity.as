@@ -98,6 +98,9 @@ package oni.entities
                 throw new AbstractClassError();
             }
 			
+			//Default parameters
+			if (params.serializable == null) params.serializable = true;
+			
 			//Set startup parameters
 			_params = params;
 			
@@ -259,6 +262,16 @@ package oni.entities
 			
 			//Return child
 			return child;
+		}
+		
+		public function get serializable():Boolean
+		{
+			return _params.serializable;
+		}
+		
+		public function set serializable(value:Boolean):void
+		{
+			_params.serializable = value;
 		}
 		
 		/**

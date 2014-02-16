@@ -4,6 +4,7 @@ package oni.entities.lights
 	import flash.geom.Matrix;
 	import oni.assets.AssetManager;
 	import oni.Oni;
+	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Shape;
 	import starling.events.Event;
@@ -15,6 +16,9 @@ package oni.entities.lights
 	 */
 	public class PointLight extends Light
 	{
+		/**
+		 * A static base texture for all point lights
+		 */
 		private static var _lightTexture:Texture;
 		
 		/**
@@ -41,18 +45,21 @@ package oni.entities.lights
 			//Do we need to create a texture?
 			if (_lightTexture == null)
 			{
+				//Calculate a base radius
+				var radius:int = 64 * Starling.contentScaleFactor;
+				
 				//Create a background matrix 
 				var bgMatrix:Matrix = new Matrix();
-				bgMatrix.createGradientBox(params.radius, params.radius, Math.PI / 2);
+				bgMatrix.createGradientBox(radius, radius, Math.PI / 2);
 				
 				//Create the texture
-				_lightTexture = GradientTexture.create(params.radius,
-													   params.radius,
+				_lightTexture = GradientTexture.create(radius,
+													   radius,
 													   "radial",
 													   [0xFFFFFF, 0x0],
 													   [1, 1], 
 													   [0, 255], 
-													   bgMatrix)
+													   bgMatrix);
 			}
 			
 			//Create a base image

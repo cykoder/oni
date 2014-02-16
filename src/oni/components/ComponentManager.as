@@ -23,15 +23,23 @@ package oni.components
 		public var components:Vector.<EventDispatcher>;
 		
 		/**
+		 * The current engine instance
+		 */
+		private var _oni:Oni;
+		
+		/**
 		 * Initialises a new component manager
 		 */
-		public function ComponentManager() 
+		public function ComponentManager(oni:Oni) 
 		{
+			//Set engine instance
+			_oni = oni;
+			
 			//Create a components vector
 			components = new Vector.<EventDispatcher>();
 			
-			//Listen for events to relay
-			addEventListener(Oni.UPDATE, _relayEvent);
+			//Listen for update
+			_oni.addEventListener(Oni.UPDATE, _onUpdate);
 		}
 		
 		/**
@@ -87,16 +95,13 @@ package oni.components
 		}
 		
 		/**
-		 * Relays an event to every component
+		 * Called when the engine updates
 		 * @param	e
 		 */
-		private function _relayEvent(e:Event):void
+		private function _onUpdate(e:Event):void
 		{
 			//Relay event to all components
-			for (var i:uint = 0; i < components.length; i++)
-			{
-				if(components[i] != null) components[i].dispatchEvent(e);
-			}
+			for (var i:int = 0; i < components.length; i++) components[i].dispatchEvent(e);
 		}
 		
 		/**

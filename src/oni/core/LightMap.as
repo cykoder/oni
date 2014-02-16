@@ -29,6 +29,18 @@ package oni.core
 			//Create an ambient quad
 			_ambientQuad = new Quad(1, 1, 0x0);
 			
+			//Are we using simple lighting?
+			if (!Platform.supportsAdvancedFeatures())
+			{
+				//Stretch out the ambient quad
+				_ambientQuad.width = Platform.STAGE_WIDTH;
+				_ambientQuad.height = Platform.STAGE_HEIGHT;
+				_ambientQuad.blendMode = BlendMode.ADD;
+				
+				//Add ambient quad to display list
+				addChild(_ambientQuad);
+			}
+			
 			//Disable touching
 			this.touchable = false;
 		}

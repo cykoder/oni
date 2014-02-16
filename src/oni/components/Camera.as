@@ -19,7 +19,7 @@ package oni.components
 		 */
 		public static const STOP_SHAKE:String = "endshakecamera";
 		
-		public var smoothing:Number = 0.25;
+		public var smoothing:Number = 0.1;
 		
 		public var limit:Boolean = true;
 		

@@ -14,6 +14,7 @@ package oni.entities
 	import nape.geom.Vec2;
 	import nape.phys.Body;
 	import nape.space.Space;
+	import oni.Startup;
 	import starling.core.Starling;
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
@@ -205,21 +206,11 @@ package oni.entities
 					_napeDebug.flush();
 				}
 				
-				//Relay
-				_relayEvent(e);
-			}
-		}
-		
-		/**
-		 * Relays an event to all entities
-		 * @param	e
-		 */
-		private function _relayEvent(e:Event):void
-		{
-			//Relay event to all entities
-			for (var i:uint = 0; i < _entities.length; i++)
-			{
-				_entities[i].dispatchEvent(e);
+				//Fire update event
+				for (var i:uint = 0; i < _entities.length; i++) 
+				{
+					_entities[i].dispatchEvent(e);
+				}
 			}
 		}
 		
@@ -335,7 +326,7 @@ package oni.entities
 			var data:Array = new Array();
 			for (var i:uint = 0; i < _entities.length; i++)
 			{
-				data.push(_entities[i].serialize());
+				if(_entities[i].serializable) data.push(_entities[i].serialize());
 			}
 			return data;
 		}

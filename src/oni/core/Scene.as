@@ -17,6 +17,7 @@ package oni.core
 	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.events.Event;
 	import starling.filters.ColorMatrixFilter;
@@ -27,7 +28,7 @@ package oni.core
 	 * @author Sam Hellawell
 	 */
 	public class Scene extends DisplayObjectContainer
-	{		   
+	{
 		/**
 		 * Whether we should depth sort the scene or not
 		 */
@@ -50,7 +51,9 @@ package oni.core
 		
 		private var _backQuad:Quad;
 		
-		public function Scene(lighting:Boolean=true, background:uint=0)
+		private var _lightRenderTexture:RenderTexture;
+		
+		public function Scene(lighting:Boolean = true, background:uint = 0)
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
@@ -61,8 +64,15 @@ package oni.core
 				_diffuseMap.addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background));
 			}
 			
+			//Set light quality
+			var lightQuality:Number = 1;
+			if (Platform.isMobile())
+			{
+				lightQuality /= 2;
+			}
+			
 			//Is lighting enabled?
-			if (lighting)
+			if (lighting && Platform.supportsAdvancedFeatures())
 			{
 				//Create a light map
 				_lightMap = new LightMap();
@@ -74,7 +84,8 @@ package oni.core
 				(this.filter as CompositeFilter).diffuseMap = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
 				
 				//Create a render texture for the light map
-				(this.filter as CompositeFilter).lightMap = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+				(this.filter as CompositeFilter).lightMap = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 				
 				//Create a render texture for the ambient map
 				(this.filter as CompositeFilter).ambientMap = new RenderTexture(1, 1);
@@ -84,18 +95,44 @@ package oni.core
 				addChild(_backQuad);
 				
 			}
-			else //No lighting, just render like normal
+			else
 			{
+				//Add the diffuse map
 				addChild(_diffuseMap);
+				
+				//Simple lighting?
+				if (lighting)
+				{
+					//Create a light map
+					_lightMap = new LightMap();
+					_lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+					
+					//Create an image to render the light map to
+					var lightRenderImage:Image = new Image(_lightRenderTexture);
+					lightRenderImage.blendMode = BlendMode.MULTIPLY;
+					lightRenderImage.scaleX = lightRenderImage.scaleY = 1 / lightQuality;
+					addChild(lightRenderImage);
+				}
 			}
+			
+			//Set light map quality scale
+			_lightMap.scaleX = _lightMap.scaleY = lightQuality;
+			
+			//Untouchable
+			this.touchable = false;
 			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
 		}
 		
-		public function get lighting():LightMap
+		public function get lightMap():LightMap
 		{
 			return _lightMap;
+		}
+		
+		public function get diffuseMap():DisplayMap
+		{
+			return _diffuseMap;
 		}
 		
 		override public function render(support:RenderSupport, parentAlpha:Number):void 
@@ -124,18 +161,22 @@ package oni.core
 					return ydif;
 				});
 			}
-			
-			//Draw diffuse map
-			((this.filter as CompositeFilter).diffuseMap as RenderTexture).clear();
-			((this.filter as CompositeFilter).diffuseMap as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
-			
+				
 			//Draw light map
-			((this.filter as CompositeFilter).lightMap as RenderTexture).clear();
-			((this.filter as CompositeFilter).lightMap as RenderTexture).draw(_lightMap, _lightMap.transformationMatrix);
+			_lightRenderTexture.clear();
+			_lightRenderTexture.draw(_lightMap, _lightMap.transformationMatrix);
 			
-			//Draw light map
-			((this.filter as CompositeFilter).ambientMap as RenderTexture).clear();
-			((this.filter as CompositeFilter).ambientMap as RenderTexture).draw(_lightMap.ambientQuad);
+			//Check if we're using a filter or not
+			if (this.filter != null)
+			{
+				//Draw diffuse map
+				((this.filter as CompositeFilter).diffuseMap as RenderTexture).clear();
+				((this.filter as CompositeFilter).diffuseMap as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
+				
+				//Draw light map
+				((this.filter as CompositeFilter).ambientMap as RenderTexture).clear();
+				((this.filter as CompositeFilter).ambientMap as RenderTexture).draw(_lightMap.ambientQuad);
+			}
 			
 			//Render
 			super.render(support, parentAlpha);
@@ -191,7 +232,8 @@ package oni.core
 		public function serialize(entities:EntityManager = null, components:ComponentManager = null):Object
 		{
 			return { name: name,
-					 lighting: lighting != null,
+					 background: (_backQuad != null) ? _backQuad.color : 0,
+					 lighting: lightMap != null,
 					 physicsEnabled: entities.physicsEnabled,
 					 gravity: entities.gravity,
 					 entities: (entities != null) ? entities.serialize() : null,
@@ -201,7 +243,7 @@ package oni.core
 		public static function deserialize(data:Object, entities:EntityManager, components:ComponentManager):Scene
 		{
 			//Create a scene
-			var scene:Scene = new Scene(data.lighting);
+			var scene:Scene = new Scene(data.lighting, data.background);
 			scene.name = data.name;
 			
 			//Add the entities
