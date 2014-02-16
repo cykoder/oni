@@ -68,7 +68,8 @@ package oni.utils
 		 */
 		public static function isDesktop():Boolean
 		{
-			return Capabilities.playerType == "Desktop" ||
+			return !isMobile() &&
+				   Capabilities.playerType == "Desktop" ||
 				   Capabilities.playerType == "StandAlone" ||
 				   Capabilities.playerType == "External";
 		}
@@ -80,6 +81,15 @@ package oni.utils
 		public static function isWeb():Boolean
 		{
 			return Capabilities.playerType == "PlugIn";
+		}
+		
+		/**
+		 * Checks if the platform can support advanced features such as fragment shaders
+		 * @return
+		 */
+		public static function supportsAdvancedFeatures():Boolean
+		{
+			return !isWeb() && !isMobile();
 		}
 
 		/**

@@ -45,12 +45,13 @@ package oni.core
 		protected var _lightMap:LightMap;
 		
 		/**
-		 * The scene's color filter
+		 * A coloured background quad
 		 */
-		private var _colorFilter:ColorMatrixFilter;
-		
 		private var _backQuad:Quad;
 		
+		/**
+		 * A texture to render the light map to
+		 */
 		private var _lightRenderTexture:RenderTexture;
 		
 		public function Scene(lighting:Boolean = true, background:uint = 0)
@@ -68,7 +69,8 @@ package oni.core
 			var lightQuality:Number = 1;
 			if (Platform.isMobile())
 			{
-				lightQuality /= 2;
+				lightQuality = 0.5;
+				if (AssetManager.scaleFactor == 1) lightQuality /= 2;
 			}
 			
 			//Is lighting enabled?

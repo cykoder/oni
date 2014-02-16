@@ -1,5 +1,8 @@
 package oni
 {
+	import flash.display.Bitmap;
+	import flash.events.Event;
+	import oni.assets.AssetManager;
 	import oni.Oni;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
@@ -9,9 +12,9 @@ package oni
 	import flash.display.Stage;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
-	import flash.events.Event;
 	import flash.geom.Rectangle;
 	import starling.core.Starling;
+	import starling.textures.Texture;
     import starling.utils.RectangleUtil;
     import starling.utils.ScaleMode;
 	
@@ -21,6 +24,12 @@ package oni
 	 */
 	public class Startup extends Sprite
 	{
+		/*
+		 * Startup image
+		 */
+        [Embed(source="../../lib/textures/startup.png")]
+        public static const startup:Class;
+		
 		/**
 		 * The class we use for the engine
 		 */
@@ -47,7 +56,7 @@ package oni
 			
 			//Setup starling
 			Starling.multitouchEnabled = true;
-			Starling.handleLostContext = Platform.isAndroid();
+			Starling.handleLostContext = !Platform.isIOS();
 			
 			//Get the stage dimensions
 			var stageWidth:int = stage.stageWidth;
@@ -79,16 +88,34 @@ package oni
 			{
 				viewport = new Rectangle(0, 0, stageWidth, stageHeight);
 			}
-													  
-			//Create instance
+			
+			//Create a splash bitmap
+            var splash:Bitmap = new startup() as Bitmap;
+            splash.x = viewport.x;
+            splash.y = viewport.y;
+            splash.width  = viewport.width;
+            splash.height = viewport.height;
+            splash.smoothing = true;
+            addChild(splash);
+			
+			//Create a starling instance
 			_starling = new Starling(StartupClass, stage, viewport);
             _starling.simulateMultitouch = !Platform.isMobile();
 			_starling.stage.stageWidth  = Platform.STAGE_WIDTH;
 			_starling.stage.stageHeight = Platform.STAGE_HEIGHT;
             _starling.enableErrorChecking = false;
 			
-			//Start!
-			_starling.start();
+			//Listen for starling ready
+			_starling.addEventListener("rootCreated", function():void
+            {
+				//Remove the splash image
+                removeChild(splash);
+				splash.bitmapData.dispose();
+                splash = null;
+				
+				//Start starling
+                _starling.start();
+            });
 			
 			//Listen for application activate
             NativeApplication.nativeApplication.addEventListener(

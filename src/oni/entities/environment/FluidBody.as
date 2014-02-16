@@ -78,8 +78,8 @@ package oni.entities.environment
 			//Calculate the amount of columns
 			_columnAmount = _params.width / _waveQuality;
 			
-			//Check if we're running on a higher end device or not
-			if (Platform.isDesktop())
+			//Check if the platform supports advanced features
+			if (Platform.supportsAdvancedFeatures())
 			{
 				//Create a columns vector
 				_fluidColumns = new Vector.<Object>();
