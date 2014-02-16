@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with TexturePacker http://texturepacker.com-->
-<!-- $TexturePacker:SmartUpdate:ff30d3bfd59c1ffeaed857a668bbfe0f$ -->
-<TextureAtlas imagePath="factory.png">
-    <SubTexture name="bottom_support" x="178" y="0" width="178" height="100"/>
-    <SubTexture name="klankywanky" x="356" y="0" width="64" height="64"/>
-    <SubTexture name="under_support" x="0" y="0" width="178" height="100"/>
-    <SubTexture name="wardenjordan" x="420" y="0" width="64" height="60" frameX="0" frameY="-1" frameWidth="64" frameHeight="64"/>
-</TextureAtlas>
