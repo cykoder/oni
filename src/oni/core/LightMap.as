@@ -26,15 +26,13 @@ package oni.core
 		
 		public function LightMap() 
 		{
-			//Create an ambient quad
-			_ambientQuad = new Quad(1, 1, 0x0);
-			
 			//Are we using simple lighting?
 			if (!Platform.supportsAdvancedFeatures())
 			{
-				//Stretch out the ambient quad
-				_ambientQuad.width = Platform.STAGE_WIDTH;
-				_ambientQuad.height = Platform.STAGE_HEIGHT;
+				//Create an ambient quad
+				_ambientQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0);
+				
+				//Set blend mode
 				_ambientQuad.blendMode = BlendMode.ADD;
 				
 				//Add ambient quad to display list
@@ -43,11 +41,6 @@ package oni.core
 			
 			//Disable touching
 			this.touchable = false;
-		}
-		
-		public function get ambientQuad():Quad
-		{
-			return _ambientQuad;
 		}
 		
 		public function get ambientLight():Light
@@ -75,11 +68,14 @@ package oni.core
 		
 		private function _onAmbientDataUpdated(e:Event):void
 		{
-			//Set colour
-			_ambientQuad.color = _ambientLight.colour;
-			
-			//Set intensity
-			_ambientQuad.alpha = _ambientLight.intensity;
+			if (_ambientQuad != null && _ambientLight != null)
+			{
+				//Set colour
+				_ambientQuad.color = _ambientLight.colour;
+				
+				//Set intensity
+				_ambientQuad.alpha = _ambientLight.intensity;
+			}
 		}
 		
 		override public function addChild(child:DisplayObject):DisplayObject 

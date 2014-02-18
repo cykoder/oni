@@ -186,7 +186,7 @@ package oni.entities
 			this._z = value;
 			
 			//Sort parent children by Z
-			if (parent != null && parent is DisplayMap) (parent.parent as oni.core.Scene).shouldDepthSort = true;
+			if (parent != null && parent.parent != null && parent is DisplayMap) (parent.parent as oni.core.Scene).shouldDepthSort = true;
 		}
 		
 		/**

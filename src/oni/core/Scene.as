@@ -20,6 +20,7 @@ package oni.core
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.events.Event;
+	import starling.filters.BlurFilter;
 	import starling.filters.ColorMatrixFilter;
 	import starling.textures.RenderTexture;
 	import starling.textures.Texture;
@@ -59,25 +60,24 @@ package oni.core
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
 			
-			//Add a background quad
-			if (background != 0)
-			{
-				_diffuseMap.addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background));
-			}
-			
 			//Set light quality
 			var lightQuality:Number = 1;
 			if (Platform.isMobile())
 			{
+				//Scale down on mobile devices
 				lightQuality = 0.5;
-				if (AssetManager.scaleFactor == 1) lightQuality /= 2;
 			}
+			
+			//Create background quad
+			_backQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background);
+			addChild(_backQuad);
 			
 			//Is lighting enabled?
 			if (lighting && Platform.supportsAdvancedFeatures())
 			{
 				//Create a light map
 				_lightMap = new LightMap();
+				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 				
 				//Create a composite filter
 				this.filter = new CompositeFilter();
@@ -87,18 +87,14 @@ package oni.core
 				
 				//Create a render texture for the light map
 				(this.filter as CompositeFilter).lightMap = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
-				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 				
-				//Create a render texture for the ambient map
-				(this.filter as CompositeFilter).ambientMap = new RenderTexture(1, 1);
-				
-				//Create background quad (this is needed so the scene gets rendered)
-				_backQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0);
-				addChild(_backQuad);
-				
+				(filter as CompositeFilter).ambientColor = 0x7B7979;
 			}
 			else
 			{
+				//Set light quality
+				lightQuality = 1;
+				
 				//Add the diffuse map
 				addChild(_diffuseMap);
 				
@@ -112,13 +108,9 @@ package oni.core
 					//Create an image to render the light map to
 					var lightRenderImage:Image = new Image(_lightRenderTexture);
 					lightRenderImage.blendMode = BlendMode.MULTIPLY;
-					lightRenderImage.scaleX = lightRenderImage.scaleY = 1 / lightQuality;
 					addChild(lightRenderImage);
 				}
 			}
-			
-			//Set light map quality scale
-			_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 			
 			//Untouchable
 			this.touchable = false;
@@ -165,8 +157,11 @@ package oni.core
 			}
 				
 			//Draw light map
-			_lightRenderTexture.clear();
-			_lightRenderTexture.draw(_lightMap, _lightMap.transformationMatrix);
+			if (_lightRenderTexture != null)
+			{
+				_lightRenderTexture.clear();
+				_lightRenderTexture.draw(_lightMap, _lightMap.transformationMatrix);
+			}
 			
 			//Check if we're using a filter or not
 			if (this.filter != null)
@@ -174,10 +169,6 @@ package oni.core
 				//Draw diffuse map
 				((this.filter as CompositeFilter).diffuseMap as RenderTexture).clear();
 				((this.filter as CompositeFilter).diffuseMap as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
-				
-				//Draw light map
-				((this.filter as CompositeFilter).ambientMap as RenderTexture).clear();
-				((this.filter as CompositeFilter).ambientMap as RenderTexture).draw(_lightMap.ambientQuad);
 			}
 			
 			//Render

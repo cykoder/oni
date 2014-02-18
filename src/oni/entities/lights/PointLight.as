@@ -46,7 +46,7 @@ package oni.entities.lights
 			if (_lightTexture == null)
 			{
 				//Calculate a base radius
-				var radius:int = 64 * Starling.contentScaleFactor;
+				var radius:int = 64;
 				
 				//Create a background matrix 
 				var bgMatrix:Matrix = new Matrix();
@@ -57,7 +57,7 @@ package oni.entities.lights
 													   radius,
 													   "radial",
 													   [0xFFFFFF, 0x0],
-													   [1, 1], 
+													   [0, 1], 
 													   [0, 255], 
 													   bgMatrix);
 			}

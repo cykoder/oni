@@ -1,5 +1,6 @@
 package oni
 {
+	import flash.system.System;
 	import oni.assets.AssetManager;
 	import oni.components.ComponentManager;
 	import oni.entities.Entity;
@@ -144,6 +145,10 @@ package oni
 			
 			//Listen for frame update
 			addEventListener(Event.ENTER_FRAME, _onEnterFrame);
+			
+            //Do a quick clean up
+            System.pauseForGCIfCollectionImminent(0);
+            System.gc();
 		}
 		
 		/**

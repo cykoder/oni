@@ -24,6 +24,7 @@ package oni.entities.lights
 		public function Light(params:Object) 
 		{
 			//Default parameters
+			if (params.colour != null) params.colour = uint(params.colour);
 			if (params.colour == null) params.colour = 0xFFFFFF;
 			if (params.intensity == null) params.intensity = 1;
 			if (params.blendMode == null) params.blendMode = BlendMode.ADD;
