@@ -68,9 +68,15 @@ package oni.core
 				lightQuality = 0.5;
 			}
 			
-			//Create background quad
-			_backQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background);
-			addChild(_backQuad);
+ 			//Add a background quad
+ 			if (background != 0)
+ 			{
+				_backQuad = new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, background);
+ 				_diffuseMap.addChild(_backQuad);
+ 			}
+			
+			//Create render quad
+			addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0));
 			
 			//Is lighting enabled?
 			if (lighting && Platform.supportsAdvancedFeatures())
@@ -83,12 +89,14 @@ package oni.core
 				this.filter = new CompositeFilter();
 				
 				//Create a render texture for the diffuse map
-				(this.filter as CompositeFilter).diffuseMap = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+				(this.filter as CompositeFilter).diffuseTexture = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
 				
 				//Create a render texture for the light map
-				(this.filter as CompositeFilter).lightMap = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+				(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
 				
+				trace((filter as CompositeFilter).ambientColor);
 				(filter as CompositeFilter).ambientColor = 0x7B7979;
+				trace((filter as CompositeFilter).ambientColor);
 			}
 			else
 			{
@@ -167,8 +175,8 @@ package oni.core
 			if (this.filter != null)
 			{
 				//Draw diffuse map
-				((this.filter as CompositeFilter).diffuseMap as RenderTexture).clear();
-				((this.filter as CompositeFilter).diffuseMap as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
+				((this.filter as CompositeFilter).diffuseTexture as RenderTexture).clear();
+				((this.filter as CompositeFilter).diffuseTexture as RenderTexture).draw(_diffuseMap, _diffuseMap.transformationMatrix);
 			}
 			
 			//Render
