@@ -208,12 +208,20 @@ package oni.entities
 		
 		override public function set scaleX(value:Number):void 
 		{
-			//Don't allow changing scale
+			//Don't allow changing scale, unless for flipping purposes
+			if (value == -1 || value == 1)
+			{
+				super.scaleX = value;
+			}
 		}
 		
 		override public function set scaleY(value:Number):void 
 		{
-			//Don't allow changing scale
+			//Don't allow changing scale, unless for flipping purposes
+			if (value == -1 || value == 1)
+			{
+				super.scaleY = value;
+			}
 		}
 		
 		/**
