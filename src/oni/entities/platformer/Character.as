@@ -26,6 +26,8 @@ package oni.entities.platformer
 	 */
 	public class Character extends PhysicsEntity
 	{
+		private var _state:String;
+		
 		protected  var _material:Material;
 		
 		protected  var _moveDirection:int;
@@ -49,13 +51,16 @@ package oni.entities.platformer
 			_shape.graphics.lineStyle(1, 0xFFFFFF);
 			_shape.graphics.drawRect(0, 0, _params.bodyWidth, _params.bodyHeight);
 			_shape.graphics.endFill();
-			//addChild(_shape);
+			addChild(_shape);
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _params.bodyWidth, _params.bodyHeight);
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
+			
+			//Set state to idle
+			state = "idle";
 		}
 		
 		override protected function _createBody():void 
@@ -112,13 +117,36 @@ package oni.entities.platformer
 			{
 				velocity.y -= _params.jumpAcceleration;
 			}
+			else if(velocity.y > 400) //We're falling!
+			{
+				state = "falling";
+			}
 			
-			//Check if moving
+			//Are we jumping
+			if (isJumping)
+			{
+				state = "jumping";
+			}
+			else
+			{
+				//Check if moving
+				if (velocity.x > 0.5 || velocity.x < -0.5)
+				{
+					state = "moving";
+				}
+				else if(state == "moving")
+				{
+					state = "idle";
+				}
+			}
+			
+			//Check move direction for acceleration
 			if (_moveDirection != 0)
 			{
-				//Accelerate
+				//Are we under the velocity limit?
 				if (!(velocity.x < -_params.maxVelocity || velocity.x > _params.maxVelocity))
 				{
+					//Accelerate
 					velocity.x += _moveDirection * _params.acceleration;
 				}
 			}
@@ -191,6 +219,24 @@ package oni.entities.platformer
 		public function get canJump():Boolean
 		{
 			return onGround;
+		}
+		
+		public function get state():String
+		{
+			return _state;
+		}
+		
+		public function set state(value:String):void
+		{
+			//Check if different
+			if (_state != value)
+			{
+				//Set state
+				_state = value;
+				
+				//Dispatch changed event
+				dispatchEventWith(Oni.UPDATE_DATA, false, { state: value });
+			}
 		}
 		
 	}

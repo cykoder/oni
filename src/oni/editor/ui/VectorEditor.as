@@ -96,7 +96,7 @@ package oni.editor.ui
 					{
 						if (selectedPoint >= 0 && e.ctrlKey)
 						{
-							trace("EY");
+							trace("ctrl key");
 						}
 						else
 						{
@@ -141,6 +141,27 @@ package oni.editor.ui
 					}
 					else //Nope, normal point
 					{
+						trace(_points[0].x + ", " + _points[0].x + " # " + _points[selectedPoint].x + ", " + _points[selectedPoint].y);
+						if (_points[0].x ==  _points[selectedPoint].x &&
+							_points[0].y ==  _points[selectedPoint].y)
+						{
+							if (selectedPoint == 0)
+							{
+								_points[_points.length - 1].x = touchLocation.x;
+								_points[_points.length - 1].y = touchLocation.y;
+								if (_points[_points.length - 1].x < 0) _points[_points.length - 1].x = 0;
+								if (_points[_points.length - 1].y < 0) _points[_points.length - 1].y = 0;
+							}
+							else
+							{
+								//Set
+								_points[0].x = touchLocation.x;
+								_points[0].y = touchLocation.y;
+								if (_points[0].x < 0) _points[0].x = 0;
+								if (_points[0].y < 0) _points[0].y = 0;
+							}
+						}
+						
 						//Set
 						_points[selectedPoint].x = touchLocation.x;
 						_points[selectedPoint].y = touchLocation.y;
@@ -207,8 +228,50 @@ package oni.editor.ui
 			//Clear graphics
 			graphics.clear();
 			
+			//Draw points
+			for (i = 0; i < _points.length; i++)
+			{
+				//Draw point
+				if (i == selectedPoint)
+				{
+					graphics.beginFill(0xFFFFFF);
+					graphics.lineStyle(3, 0x00FF00);
+					graphics.drawCircle(_points[i].x, _points[i].y, 8);
+					
+					graphics.beginFill(0x00FF00);
+					graphics.lineStyle(0);
+					graphics.drawCircle(_points[i].x, _points[i].y, 4);
+				}
+				else
+				{
+					graphics.beginFill(0x666666);
+					graphics.lineStyle(3, 0xFFFFFF);
+					graphics.drawCircle(_points[i].x, _points[i].y, 8);
+				}
+				
+				//Draw midpoint
+				if (i < _points.length - 1)
+				{
+					var p2:Point = new Point(_points[i + 1].x, _points[i + 1].y);
+					var midpoint:Point = Point.interpolate(new Point(_points[i].x, _points[i].y), p2, 0.5);
+					
+					graphics.beginFill(0xFFFFFF);
+					graphics.lineStyle(2, 0x00FF00);
+					graphics.drawCircle(midpoint.x, midpoint.y, 6);
+				}
+				
+				//Draw control point
+				if (_points[i].control != null)
+				{
+					graphics.beginFill(0xFFFFFF);
+					graphics.lineStyle(2, 0xFFFF00);
+					graphics.drawCircle(_points[i].control.x, _points[i].control.y, 4);
+				}
+			}
+			graphics.endFill();
+			
 			//Draw outlines
-			graphics.lineStyle(5, 0xFFFFFF);
+			graphics.lineStyle(2, 0xFFFFFF, 0.9);
 			var i:uint = 0;
 			for (i = 0; i < _points.length; ++i)
 			{
@@ -233,28 +296,6 @@ package oni.editor.ui
 					//graphics.lineTo(_points[i].x, _points[i].y);
 				}
 			}
-			
-			//Draw points
-			graphics.lineStyle(5, 0xFFFFFF);
-			for (i = 0; i < _points.length; i++)
-			{
-				if (i == selectedPoint)
-				{
-					graphics.beginFill(0xFF0000);
-				}
-				else
-				{
-					graphics.beginFill(0xFFFFFF, 0);
-				}
-				
-				graphics.drawCircle(_points[i].x, _points[i].y, 10);
-				
-				if (_points[i].control != null)
-				{
-					graphics.drawCircle(_points[i].control.x, _points[i].control.y, 5);
-				}
-			}
-			graphics.endFill();
 		}
 		
 		public function deletePoint():void

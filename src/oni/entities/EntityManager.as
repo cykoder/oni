@@ -194,22 +194,38 @@ package oni.entities
 			//Only if not paused
 			if (!_paused)
 			{
+				var i:uint;
+				
+				//Fire update event
+				for (i = 0; i < _entities.length; i++) 
+				{
+					_entities[i].dispatchEvent(e);
+				}
+				
+				_napeDebug
+				
 				//Check if we should update physics
 				if (_space != null) 
 				{
 					//Step physics time
 					_space.step(TIME_STEP);
 					
-					//Redraw debug view
-					_napeDebug.clear();
-					_napeDebug.draw(_space);
-					_napeDebug.flush();
-				}
-				
-				//Fire update event
-				for (var i:uint = 0; i < _entities.length; i++) 
-				{
-					_entities[i].dispatchEvent(e);
+					//Debug drawing
+					if (_napeDebug != null && _napeDebug.display.parent != null)
+					{
+						//Redraw debug view
+						_napeDebug.clear();
+						_napeDebug.draw(_space);
+						
+						//Dispatch debug draw event
+						for (i = 0; i < _entities.length; i++) 
+						{
+							_entities[i].dispatchEventWith(Oni.DEBUG_DRAW, false, { debug: _napeDebug });
+						}
+						
+						//Flush the debug
+						_napeDebug.flush();
+					}
 				}
 			}
 		}

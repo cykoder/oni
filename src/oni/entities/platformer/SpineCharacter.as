@@ -1,5 +1,6 @@
 package oni.entities.platformer 
 {
+	import oni.Oni;
 	import spine.Event;
 	import spine.SkeletonData;
 	import spine.SkeletonJson;
@@ -49,21 +50,49 @@ package oni.entities.platformer
 			
 			//Add the skeleton to the juggler
 			Starling.juggler.add(_skeleton);
+			
+			//Listen for data update
+			addEventListener(Oni.UPDATE_DATA, _onUpdateData);
+		}
+		
+		protected function _onUpdateData(e:starling.events.Event):void
+		{
+			//State update?
+			if (e.data.state && e.data.state == state)
+			{
+				trace(e.data.state);
+				switch(e.data.state)
+				{
+					case "idle":
+						_skeleton.state.setAnimationByName(0, "idle_breath", true);
+						break;
+						
+					case "moving":
+						_skeleton.state.setAnimationByName(0, "run", true);
+						break;
+						
+					case "jumping":
+						_skeleton.state.setAnimationByName(0, "jump_part1", false);
+						break;
+				}
+			}
 		}
 		
 		protected function _setMixes(stateData:AnimationStateData):void
 		{
 			//Idle breath
 			stateData.setMixByName("idle_breath", "run", 0.25);
-			stateData.setMixByName("idle_breath", "jump", 0.1);
+			stateData.setMixByName("idle_breath", "jump_part1", 0.1);
 			
 			//Run
 			stateData.setMixByName("run", "idle_breath", 0.25);
-			stateData.setMixByName("run", "jump", 0);
+			stateData.setMixByName("run", "jump_part1", 0);
 			
 			//Jump
-			stateData.setMixByName("jump", "idle_breath", 0);
-			stateData.setMixByName("jump", "run", 0);
+			stateData.setMixByName("jump_part1", "jump_part2", 0);
+			stateData.setMixByName("jump_part2", "jump_part3", 0);
+			stateData.setMixByName("jump_part3", "idle_breath", 0.25);
+			stateData.setMixByName("jump_part3", "run", 0.1);
 		}
 		
 		override public function move(direction:int):void 
@@ -74,42 +103,10 @@ package oni.entities.platformer
 				//Flip based on direction
 				_skeleton.scaleX = 0.5 * direction;
 				
-				//Set running animation, if we're not in mid-air
-				if (!isJumping)
-				{
-					_skeleton.state.setAnimationByName(0, "run", true);
-				}
-				
 				//Super
 				super.move(direction);
 			}
 		}
-		
-		override public function stop():void 
-		{
-			if (isMoving)
-			{
-				//Super
-				super.stop();
-				
-				//Play idle animation
-				_skeleton.state.setAnimationByName(0, "idle_breath", true);
-			}
-		}
-			
-		override public function jump():void 
-		{
-			//Only jump if we're on the ground
-			if (canJump)
-			{
-				//Super
-				super.jump();
-				
-				//Play jump animation
-				_skeleton.state.setAnimationByName(0, "jump", false);
-			}
-		}
-		
 	}
 
 }

@@ -94,7 +94,7 @@ package oni.core
 				//Create a render texture for the light map
 				(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
 				
-				(filter as CompositeFilter).ambientColor = 0x7B7979;
+				//(filter as CompositeFilter).ambientColor = 0x7B7979;
 			}
 			else
 			{
