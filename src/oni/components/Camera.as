@@ -10,14 +10,9 @@ package oni.components
 	public class Camera extends EventDispatcher
 	{
 		/**
-		 * The start shake event
+		 * The camera shake event
 		 */
-		public static const START_SHAKE:String = "shakecamera";
-		
-		/**
-		 * The stop shake event
-		 */
-		public static const STOP_SHAKE:String = "endshakecamera";
+		public static const SHAKE:String = "shake";
 		
 		public var smoothing:Number = 0.1;
 		
@@ -33,9 +28,9 @@ package oni.components
 		 */
 		private var _shakeDecay:Number;
 		
-		private var _x:int, _holdX:int;
+		private var _x:int, _holdX:int, _tempX:int;
 		
-		private var _y:int, _holdY:int;
+		private var _y:int, _holdY:int, _tempY:int;
 		
 		private var _z:Number, _holdZ:Number;
 		
@@ -50,8 +45,7 @@ package oni.components
 			addEventListener(Oni.UPDATE, _onUpdate);
 			
 			//Listen for shake events
-			addEventListener(Camera.START_SHAKE, _beginShake);
-			addEventListener(Camera.STOP_SHAKE, _stopShake);
+			addEventListener(Camera.SHAKE, _onShake);
 		}
 		
 		private function _onUpdate(e:Event):void
@@ -107,16 +101,22 @@ package oni.components
 					//Have we stopped shaking?
 					if (_shakeIntensity <= 0)
 					{
-						dispatchEventWith(Camera.STOP_SHAKE);
+						//Reset variables
+						_shakeIntensity = _shakeDecay = 0;
+						
+						//Reset x/y
+						_holdX = _tempX;
+						_holdY = _tempY;
+						_tempX = _tempY = 0;
 					}
 					else
 					{
 						//Decrement intensity
-						_shakeIntensity -= _shakeDecay;
+						_shakeIntensity /= _shakeDecay;
 						
 						//Actually shake the container
-						_x -= (Math.random() * _shakeIntensity);
-						_y -= (Math.random() * _shakeIntensity);
+						_x += _randomRange(-_shakeIntensity, _shakeIntensity);
+						//_y += _randomRange(-_shakeIntensity, _shakeIntensity);
 					}
 				}
 				
@@ -124,6 +124,11 @@ package oni.components
 				dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:_z } );
 			}
 		}
+		
+		private function _randomRange(min:Number, max:Number):Number
+		{
+            return (min + Math.random() * (max - min));
+        }
 		
 		public function get x():int
 		{
@@ -156,26 +161,37 @@ package oni.components
 		}
 		
 		/**
-		 * Called when shaking has stopped, or if we should stop shaking
-		 * @param	e
-		 */
-		private function _stopShake(e:Event):void
-		{
-			//Reset variables
-			_shakeIntensity = _shakeDecay = 0;
-		}
-		
-		/**
 		 * Called when the camera should start shaking
 		 * @param	e
 		 */
-		private function _beginShake(e:Event):void
+		private function _onShake(e:Event):void
 		{
 			//Get intensity
-			_shakeIntensity = (e.data != null) ? e.data.intensity : 10;
+			if (e.data.intensity != null)
+			{
+				if(e.data.intensity > _shakeIntensity) _shakeIntensity = e.data.intensity;
+			}
+			else
+			{
+				_shakeIntensity = 10;
+			}
 			
 			//Get decay
-			_shakeDecay = (e.data != null) ? e.data.decay : 10;
+			if (e.data.intensity != null)
+			{
+				_shakeDecay = e.data.decay;
+			}
+			else
+			{
+				_shakeDecay = 1.25;
+			}
+			
+			//Set temporary x/y
+			if (_shakeIntensity == 0)
+			{
+				_tempX = _x;
+				_tempY = _y;
+			}
 		}
 		
 	}

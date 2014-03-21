@@ -20,8 +20,6 @@ package oni.core
 				//Set textures
                 "tex ft0, v0, fs0 <2d,repeat,linear,nomip>		\n" +
 				"tex ft1, v0, fs1 <2d,repeat,linear,nomip>		\n" +
-				//Output
-				"mov oc, ft1									\n";/*
 				
 				//Apply ambient lighting
 				"add ft0, ft0, fc4								\n" +
@@ -46,7 +44,7 @@ package oni.core
 				"add ft3, ft3, ft0								\n" +
 				
 				//Output
-				"mov oc, ft3									\n";*8/
+				"mov oc, ft3									\n";
 				
 		/**
 		 * The diffuse map, rendered onto a texture

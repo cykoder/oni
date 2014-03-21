@@ -68,7 +68,11 @@ package oni.core
 		
 		private function _onAmbientDataUpdated(e:Event):void
 		{
-			if (_ambientQuad != null && _ambientLight != null)
+			//Dispatch ambient data updated evnet
+			dispatchEventWith(Oni.UPDATE_DATA, false, { color: _ambientLight.colour, intensity: _ambientLight.intensity } );
+			
+			//Update ambient quad
+			if (_ambientQuad != null)
 			{
 				//Set colour
 				_ambientQuad.color = _ambientLight.colour;

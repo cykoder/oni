@@ -84,7 +84,7 @@ package oni.assets
 			{
 				if (assetStore[name] != null) return new assetStore[name];
 				if (AssetStore[name] != null) return new AssetStore[name];
-				Backend.log("AssetManager: Can't find asset: " + name, "error");
+				//Backend.log("AssetManager: Can't find asset: " + name, "error");
 			}
 			catch(error:Error)
 			{
@@ -140,14 +140,14 @@ package oni.assets
 		public static function getTextureAtlas(name:String):TextureAtlas
 		{
 			//Is it in the dictionary?
-			if (_textures[name] == undefined)
+			if (_textures[name + "Atlas"] == undefined)
 			{
 				//Create atlas
-				_textures[name] = new TextureAtlas(getTexture(name), XML(getAsset(name + "Atlas")));
+				_textures[name + "Atlas"] = new TextureAtlas(getTexture(name), XML(getAsset(name + "Atlas")));
 			}
 			
 			//Return the texture atlas
-			return _textures[name];
+			return _textures[name + "Atlas"];
 		}
 		
 		/**

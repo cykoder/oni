@@ -11,6 +11,7 @@ package oni.core
 	import oni.entities.environment.FluidBody;
 	import oni.entities.lights.Light;
 	import oni.Oni;
+	import oni.utils.OniMath;
 	import oni.utils.Platform;
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
@@ -83,6 +84,7 @@ package oni.core
 			{
 				//Create a light map
 				_lightMap = new LightMap();
+				_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
 				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 				
 				//Create a composite filter
@@ -93,8 +95,6 @@ package oni.core
 				
 				//Create a render texture for the light map
 				(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
-				
-				//(filter as CompositeFilter).ambientColor = 0x7B7979;
 			}
 			else
 			{
@@ -123,6 +123,16 @@ package oni.core
 			
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
+		}
+		
+		private function _onAmbientLightUpdated(e:Event):void
+		{
+			//Update ambient colour
+			if (filter != null)
+			{
+				//Set ambient colour
+				(filter as CompositeFilter).ambientColor = OniMath.lerp32(0x0, e.data.color, e.data.intensity);
+			}
 		}
 		
 		public function get lightMap():LightMap

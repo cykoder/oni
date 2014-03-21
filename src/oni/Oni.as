@@ -28,6 +28,11 @@ package oni
 	public class Oni extends Sprite
 	{
 		/**
+		 * Event fired for drawing debug data
+		 */
+		public static const DEBUG_DRAW:String = "debugdraw";
+		
+		/**
 		 * Event fired when the current level has been completed
 		 */
 		public static const LEVEL_COMPLETED:String = "level_complete";
