@@ -92,6 +92,11 @@ package oni.utils
 			return !isWeb() && !isMobile();
 		}
 
+		public static function supportsKeyboard():Boolean
+		{
+			return !isMobile();
+		}
+		
 		/**
 		 * Checks if the platform the engine is running is capable of debug mode
 		 * @return

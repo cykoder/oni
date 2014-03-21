@@ -37,10 +37,8 @@ package oni.entities.platformer
 		public function Character(params:Object)
 		{
 			//Default parameters
-			if (params.jumpHeight == null) params.jumpHeight = 340;
-			if (params.jumpAcceleration == null) params.jumpAcceleration = 10;
 			if (params.acceleration == null) params.acceleration = 30;
-			if (params.maxVelocity == null) params.maxVelocity = 240;
+			if (params.maxVelocity == null) params.maxVelocity = 50;
 			
 			//Super
 			super(params);
@@ -51,7 +49,7 @@ package oni.entities.platformer
 			_shape.graphics.lineStyle(1, 0xFFFFFF);
 			_shape.graphics.drawRect(0, 0, _params.bodyWidth, _params.bodyHeight);
 			_shape.graphics.endFill();
-			addChild(_shape);
+			//addChild(_shape);
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _params.bodyWidth, _params.bodyHeight);
@@ -148,6 +146,11 @@ package oni.entities.platformer
 				{
 					//Accelerate
 					velocity.x += _moveDirection * _params.acceleration;
+				}
+				else
+				{
+					if (_moveDirection == 1) velocity.x = _params.maxVelocity;
+					if (_moveDirection == -1) velocity.x = -_params.maxVelocity;
 				}
 			}
 		}

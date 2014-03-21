@@ -27,6 +27,9 @@ package oni.entities.platformer
 		
 		public function SpineCharacter(params:Object) 
 		{
+			//Default parameters
+			if (params.flipCharacter == null) params.flipCharacter = true;
+			
 			//Super
 			super(params);
 			
@@ -60,7 +63,6 @@ package oni.entities.platformer
 			//State update?
 			if (e.data.state && e.data.state == state)
 			{
-				trace(e.data.state);
 				switch(e.data.state)
 				{
 					case "idle":
@@ -101,7 +103,7 @@ package oni.entities.platformer
 			if (canMove && direction != _moveDirection)
 			{
 				//Flip based on direction
-				_skeleton.scaleX = 0.5 * direction;
+				if(_params.flipCharacter) _skeleton.scaleX = 0.5 * direction;
 				
 				//Super
 				super.move(direction);
