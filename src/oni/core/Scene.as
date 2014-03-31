@@ -1,6 +1,7 @@
 package oni.core 
 {
 	import flash.display.Bitmap;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.utils.getDefinitionByName;
 	import oni.assets.AssetManager;
@@ -25,6 +26,7 @@ package oni.core
 	import starling.filters.ColorMatrixFilter;
 	import starling.textures.RenderTexture;
 	import starling.textures.Texture;
+	import starling.utils.MatrixUtil;
 	/**
 	 * ...
 	 * @author Sam Hellawell
@@ -56,16 +58,26 @@ package oni.core
 		 */
 		private var _lightRenderTexture:RenderTexture;
 		
+		/**
+		 * The matrix for light quality scaling
+		 */
+		private var _lightRenderMatrix:Matrix;
+		
 		public function Scene(lighting:Boolean = true, background:uint = 0)
 		{
 			//Create a diffuse map
 			_diffuseMap = new DisplayMap();
 			
+			//Create a render matrix
+			_lightRenderMatrix = new Matrix();
+			
+			//Disable lighting?
+			if (!Platform.supportsLighting()) lighting = false;
+			
 			//Set light quality
 			var lightQuality:Number = 1;
-			if (Platform.isMobile())
+			if (Platform.isMobile() || Platform.supportsAdvancedFeatures()) //Scale down on mobile devices
 			{
-				//Scale down on mobile devices
 				lightQuality = 0.5;
 			}
 			
@@ -79,43 +91,33 @@ package oni.core
 			//Create render quad
 			addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0));
 			
-			//Is lighting enabled?
-			if (lighting && Platform.supportsAdvancedFeatures())
+			//Do we support lighting?
+			if (Platform.supportsLighting())
 			{
-				//Create a light map
-				_lightMap = new LightMap();
-				_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
-				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
-				
-				//Create a composite filter
-				this.filter = new CompositeFilter();
-				
-				//Create a render texture for the diffuse map
-				(this.filter as CompositeFilter).diffuseTexture = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
-				
-				//Create a render texture for the light map
-				(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
-			}
-			else
-			{
-				//Set light quality
-				lightQuality = 1;
-				
-				//Add the diffuse map
-				addChild(_diffuseMap);
-				
-				//Simple lighting?
+				//Is lighting enabled?
 				if (lighting)
 				{
 					//Create a light map
 					_lightMap = new LightMap();
-					_lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+					_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
+					_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 					
-					//Create an image to render the light map to
-					var lightRenderImage:Image = new Image(_lightRenderTexture);
-					lightRenderImage.blendMode = BlendMode.MULTIPLY;
-					addChild(lightRenderImage);
+					//Create a composite filter
+					this.filter = new CompositeFilter();
+					
+					//Create a render texture for the diffuse map
+					(this.filter as CompositeFilter).diffuseTexture = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+					
+					//Create a render texture for the light map
+					(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+					
+					//Set light quality
+					MatrixUtil.prependScale(_lightRenderMatrix, lightQuality, lightQuality);
 				}
+			}
+			else //No lighting, just add diffuse map
+			{
+				addChild(_diffuseMap);
 			}
 			
 			//Untouchable
@@ -176,7 +178,7 @@ package oni.core
 			if (_lightRenderTexture != null)
 			{
 				_lightRenderTexture.clear();
-				_lightRenderTexture.draw(_lightMap, _lightMap.transformationMatrix);
+				_lightRenderTexture.draw(_lightMap, _lightRenderMatrix);
 			}
 			
 			//Check if we're using a filter or not

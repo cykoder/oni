@@ -91,8 +91,12 @@ package oni.utils
 		{
 			return !isWeb() && !isMobile();
 		}
-
-		public static function supportsKeyboard():Boolean
+		
+		/**
+		 * Checks if the platform supports lighting
+		 * @return
+		 */
+		public static function supportsLighting():Boolean
 		{
 			return !isMobile();
 		}

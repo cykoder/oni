@@ -2,6 +2,7 @@ package oni.utils
 {
 	import com.gamua.flox.Flox;
 	import com.gamua.flox.Player;
+	import com.gamua.flox.TimeScope;
 	import starling.events.Event;
 	
 	/**
@@ -10,6 +11,8 @@ package oni.utils
 	 */
 	public class Backend 
 	{
+		public static var logToFlox:Boolean = true;
+		
 		/**
 		 * Initialises backend services
 		 * @param	gameId
@@ -21,15 +24,75 @@ package oni.utils
 			if (services != null)
 			{
 				//Check if we should use Flox
-				/*if (services.flox != null)
+				if (services.flox != null)
 				{
 					//Init
 					Flox.init(services.flox.gameId, services.flox.gameKey);
 					
 					//Save player for good measure
 					Player.current.saveQueued();
-				}*/
+				}
 			}
+		}
+		
+		public static function authenticatePlayer(key:String):void
+		{
+			trace("auth player " + key);
+			//Player.loginWithKey(key, _onLoginComplete, _onLoginError);
+		}
+		
+		private static function _onLoginComplete(player:Player):void
+		{
+			//Login sucessful, swag
+			trace(player);
+		}
+		
+		private static function _onLoginError(message:String):void
+		{
+			//Login error, log it
+			Backend.log(message, "error");
+		}
+		
+		public static function loadAllScores(onComplete:Function, onError:Function, scoreId:String="global", timeScope:String = "all"):void
+		{
+			//Is flox enabled?
+			if (floxEnabled)
+			{
+				//Set timescope and load scores
+				if (timeScope == "all") timeScope = TimeScope.ALL_TIME;
+				Flox.loadScores(scoreId, timeScope, onComplete, onError);
+			}
+		}
+		
+		public static function loadScores(playerIds:Array, onComplete:Function, onError:Function, scoreId:String="global"):void
+		{
+			//Is flox enabled?
+			if (floxEnabled)
+			{
+				Flox.loadScores(scoreId, playerIds, onComplete, onError);
+			}
+		}
+		
+		public static function loadPlayerScores(onComplete:Function, onError:Function, scoreId:String="global"):void
+		{
+			//Is flox enabled?
+			if (floxEnabled)
+			{
+				Flox.loadScores(scoreId, [Player.current.id], onComplete, onError);
+			}
+		}
+		
+		public static function postScore(score:int, playerName:String, scoreId:String="global"):void
+		{
+			//Post to flox
+			if (floxEnabled)
+			{
+				//Post score to flox
+				Flox.postScore(scoreId, score, playerName);
+			}
+			
+			//Backend log
+			Backend.log("Submitted score: " + score + " as " + playerName + " to " + scoreId);
 		}
 		
 		/**
@@ -45,7 +108,7 @@ package oni.utils
 				case "e":
 				case "err":
 				case "error":
-					if (floxEnabled)
+					if (floxEnabled && logToFlox)
 					{
 						Flox.logError("Error", message, rest);
 					}
@@ -58,7 +121,7 @@ package oni.utils
 				case "w":
 				case "warn":
 				case "warning":
-					if (floxEnabled)
+					if (floxEnabled && logToFlox)
 					{
 						Flox.logWarning(message, rest);
 					}
@@ -69,7 +132,7 @@ package oni.utils
 					break;
 				
 				default:
-					if (floxEnabled)
+					if (floxEnabled && logToFlox)
 					{
 						Flox.logInfo(message, rest);
 					}

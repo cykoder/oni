@@ -141,7 +141,6 @@ package oni.editor.ui
 					}
 					else //Nope, normal point
 					{
-						trace(_points[0].x + ", " + _points[0].x + " # " + _points[selectedPoint].x + ", " + _points[selectedPoint].y);
 						if (_points[0].x ==  _points[selectedPoint].x &&
 							_points[0].y ==  _points[selectedPoint].y)
 						{
@@ -281,7 +280,6 @@ package oni.editor.ui
 				}
 				else
 				{
-					
 					//Draw line
 					if (_points[i].control == null)
 					{
@@ -291,9 +289,6 @@ package oni.editor.ui
 					{
 						graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
 					}
-					
-					
-					//graphics.lineTo(_points[i].x, _points[i].y);
 				}
 			}
 		}

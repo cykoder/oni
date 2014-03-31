@@ -239,13 +239,13 @@ package oni.entities
 		public function add(entity:Entity, silent:Boolean=false):Entity
 		{
 			//Dispatch added event
-			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { space: _space } );
+			entity.dispatchEventWith(Oni.ENTITY_ADDED, false, { space: _space, manager: this } );
 			
 			//Add to list
 			_entities.push(entity);
 			
 			//Dispatch event
-			if(!silent) dispatchEventWith(Oni.ENTITY_ADDED, false, { entity: entity } );
+			if (!silent) dispatchEventWith(Oni.ENTITY_ADDED, false, { entity: entity } );
 			
 			//Return
 			return entity;
@@ -259,14 +259,19 @@ package oni.entities
 		 */
 		public function remove(entity:Entity, silent:Boolean=false):void
 		{
-			//Dispatch removed event
-			entity.dispatchEventWith(Oni.ENTITY_REMOVED);
-			
 			//Remove
 			_entities.splice(_entities.indexOf(entity), 1);
-			
-			//Dispatch event
-			if(!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity: entity } );
+			if (entity != null)
+			{
+				//Remove from parent
+				if (entity.parent != null) entity.removeFromParent(false);
+				
+				//Dispatch removed event
+				entity.dispatchEventWith(Oni.ENTITY_REMOVED);
+				
+				//Dispatch event
+				if (!silent) dispatchEventWith(Oni.ENTITY_REMOVED, false, { entity: entity } );
+			}
 		}
 		
 		/**

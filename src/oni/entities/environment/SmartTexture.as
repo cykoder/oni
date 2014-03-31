@@ -44,6 +44,9 @@ package oni.entities.environment
 		
 		public function SmartTexture(params:Object)
 		{
+			//Default parameters
+			if (params.reverse == null) params.reverse = false;
+			
 			//Super
 			super(params);
 			
@@ -83,13 +86,20 @@ package oni.entities.environment
 				_points = e.data.points;
 				
 				//Init physics
-				if (e.data.collision) _createBody();
+				if (e.data.collision && physics) _createBody();
 			}
 			
 			//Get the textiures
 			var backgroundTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_background");
-			var floorTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_floor");
-			var wallTexture:Texture = AssetManager.getTexture("smarttexture_" + _params.texture + "_wall");
+			var topTexture:Texture, edgeTexture:Texture, bottomTexture:Texture, leftCornerTexture:Texture, rightCornerTexture:Texture;
+			if (!_params.backgroundOnly)
+			{
+				topTexture = AssetManager.getTexture("smarttexture_" + _params.texture + "_top");
+				edgeTexture = AssetManager.getTexture("smarttexture_" + _params.texture + "_edge");
+				bottomTexture = AssetManager.getTexture("smarttexture_" + _params.texture + "_bottom");
+				leftCornerTexture = AssetManager.getTexture("smarttexture_" + _params.texture + "_left_corner");
+				rightCornerTexture = AssetManager.getTexture("smarttexture_" + _params.texture + "_right_corner");
+			}
 			
 			//Clear shape graphics
 			_shape.graphics.clear();
@@ -100,8 +110,15 @@ package oni.entities.environment
 				_shape.graphics.beginTextureFill(backgroundTexture);
 			}
 			
-			//Loop through each point and redraw
+			//Trace background
 			var i:uint;
+			var x1:int;
+			var y1:int;
+			var x2:int;
+			var y2:int;
+			var radians:Number;
+			var degrees:Number;
+			var positiveDegrees:Number;
 			for (i = 0; i < _points.length; ++i)
 			{
 				//Check if first point
@@ -111,22 +128,33 @@ package oni.entities.environment
 				}
 				else
 				{
+					//Clear line
+					_shape.graphics.lineStyle(0);
+							
 					//Calculate angles
-					var x1:int = _points[i-1].x, y1:int = _points[i-1].y;
-					var x2:int = _points[i].x, y2:int = _points[i].y;
-					var radians:Number = Math.atan2(y2 - y1,x2 - x1);
-					var degrees:Number = radians / (Math.PI / 180);
-					var positiveDegrees:Number = degrees;
+					x1 = _points[i-1].x, y1 = _points[i-1].y;
+					x2 = _points[i].x, y2 = _points[i].y;
+					radians = Math.atan2(y2 - y1,x2 - x1);
+					degrees = radians / (Math.PI / 180);
+					positiveDegrees = degrees;
 					if (positiveDegrees < 0) positiveDegrees = degrees * -1;
-					
-					//Check if we have a wall texture
-					if (wallTexture != null && !((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180))
+					if (positiveDegrees > 130)
 					{
-						_shape.graphics.lineTexture(128, wallTexture); //Walls
+						if (bottomTexture != null)
+						{
+							_shape.graphics.lineTexture(128, bottomTexture); //Bottom
+						}
+						else if (edgeTexture != null)
+						{
+							_shape.graphics.lineTexture(128, edgeTexture); //No bottom, default as edge
+						}
 					}
-					else
+					else if (!((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180))
 					{
-						_shape.graphics.lineTexture(128, floorTexture); //Floors
+						if (edgeTexture != null)
+						{
+							_shape.graphics.lineTexture(128, edgeTexture); //Edge
+						}
 					}
 					
 					//Draw line
@@ -147,19 +175,106 @@ package oni.entities.environment
 				_shape.graphics.endFill();
 			}
 			
-			//Draw debug points
-			_shape.graphics.lineStyle(1, 0xCCCCCC, 0);
-			_shape.graphics.beginFill(0xFFFFFF, 0);
-			for (i = 0; i < _points.length; i++)
+			//Edges and detailing
+			if (!_params.backgroundOnly)
 			{
-				_shape.graphics.drawCircle(_points[i].x, _points[i].y, 10);
-				
-				if (_points[i].control != null)
+				if (_params.reversed) _points.reverse();
+				for (i = 0; i < _points.length; ++i)
 				{
-					_shape.graphics.drawCircle(_points[i].control.x, _points[i].control.y, 5);
+					//Check if first point
+					if (i == 0)
+					{
+						_shape.graphics.moveTo(_points[i].x, _points[i].y);
+					}
+					else
+					{
+						//Shall we draw walls/floors?
+						if (!_params.backgroundOnly)
+						{
+							//Calculate angles
+							x1 = _points[i - 1].x;
+							y1 = _points[i - 1].y;
+							x2 = _points[i].x;
+							y2 = _points[i].y;
+							radians = Math.atan2(y2 - y1,x2 - x1);
+							degrees = radians / (Math.PI / 180);
+							positiveDegrees = degrees;
+							if (positiveDegrees < 0) positiveDegrees = degrees * -1;
+							
+							//Check if edge or bottom, don't draw this
+							if (positiveDegrees > 130 ||
+							   (edgeTexture != null && !((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180)))
+							{
+								//Clear line style
+								_shape.graphics.lineStyle(0);
+							}
+							else
+							{
+								//Corners?
+								if (leftCornerTexture != null &&
+									rightCornerTexture != null &&
+									_points[i].control == null)
+								{
+									//Calculate the length of the line
+									var length:Number = Point.distance(new Point(x1, y1), new Point(x2, y2));
+									
+									//Calculate left corner start and end points
+									var leftCornerOffset:Point = Point.interpolate(new Point(x1,y1), new Point(x2,y2), 1-(24/length));
+									var leftCornerStart:Point = new Point(leftCornerOffset.x - x1, leftCornerOffset.y - y1);
+									var leftCornerEnd:Point = Point.interpolate(new Point(x1,y1), new Point(x2,y2), 1-(48/length));
+									
+									//Left corner
+									_shape.graphics.lineTexture(128, leftCornerTexture);
+									_shape.graphics.moveTo(x1-leftCornerStart.x, y1-leftCornerStart.y);
+									_shape.graphics.lineTo(leftCornerEnd.x, leftCornerEnd.y);
+									
+									//Calculate right corner start and end points
+									var rightCornerStart:Point = Point.interpolate(new Point(x1,y1), new Point(x2,y2), (40/length));
+									var rightCornerOffset:Point = new Point(rightCornerStart.x - x2, rightCornerStart.y - y2);
+									var rightCornerEnd:Point = new Point(x2-rightCornerOffset.x/2, y2-rightCornerOffset.y/2);
+									
+									//Right corner
+									_shape.graphics.lineTexture(128, rightCornerTexture);
+									_shape.graphics.moveTo(rightCornerStart.x, rightCornerStart.y);
+									_shape.graphics.lineTo(rightCornerEnd.x, rightCornerEnd.y);
+									
+									//Top
+									_shape.graphics.lineTexture(128, topTexture); //Top
+									_shape.graphics.moveTo(leftCornerOffset.x, leftCornerOffset.y);
+									_shape.graphics.lineTo(rightCornerStart.x, rightCornerStart.y);
+									_shape.graphics.moveTo(points[i].x, points[i].y);
+									continue;
+								}
+								
+								if (topTexture != null)
+								{
+									_shape.graphics.lineTexture(128, topTexture); //Top
+								}
+								else if(edgeTexture != null)
+								{
+									_shape.graphics.lineTexture(128, edgeTexture); //No top, default to edge
+								}
+								else
+								{
+									_shape.graphics.lineStyle(0); //Clear line style
+								}
+							}
+						}
+						
+						//Draw line
+						if (_points[i].control == null)
+						{
+							_shape.graphics.lineTo(_points[i].x, _points[i].y);
+						}
+						else
+						{
+							_shape.graphics.curveTo(_points[i].control.x, _points[i].control.y, _points[i].x, _points[i].y);
+						}
+					}
 				}
+				if (_params.reversed) _points.reverse();
 			}
-			_shape.graphics.endFill();
+			
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width, height+16);
