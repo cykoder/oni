@@ -14,9 +14,7 @@ package oni.components
 		 */
 		public static const SHAKE:String = "shake";
 		
-		public var smoothing:Number = 0.1;
-		
-		public var limit:Boolean = true;
+		public var smoothing:Number = 0.25;
 		
 		/**
 		 * The intensity of the shake
@@ -61,9 +59,6 @@ package oni.components
 					
 					//Check if we should reset
 					if (_x == _holdX) _holdX = -1;
-					
-					//Limit
-					if (limit && _x < 0) _x = 0;
 				}
 				
 				//Linear interpolate Y
@@ -74,9 +69,6 @@ package oni.components
 					
 					//Check if we should reset
 					if (_y == _holdY) _holdY = -1;
-					
-					//Limit
-					if (limit && _y < 0) _y = 0;
 				}
 				
 				//Linear interpolate Z

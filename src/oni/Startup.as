@@ -50,9 +50,10 @@ package oni
 			Platform.STAGE_HEIGHT = targetHeight;
 			
 			//Setup the stage
+			stage.showDefaultContextMenu = false;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			if(fullscreen) stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
+			if(fullscreen || Platform.isMobile()) stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 			
 			//Setup starling
 			Starling.multitouchEnabled = true;

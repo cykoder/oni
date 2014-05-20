@@ -23,6 +23,8 @@ package oni.editor.ui
 		
 		private var _hasSelectedControlPoint:Boolean;
 		
+		private var _hasSelectedMidpoint:Boolean;
+		
 		private var _entity:Entity;
 		
 		public function VectorEditor() 
@@ -89,6 +91,17 @@ package oni.editor.ui
 							_hasSelectedControlPoint = true;
 							break;
 						}
+						else if (i < _points.length - 1 && _points[i+1].control == null) //Check if we're touching a midpoint
+						{
+							var p2:Point = new Point(_points[i + 1].x, _points[i + 1].y);
+							var midpoint:Point = Point.interpolate(new Point(_points[i].x, _points[i].y), p2, 0.5);
+							if (touchRect.contains(midpoint.x, midpoint.y))
+							{
+								selectedPoint = i+1;
+								_hasSelectedMidpoint = true;
+								break;
+							}
+						}
 					}
 					
 					//Check for double click
@@ -139,6 +152,15 @@ package oni.editor.ui
 						_points[selectedPoint].control.x = touchLocation.x;
 						_points[selectedPoint].control.y = touchLocation.y;
 					}
+					else if (_hasSelectedMidpoint) //Check if we have a midpoint selected
+					{
+						//Set control point
+						_points[selectedPoint].control = { x: touchLocation.x, y: touchLocation.y };
+						
+						//Select the control point
+						_hasSelectedMidpoint = false;
+						_hasSelectedControlPoint = true;
+					}
 					else //Nope, normal point
 					{
 						if (_points[0].x ==  _points[selectedPoint].x &&
@@ -179,8 +201,8 @@ package oni.editor.ui
 				else if (touch.phase == TouchPhase.ENDED) //Ended touch
 				{
 					//Deselect point
-					//selectedPoint = -1;
-					//_hasSelectedControlPoint = false;
+					selectedPoint = -1;
+					_hasSelectedControlPoint = false;
 					
 					//Update data (with collision this time)
 					_entity.dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points, collision: true } );
@@ -249,14 +271,14 @@ package oni.editor.ui
 				}
 				
 				//Draw midpoint
-				if (i < _points.length - 1)
+				if (i < _points.length - 1 && _points[i+1].control == null)
 				{
 					var p2:Point = new Point(_points[i + 1].x, _points[i + 1].y);
 					var midpoint:Point = Point.interpolate(new Point(_points[i].x, _points[i].y), p2, 0.5);
 					
 					graphics.beginFill(0xFFFFFF);
-					graphics.lineStyle(2, 0x00FF00);
-					graphics.drawCircle(midpoint.x, midpoint.y, 6);
+					graphics.lineStyle(2, 0xFFFF00);
+					graphics.drawCircle(midpoint.x, midpoint.y, 4);
 				}
 				
 				//Draw control point
@@ -327,19 +349,6 @@ package oni.editor.ui
 			{
 				case 46: //Delete
 					deletePoint();
-					break;
-				
-				case 67: //C
-					if (selectedPoint >= 0 && !_hasSelectedControlPoint)
-					{
-						_points[selectedPoint].control = { x: _points[selectedPoint].x - 32, y: _points[selectedPoint].y - 32 };
-						
-						//Update data
-						_entity.dispatchEventWith(Oni.UPDATE_DATA, false, { points: _points } );
-						
-						//Redraw
-						_redraw();
-					}
 					break;
 			}
 		}
