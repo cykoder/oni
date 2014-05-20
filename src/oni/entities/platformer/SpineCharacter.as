@@ -60,41 +60,12 @@ package oni.entities.platformer
 		
 		protected function _onUpdateData(e:starling.events.Event):void
 		{
-			//State update?
-			if (e.data.state && e.data.state == state)
-			{
-				switch(e.data.state)
-				{
-					case "idle":
-						_skeleton.state.setAnimationByName(0, "idle_breath", true);
-						break;
-						
-					case "moving":
-						_skeleton.state.setAnimationByName(0, "run", true);
-						break;
-						
-					case "jumping":
-						_skeleton.state.setAnimationByName(0, "jump_part1", false);
-						break;
-				}
-			}
+			//Update your animations here
 		}
 		
 		protected function _setMixes(stateData:AnimationStateData):void
 		{
-			//Idle breath
-			stateData.setMixByName("idle_breath", "run", 0.25);
-			stateData.setMixByName("idle_breath", "jump_part1", 0.1);
-			
-			//Run
-			stateData.setMixByName("run", "idle_breath", 0.25);
-			stateData.setMixByName("run", "jump_part1", 0);
-			
-			//Jump
-			stateData.setMixByName("jump_part1", "jump_part2", 0);
-			stateData.setMixByName("jump_part2", "jump_part3", 0);
-			stateData.setMixByName("jump_part3", "idle_breath", 0.25);
-			stateData.setMixByName("jump_part3", "run", 0.1);
+			//Set your mixes here
 		}
 		
 		override public function move(direction:int):void 

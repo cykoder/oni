@@ -24,9 +24,6 @@ package oni.entities.environment
 	import starling.display.Image;
 	import starling.display.Shape;
 	import starling.events.Event;
-	import starling.events.Touch;
-	import starling.events.TouchEvent;
-	import starling.events.TouchPhase;
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
 
@@ -105,10 +102,7 @@ package oni.entities.environment
 			_shape.graphics.clear();
 			
 			//Fill with the background texture
-			if (backgroundTexture != null) 
-			{
-				_shape.graphics.beginTextureFill(backgroundTexture);
-			}
+			if (backgroundTexture != null) _shape.graphics.beginTextureFill(backgroundTexture);
 			
 			//Trace background
 			var i:uint;
@@ -121,6 +115,9 @@ package oni.entities.environment
 			var positiveDegrees:Number;
 			for (i = 0; i < _points.length; ++i)
 			{
+				//Reset line style
+				_shape.graphics.lineStyle(0);
+				
 				//Check if first point
 				if (i == 0)
 				{
@@ -128,9 +125,6 @@ package oni.entities.environment
 				}
 				else
 				{
-					//Clear line
-					_shape.graphics.lineStyle(0);
-							
 					//Calculate angles
 					x1 = _points[i-1].x, y1 = _points[i-1].y;
 					x2 = _points[i].x, y2 = _points[i].y;
@@ -181,6 +175,9 @@ package oni.entities.environment
 				if (_params.reversed) _points.reverse();
 				for (i = 0; i < _points.length; ++i)
 				{
+					//Reset line style
+					_shape.graphics.lineStyle(0);
+					
 					//Check if first point
 					if (i == 0)
 					{
@@ -203,7 +200,7 @@ package oni.entities.environment
 							
 							//Check if edge or bottom, don't draw this
 							if (positiveDegrees > 130 ||
-							   (edgeTexture != null && !((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180)))
+							   !((positiveDegrees >= 0 && positiveDegrees <= 60) || positiveDegrees == 180))
 							{
 								//Clear line style
 								_shape.graphics.lineStyle(0);
@@ -254,10 +251,6 @@ package oni.entities.environment
 								{
 									_shape.graphics.lineTexture(128, edgeTexture); //No top, default to edge
 								}
-								else
-								{
-									_shape.graphics.lineStyle(0); //Clear line style
-								}
 							}
 						}
 						
@@ -275,7 +268,6 @@ package oni.entities.environment
 				if (_params.reversed) _points.reverse();
 			}
 			
-			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, width, height+16);
 		}
@@ -291,10 +283,7 @@ package oni.entities.environment
 			}
 			
 			//Create a physics shape for the collision data
-			if (_physicsShape == null)
-			{
-				_physicsShape = new flash.display.Shape();
-			}
+			if (_physicsShape == null) _physicsShape = new flash.display.Shape();
 			
 			//Create a physics body
 			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));

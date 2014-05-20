@@ -45,6 +45,9 @@ package oni.entities
 		 */
 		private var _paused:Boolean;
 		
+		/**
+		 * Nape physics debug display
+		 */
 		private var _napeDebug:ShapeDebug;
 		
 		/**
@@ -101,7 +104,6 @@ package oni.entities
 				_napeDebug = new ShapeDebug(Starling.current.stage.stageWidth, Starling.current.stage.stageHeight, 0xFFFFFF);
 				_napeDebug.display.scaleX = Starling.current.nativeStage.stageWidth / Starling.current.stage.stageWidth;
 				_napeDebug.display.scaleY = Starling.current.nativeStage.stageHeight / Starling.current.stage.stageHeight;
-				//Starling.current.nativeStage.addChild(_napeDebug.display);
 			}
 		}
 		
@@ -194,15 +196,12 @@ package oni.entities
 			//Only if not paused
 			if (!_paused)
 			{
-				var i:uint;
-				
 				//Fire update event
+				var i:uint;
 				for (i = 0; i < _entities.length; i++) 
 				{
 					_entities[i].dispatchEvent(e);
 				}
-				
-				_napeDebug
 				
 				//Check if we should update physics
 				if (_space != null) 
@@ -350,6 +349,31 @@ package oni.entities
 				if(_entities[i].serializable) data.push(_entities[i].serialize());
 			}
 			return data;
+		}
+		
+		/**Boolean
+		 */
+		public function get debug():Boolean
+		{
+			return _napeDebug != null && _napeDebug.display.parent != null;
+		}
+		
+		/**
+		 * Debug on/off
+		 */
+		public function set debug(value:Boolean):void
+		{
+			if (_napeDebug != null)
+			{
+				if (value)
+				{
+					Starling.current.nativeStage.addChild(_napeDebug.display);
+				}
+				else if (_napeDebug.display.parent != null)
+				{
+					Starling.current.nativeStage.removeChild(_napeDebug.display);
+				}
+			}
 		}
 		
 	}

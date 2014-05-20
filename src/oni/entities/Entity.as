@@ -226,7 +226,7 @@ package oni.entities
 		 * @param	nx
 		 * @param	ny
 		 */
-		public function cullCheck(nx:int, ny:int):void
+		public function cullCheck(nx:int, ny:int, nz:Number):void
 		{
 			if (cull && cullBounds != null)
 			{
@@ -234,6 +234,7 @@ package oni.entities
 								((y + ny + cullBounds.height) < 0) ||
 								((x + nx > Platform.STAGE_WIDTH)) ||
 								((y + ny > Platform.STAGE_HEIGHT)));
+				//trace(_shouldRender);
 			}
 		}
 		

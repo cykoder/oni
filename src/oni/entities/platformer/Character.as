@@ -6,6 +6,8 @@ package oni.entities.platformer
 	import nape.callbacks.InteractionCallback;
 	import nape.callbacks.InteractionListener;
 	import nape.callbacks.InteractionType;
+	import nape.geom.Ray;
+	import nape.geom.RayResult;
 	import nape.phys.Material;
 	import nape.shape.Polygon;
 	import oni.assets.AssetManager;
@@ -34,6 +36,10 @@ package oni.entities.platformer
 		
 		protected  var _isJumping:Boolean;
 		
+		protected var _floorCheckRay:Ray;
+		
+		private var _fallTimer:uint=0;
+		
 		public function Character(params:Object)
 		{
 			//Default parameters
@@ -43,22 +49,45 @@ package oni.entities.platformer
 			//Super
 			super(params);
 			
-			//Create a shape for graphics
-			var _shape:Shape = new Shape();
-			_shape.graphics.beginFill(0x000000);
-			_shape.graphics.lineStyle(1, 0xFFFFFF);
-			_shape.graphics.drawRect(0, 0, _params.bodyWidth, _params.bodyHeight);
-			_shape.graphics.endFill();
-			//addChild(_shape);
-			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _params.bodyWidth, _params.bodyHeight);
 			
 			//Listen for update
 			addEventListener(Oni.UPDATE, _onUpdate);
 			
+			//Create a floor check ray
+			_floorCheckRay = new Ray(Vec2.weak(), new Vec2(0, 1));
+			_floorCheckRay.maxDistance = 100;
+			
+			//Listen for debug draw
+			addEventListener(Oni.DEBUG_DRAW, _onDebugDraw);
+			
 			//Set state to idle
 			state = "idle";
+		}
+		
+		private function _onDebugDraw(e:Event):void
+		{
+			//Draw floor check ray
+			_floorCheckRay.origin.set(Vec2.weak(this.x+_params.bodyWidth/2, this.y + _params.bodyHeight));
+			
+				var rayResult:RayResult = _physicsBody.space.rayCast(_floorCheckRay);
+				if (rayResult != null)
+				{
+					var collision:Vec2 = _floorCheckRay.at(rayResult.distance);
+					e.data.debug.drawLine(_floorCheckRay.origin, collision, 0xaa00);
+					// Draw circle at collision point, and collision normal.
+					e.data.debug.drawFilledCircle(collision, 3, 0xaa0000);
+					e.data.debug.drawLine(
+						collision,
+						collision.addMul(rayResult.normal, 15, true),
+						0xaa0000
+					);
+					collision.dispose();
+	 
+					// release rayResult object to pool.
+					rayResult.dispose();
+				}
 		}
 		
 		override protected function _createBody():void 
@@ -108,50 +137,77 @@ package oni.entities.platformer
 			_isJumping = value;
 		}
 		
-		private function _onUpdate(e:Event):void
+		protected function _onUpdate(e:Event):void
 		{
-			//Are we jumping?
-			if (isJumping && velocity.y < 0)
+			if (state != "dead")
 			{
-				velocity.y -= _params.jumpAcceleration;
-			}
-			else if(velocity.y > 400) //We're falling!
-			{
-				state = "falling";
-			}
-			
-			//Are we jumping
-			if (isJumping)
-			{
-				state = "jumping";
-			}
-			else
-			{
-				//Check if moving
-				if (velocity.x > 0.5 || velocity.x < -0.5)
+				//Are we jumping?
+				if (isJumping && velocity.y < 0)
 				{
-					state = "moving";
+					state = "jumping";
+					velocity.y -= _params.jumpAcceleration;
 				}
-				else if(state == "moving")
+				else if(velocity.y > 120) //We're falling!
 				{
-					state = "idle";
+					_isJumping = false;
+					
+					//Set origin
+					_floorCheckRay.origin.set(Vec2.weak(this.x+_params.bodyWidth/2, this.y + _params.bodyHeight));
+				
+					var rayResult:RayResult = _physicsBody.space.rayCast(_floorCheckRay);
+					if (rayResult != null)
+					{
+						if (state == "landing")
+						{
+							state = "idle";
+						}
+						else
+						{
+							_fallTimer = 0;
+							state = "landing";
+						}
+						
+						rayResult.dispose();
+					}
+					else
+					{
+						state = "falling";
+						_fallTimer++;
+						if (_fallTimer > 60)
+						{
+							state = "falltodeath";
+							_fallTimer = 0;
+						}
+					}
 				}
-			}
-			
-			//Check move direction for acceleration
-			if (_moveDirection != 0)
-			{
-				//Are we under the velocity limit?
-				if (!(velocity.x < -_params.maxVelocity || velocity.x > _params.maxVelocity))
+				else if (state == "idle" || state == "moving") //Check if we are moving or idle
 				{
-					//Accelerate
-					velocity.x += _moveDirection * _params.acceleration;
+					if (velocity.x > 0.75 || velocity.x < -0.75)
+					{
+						state = "moving";
+					}
+					else
+					{
+						state = "idle";
+						_moveDirection = 0;
+					}
 				}
-				else
-				{
-					if (_moveDirection == 1) velocity.x = _params.maxVelocity;
-					if (_moveDirection == -1) velocity.x = -_params.maxVelocity;
-				}
+				
+					//Check move direction for acceleration
+					if (_moveDirection != 0)
+					{
+						//Are we under the velocity limit?
+						if (!(velocity.x < -_params.maxVelocity || velocity.x > _params.maxVelocity))
+						{
+							//Accelerate
+							velocity.x += _moveDirection * _params.acceleration;
+						}
+						else
+						{
+							if (_moveDirection == 1) velocity.x = _params.maxVelocity;
+							if (_moveDirection == -1) velocity.x = -_params.maxVelocity;
+						}
+					}
 			}
 		}
 		
