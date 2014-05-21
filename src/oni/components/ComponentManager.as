@@ -1,6 +1,5 @@
 package oni.components 
 {
-	import oni.components.weather.WeatherSystem;
 	import oni.core.ISerializable;
 	import oni.entities.EntityManager;
 	import oni.Oni;
@@ -12,11 +11,6 @@ package oni.components
 	 */
 	public class ComponentManager extends EventDispatcher implements ISerializable
 	{
-		/**
-		 * Linkage classes so we don't get the "Variable [X] is not defined error"
-		 */
-		private static var weatherSystem:WeatherSystem;
-		
 		/**
 		 * The components vector
 		 */

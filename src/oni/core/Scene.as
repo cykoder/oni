@@ -92,28 +92,24 @@ package oni.core
 			addChild(new Quad(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT, 0x0));
 			
 			//Do we support lighting?
-			if (Platform.supportsLighting())
+			if (lighting && Platform.supportsLighting())
 			{
-				//Is lighting enabled?
-				if (lighting)
-				{
-					//Create a light map
-					_lightMap = new LightMap();
-					_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
-					_lightMap.scaleX = _lightMap.scaleY = lightQuality;
+				//Create a light map
+				_lightMap = new LightMap();
+				_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
+				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
 					
-					//Create a composite filter
-					this.filter = new CompositeFilter();
+				//Create a composite filter
+				this.filter = new CompositeFilter();
 					
-					//Create a render texture for the diffuse map
-					(this.filter as CompositeFilter).diffuseTexture = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
+				//Create a render texture for the diffuse map
+				(this.filter as CompositeFilter).diffuseTexture = new RenderTexture(Platform.STAGE_WIDTH, Platform.STAGE_HEIGHT);
 					
-					//Create a render texture for the light map
-					(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
+				//Create a render texture for the light map
+				(this.filter as CompositeFilter).lightTexture = _lightRenderTexture = new RenderTexture(Platform.STAGE_WIDTH * lightQuality, Platform.STAGE_HEIGHT * lightQuality);
 					
-					//Set light quality
-					MatrixUtil.prependScale(_lightRenderMatrix, lightQuality, lightQuality);
-				}
+				//Set light quality
+				MatrixUtil.prependScale(_lightRenderMatrix, lightQuality, lightQuality);
 			}
 			else //No lighting, just add diffuse map
 			{
