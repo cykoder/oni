@@ -166,21 +166,11 @@ package oni.editor.ui
 						if (_points[0].x ==  _points[selectedPoint].x &&
 							_points[0].y ==  _points[selectedPoint].y)
 						{
-							if (selectedPoint == 0)
-							{
-								_points[_points.length - 1].x = touchLocation.x;
-								_points[_points.length - 1].y = touchLocation.y;
-								if (_points[_points.length - 1].x < 0) _points[_points.length - 1].x = 0;
-								if (_points[_points.length - 1].y < 0) _points[_points.length - 1].y = 0;
-							}
-							else
-							{
-								//Set
-								_points[0].x = touchLocation.x;
-								_points[0].y = touchLocation.y;
-								if (_points[0].x < 0) _points[0].x = 0;
-								if (_points[0].y < 0) _points[0].y = 0;
-							}
+							//Set
+							_points[0].x = touchLocation.x;
+							_points[0].y = touchLocation.y;
+							if (_points[0].x < 0) _points[0].x = 0;
+							if (_points[0].y < 0) _points[0].y = 0;
 						}
 						
 						//Set
