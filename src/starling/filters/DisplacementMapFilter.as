@@ -23,6 +23,7 @@ package starling.filters
     import starling.core.RenderSupport;
     import starling.core.Starling;
     import starling.textures.Texture;
+    import starling.utils.formatString;
     
     /** The DisplacementMapFilter class uses the pixel values from the specified texture (called
      *  the displacement map) to perform a displacement of an object. You can use this filter 
@@ -31,7 +32,7 @@ package starling.filters
      *
      *  <p>The filter uses the following formula:</p>
      *  <listing>dstPixel[x, y] = srcPixel[x + ((componentX(x, y) - 128) &#42; scaleX) / 256, 
-     *                      y + ((componentY(x, y) - 128) &#42; scaleY) / 256)]
+     *                      y + ((componentY(x, y) - 128) &#42; scaleY) / 256]
      *  </listing>
      *  
      *  <p>Where <code>componentX(x, y)</code> gets the componentX property color value from the 
@@ -77,7 +78,6 @@ package starling.filters
         /** @inheritDoc */
         public override function dispose():void
         {
-            if (mShaderProgram) mShaderProgram.dispose();
             if (mMapTexCoordBuffer) mMapTexCoordBuffer.dispose();
             super.dispose();
         }
@@ -85,42 +85,50 @@ package starling.filters
         /** @private */
         protected override function createPrograms():void
         {
-            if (mShaderProgram) mShaderProgram.dispose();
-            if (mMapTexCoordBuffer) mMapTexCoordBuffer.dispose();
-            
             // the texture coordinates for the map texture are uploaded via a separate buffer
+            if (mMapTexCoordBuffer) mMapTexCoordBuffer.dispose();
             mMapTexCoordBuffer = Starling.context.createVertexBuffer(4, 2);
             
-            // vc0-3: mvpMatrix
-            // va0:   vertex position
-            // va1:   input texture coords
-            // va2:   map texture coords
-            
-            var vertexShaderString:String = [
-                "m44  op, va0, vc0", // 4x4 matrix transform to output space
-                "mov  v0, va1",      // pass input texture coordinates to fragment program
-                "mov  v1, va2"       // pass map texture coordinates to fragment program
-            ].join("\n");
-            
-            // v0:    input texCoords
-            // v1:    map texCoords
-            // fc0:   OneHalf
-            // fc1-4: matrix
-            
-            var mapFlags:String   = RenderSupport.getTextureLookupFlags(mapTexture.format,
-                                        mapTexture.mipMapping, mapTexture.repeat);
+            var target:Starling = Starling.current;
+            var mapFlags:String = RenderSupport.getTextureLookupFlags(
+                                      mapTexture.format, mapTexture.mipMapping, mapTexture.repeat);
             var inputFlags:String = RenderSupport.getTextureLookupFlags(
                                         Context3DTextureFormat.BGRA, false, mRepeat);
+            var programName:String = formatString("DMF_m{0}_i{1}", mapFlags, inputFlags);
             
-            var fragmentShaderString:String = [
-                "tex ft0,  v1, fs1 " + mapFlags, // read map texture
-                "sub ft1, ft0, fc0", // subtract 0.5 -> range [-0.5, 0.5]
-                "m44 ft2, ft1, fc1", // multiply matrix with displacement values
-                "add ft3,  v0, ft2", // add displacement values to texture coords
-                "tex  oc, ft3, fs0 " + inputFlags // read input texture at displaced coords
-            ].join("\n");
-            
-            mShaderProgram = assembleAgal(fragmentShaderString, vertexShaderString);
+            if (target.hasProgram(programName))
+            {
+                mShaderProgram = target.getProgram(programName);
+            }
+            else
+            {
+                // vc0-3: mvpMatrix
+                // va0:   vertex position
+                // va1:   input texture coords
+                // va2:   map texture coords
+                
+                var vertexShader:String = [
+                    "m44  op, va0, vc0", // 4x4 matrix transform to output space
+                    "mov  v0, va1",      // pass input texture coordinates to fragment program
+                    "mov  v1, va2"       // pass map texture coordinates to fragment program
+                ].join("\n");
+                
+                // v0:    input texCoords
+                // v1:    map texCoords
+                // fc0:   OneHalf
+                // fc1-4: matrix
+                
+                var fragmentShader:String = [
+                    "tex ft0,  v1, fs1 " + mapFlags, // read map texture
+                    "sub ft1, ft0, fc0", // subtract 0.5 -> range [-0.5, 0.5]
+                    "m44 ft2, ft1, fc1", // multiply matrix with displacement values
+                    "add ft3,  v0, ft2", // add displacement values to texture coords
+                    "tex  oc, ft3, fs0 " + inputFlags // read input texture at displaced coords
+                ].join("\n");
+                
+                mShaderProgram = target.registerProgramFromSource(programName, 
+                    vertexShader, fragmentShader);
+            }
         }
         
         /** @private */
@@ -179,8 +187,8 @@ package starling.filters
             // The size of input texture and map texture may be different. We need to calculate
             // the right values for the texture coordinates at the filter vertices.
             
-            var mapX:Number = mMapPoint.x   / mapTexture.nativeWidth;
-            var mapY:Number = mMapPoint.y   / mapTexture.nativeHeight;
+            var mapX:Number = mMapPoint.x   / mapTexture.width;
+            var mapY:Number = mMapPoint.y   / mapTexture.height;
             var maxU:Number = textureWidth  / mapTexture.nativeWidth;
             var maxV:Number = textureHeight / mapTexture.nativeHeight;
             

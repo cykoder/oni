@@ -38,7 +38,7 @@ package oni.entities.platformer
 			var json:SkeletonJson = new SkeletonJson(new StarlingAtlasAttachmentLoader(atlas));
 			
 			//Read the skeleton data
-			var skeletonData:SkeletonData = json.readSkeletonData(AssetManager.getAsset("character_" + params.skeleton + "Skeleton"));
+			var skeletonData:SkeletonData = json.readSkeletonData(AssetManager.getAsset("character_" + params.skeleton + "Skeleton"), params.skeleton);
 	
 			//Load the animation state data, set mixes
 			var stateData:AnimationStateData = new AnimationStateData(skeletonData);

@@ -29,53 +29,83 @@
  *****************************************************************************/
 
 package spine.animation {
-import spine.Bone;
 import spine.Event;
 import spine.Skeleton;
+import spine.Slot;
+import spine.attachments.Attachment;
 
-public class TranslateTimeline extends CurveTimeline {
-	static internal const PREV_FRAME_TIME:int = -3;
-	static internal const FRAME_X:int = 1;
-	static internal const FRAME_Y:int = 2;
+public class FfdTimeline extends CurveTimeline {
+	public var slotIndex:int;
+	public var frames:Vector.<Number>;
+	public var frameVertices:Vector.<Vector.<Number>>;
+	public var attachment:Attachment;
 
-	public var boneIndex:int;
-	public var frames:Vector.<Number>; // time, value, value, ...
-
-	public function TranslateTimeline (frameCount:int) {
+	public function FfdTimeline (frameCount:int) {
 		super(frameCount);
-		frames = new Vector.<Number>(frameCount * 3, true);
+		frames = new Vector.<Number>(frameCount, true);
+		frameVertices = new Vector.<Vector.<Number>>(frameCount, true);
 	}
 
 	/** Sets the time and value of the specified keyframe. */
-	public function setFrame (frameIndex:int, time:Number, x:Number, y:Number) : void {
-		frameIndex *= 3;
+	public function setFrame (frameIndex:int, time:Number, vertices:Vector.<Number>) : void {
 		frames[frameIndex] = time;
-		frames[int(frameIndex + 1)] = x;
-		frames[int(frameIndex + 2)] = y;
+		frameVertices[frameIndex] = vertices;
 	}
 
 	override public function apply (skeleton:Skeleton, lastTime:Number, time:Number, firedEvents:Vector.<Event>, alpha:Number) : void {
-		if (time < frames[0])
+		var slot:Slot = skeleton.slots[slotIndex];
+		if (slot.attachment != attachment) return;
+
+		var frames:Vector.<Number> = this.frames;
+		if (time < frames[0]) {
+			slot.attachmentVertices.length = 0;
 			return; // Time is before first frame.
+		}
 
-		var bone:Bone = skeleton.bones[boneIndex];
+		var frameVertices:Vector.<Vector.<Number>> = this.frameVertices;
+		var vertexCount:int = frameVertices[0].length;
 
-		if (time >= frames[int(frames.length - 3)]) { // Time is after last frame.
-			bone.x += (bone.data.x + frames[int(frames.length - 2)] - bone.x) * alpha;
-			bone.y += (bone.data.y + frames[int(frames.length - 1)] - bone.y) * alpha;
+		var vertices:Vector.<Number> = slot.attachmentVertices;
+		if (vertices.length < vertexCount) {
+			vertices = new Vector.<Number>(vertexCount);
+			slot.attachmentVertices = vertices;
+		}
+		slot.attachmentVertices.length = vertexCount;
+
+		var i:int;
+		if (time >= frames[frames.length - 1]) { // Time is after last frame.
+			var lastVertices:Vector.<Number> = frameVertices[int(frames.length - 1)];
+			if (alpha < 1) {
+				for (i = 0; i < vertexCount; i++)
+					vertices[i] += (lastVertices[i] - vertices[i]) * alpha;
+			} else {
+				for (i = 0; i < vertexCount; i++)
+					vertices[i] = lastVertices[i];
+			}
 			return;
 		}
 
 		// Interpolate between the previous frame and the current frame.
-		var frameIndex:int = Animation.binarySearch(frames, time, 3);
-		var prevFrameX:Number = frames[int(frameIndex - 2)];
-		var prevFrameY:Number = frames[int(frameIndex - 1)];
+		var frameIndex:int = Animation.binarySearch(frames, time, 1);
 		var frameTime:Number = frames[frameIndex];
-		var percent:Number = 1 - (time - frameTime) / (frames[int(frameIndex + PREV_FRAME_TIME)] - frameTime);
-		percent = getCurvePercent(frameIndex / 3 - 1, percent < 0 ? 0 : (percent > 1 ? 1 : percent));
+		var percent:Number = 1 - (time - frameTime) / (frames[int(frameIndex - 1)] - frameTime);
+		percent = getCurvePercent(frameIndex - 1, percent < 0 ? 0 : (percent > 1 ? 1 : percent));
 
-		bone.x += (bone.data.x + prevFrameX + (frames[int(frameIndex + FRAME_X)] - prevFrameX) * percent - bone.x) * alpha;
-		bone.y += (bone.data.y + prevFrameY + (frames[int(frameIndex + FRAME_Y)] - prevFrameY) * percent - bone.y) * alpha;
+		var prevVertices:Vector.<Number> = frameVertices[int(frameIndex - 1)];
+		var nextVertices:Vector.<Number> = frameVertices[frameIndex];
+
+		var prev:Number;
+		if (alpha < 1) {
+			for (i = 0; i < vertexCount; i++) {
+				prev = prevVertices[i];
+				vertices[i] += (prev + (nextVertices[i] - prev) * percent - vertices[i]) * alpha;
+			}
+		} else {
+			for (i = 0; i < vertexCount; i++) {
+				prev = prevVertices[i];
+				vertices[i] = prev + (nextVertices[i] - prev) * percent;
+			}
+		}
 	}
 }
 

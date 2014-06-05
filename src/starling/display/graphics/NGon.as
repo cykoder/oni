@@ -25,6 +25,7 @@ package starling.display.graphics
 		private var _startAngle		:Number;
 		private var _endAngle		:Number;
 		private var _numSides		:int;
+		private var _color			:uint = 0xFFFFFF;
 		
 		private static var _uv		:Point;
 		
@@ -35,6 +36,9 @@ package starling.display.graphics
 			this.innerRadius = innerRadius;
 			this.startAngle = startAngle;
 			this.endAngle = endAngle;
+			
+			minBounds.x = minBounds.y = -radius;
+			maxBounds.x = maxBounds.y = radius;
 			
 			if ( !_uv )
 			{
@@ -67,6 +71,12 @@ package starling.display.graphics
 		public function get radius():Number
 		{
 			return _radius;
+		}
+		
+		public function set color(value:uint) : void
+		{
+			_color = value;
+			setGeometryInvalid();
 		}
 		
 		public function set radius(value:Number):void
@@ -145,19 +155,19 @@ package starling.display.graphics
 			var isSegment:Boolean = sa != 0 || ea != 0;
 			if ( innerRadius == 0 && !isSegment )
 			{
-				buildSimpleNGon(radius, _numSides, vertices, indices, _uvMatrix );
+				buildSimpleNGon(radius, _numSides, vertices, indices, _uvMatrix , _color);
 			}
 			else if ( innerRadius != 0 && !isSegment )
 			{
-				buildHoop(innerRadius, radius, _numSides, vertices, indices, _uvMatrix );
+				buildHoop(innerRadius, radius, _numSides, vertices, indices, _uvMatrix , _color);
 			}
 			else if ( innerRadius == 0 )
 			{
-				buildFan(radius, sa, ea, _numSides, vertices, indices, _uvMatrix );
+				buildFan(radius, sa, ea, _numSides, vertices, indices, _uvMatrix , _color);
 			}
 			else
 			{
-				buildArc( innerRadius, radius, sa, ea, _numSides, vertices, indices, _uvMatrix );
+				buildArc( innerRadius, radius, sa, ea, _numSides, vertices, indices, _uvMatrix , _color);
 			}
 		}
 		
@@ -165,7 +175,12 @@ package starling.display.graphics
 		{
 			var numIndices:int = indices.length;
 			if ( numIndices < 2 )
-				return false;
+			{
+				validateNow();
+				numIndices = indices.length;
+				if ( numIndices < 2 )
+					return false;
+			}
 			
 			if ( _innerRadius == 0 && _radius > 0 && _startAngle == 0 && _endAngle == 360 && _numSides > 20 )  
 			{  // simple - faster - if ngon is circle shape and numsides more than 20, assume circle is desired.
@@ -192,7 +207,7 @@ package starling.display.graphics
 			return false;
 		}
 		
-		private static function buildSimpleNGon( radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
+		private static function buildSimpleNGon( radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix, color:uint ):void
 		{
 			var numVertices:int = 0;
 			
@@ -201,7 +216,11 @@ package starling.display.graphics
 			if ( uvMatrix ) 
 				_uv = uvMatrix.transformPoint(_uv);
 			
-			vertices.push( 0, 0, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+			var r:Number = (color >> 16) / 255;
+			var g:Number = ((color & 0x00FF00) >> 8) / 255;
+			var b:Number = (color & 0x0000FF) / 255;
+				
+			vertices.push( 0, 0, 0, r, g, b, 1, _uv.x, _uv.y );
 			numVertices++;
 			
 			var anglePerSide:Number = (Math.PI * 2) / numSides;
@@ -219,7 +238,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x, y, 0, r, g, b, 1, _uv.x, _uv.y );
 				numVertices++;
 				indices.push( 0, numVertices-1, i == numSides-1 ? 1 : numVertices );
 				
@@ -230,7 +249,7 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildHoop( innerRadius:Number, radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
+		private static function buildHoop( innerRadius:Number, radius:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix , color:uint):void
 		{
 			var numVertices:int = 0;
 			
@@ -239,6 +258,10 @@ package starling.display.graphics
 			var sinB:Number = Math.sin(anglePerSide);
 			var s:Number = 0.0;
 			var c:Number = 1.0;
+			
+			var r:Number = (color >> 16) / 255;
+			var g:Number = ((color & 0x00FF00) >> 8) / 255;
+			var b:Number = (color & 0x0000FF) / 255;
 			
 			for ( var i:int = 0; i < numSides; i++ )
 			{
@@ -249,7 +272,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x, y, 0, r, g, b, 1, _uv.x, _uv.y );
 				numVertices++;
 				
 				x = s * innerRadius;
@@ -259,7 +282,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x, y, 0, r, g, b, 1, _uv.x, _uv.y );
 				numVertices++;
 			
 				if ( i == numSides-1 )
@@ -278,7 +301,7 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildFan( radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
+		private static function buildFan( radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix , color:uint):void
 		{
 			var numVertices:int = 0;
 			vertices.push( 0, 0, 0, 1, 1, 1, 1, 0.5, 0.5 );
@@ -288,6 +311,11 @@ package starling.display.graphics
 			var startRadians:Number = (startAngle / radiansPerDivision);
 			startRadians = startRadians < 0 ? -Math.ceil(-startRadians) : int(startRadians);
 			startRadians *= radiansPerDivision;
+			
+			var r:Number = (color >> 16) / 255;
+			var g:Number = ((color & 0x00FF00) >> 8) / 255;
+			var b:Number = (color & 0x0000FF) / 255;
+			
 			for ( var i:int = 0; i <= numSides+1; i++ )
 			{
 				var radians:Number = startRadians + i*radiansPerDivision;
@@ -322,7 +350,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x, y, 0, r, g, b, 1, _uv.x, _uv.y );
 				numVertices++;
 				
 				if ( vertices.length > 2*9 )
@@ -337,13 +365,17 @@ package starling.display.graphics
 			}
 		}
 		
-		private static function buildArc( innerRadius:Number, radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix ):void
+		private static function buildArc( innerRadius:Number, radius:Number, startAngle:Number, endAngle:Number, numSides:int, vertices:Vector.<Number>, indices:Vector.<uint>, uvMatrix:Matrix , color:uint):void
 		{
 			var nv:int = 0;
 			var radiansPerDivision:Number = (Math.PI * 2) / numSides;
 			var startRadians:Number = (startAngle / radiansPerDivision);
 			startRadians = startRadians < 0 ? -Math.ceil(-startRadians) : int(startRadians);
 			startRadians *= radiansPerDivision;
+			var r:Number = (color >> 16) / 255;
+			var g:Number = ((color & 0x00FF00) >> 8) / 255;
+			var b:Number = (color & 0x0000FF) / 255;
+			
 			for ( var i:int = 0; i <= numSides+1; i++ )
 			{
 				var angle:Number = startRadians + i*radiansPerDivision;
@@ -396,7 +428,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x, y, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x, y, 0, r, g, b, 1, _uv.x, _uv.y );
 				nv++;
 				
 				_uv.x = x2;
@@ -404,7 +436,7 @@ package starling.display.graphics
 				if ( uvMatrix ) 
 					_uv = uvMatrix.transformPoint(_uv);
 				
-				vertices.push( x2, y2, 0, 1, 1, 1, 1, _uv.x, _uv.y );
+				vertices.push( x2, y2, 0, r, g, b, 1, _uv.x, _uv.y );
 				nv++;
 				
 				if ( vertices.length > 3*9 )

@@ -28,23 +28,24 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package spine.atlas {
+package spine.flash {
+import spine.SkeletonData;
+import spine.animation.AnimationState;
+import spine.animation.AnimationStateData;
 
-public class TextureFilter {
-	public static const nearest:TextureFilter = new TextureFilter(0, "nearest");
-	public static const linear:TextureFilter = new TextureFilter(1, "linear");
-	public static const mipMap:TextureFilter = new TextureFilter(2, "mipMap");
-	public static const mipMapNearestNearest:TextureFilter = new TextureFilter(3, "mipMapNearestNearest");
-	public static const mipMapLinearNearest:TextureFilter = new TextureFilter(4, "mipMapLinearNearest");
-	public static const mipMapNearestLinear:TextureFilter = new TextureFilter(5, "mipMapNearestLinear");
-	public static const mipMapLinearLinear:TextureFilter = new TextureFilter(6, "mipMapLinearLinear");
+public class SkeletonAnimation extends SkeletonSprite {
+	public var state:AnimationState;
 
-	public var ordinal:int;
-	public var name:String;
+	public function SkeletonAnimation (skeletonData:SkeletonData, stateData:AnimationStateData = null) {
+		super(skeletonData);
+		state = new AnimationState(stateData ? stateData : new AnimationStateData(skeletonData));
+	}
 
-	public function TextureFilter (ordinal:int, name:String) {
-		this.ordinal = ordinal;
-		this.name = name;
+	override public function advanceTime (time:Number) : void {
+		state.update(time * timeScale);
+		state.apply(skeleton);
+		skeleton.updateWorldTransform();
+		super.advanceTime(time);
 	}
 }
 

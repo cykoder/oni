@@ -28,23 +28,57 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package spine.atlas {
+package spine.flash {
+import flash.display.Bitmap;
+import flash.display.BitmapData;
 
-public class TextureFilter {
-	public static const nearest:TextureFilter = new TextureFilter(0, "nearest");
-	public static const linear:TextureFilter = new TextureFilter(1, "linear");
-	public static const mipMap:TextureFilter = new TextureFilter(2, "mipMap");
-	public static const mipMapNearestNearest:TextureFilter = new TextureFilter(3, "mipMapNearestNearest");
-	public static const mipMapLinearNearest:TextureFilter = new TextureFilter(4, "mipMapLinearNearest");
-	public static const mipMapNearestLinear:TextureFilter = new TextureFilter(5, "mipMapNearestLinear");
-	public static const mipMapLinearLinear:TextureFilter = new TextureFilter(6, "mipMapLinearLinear");
+import spine.atlas.AtlasPage;
+import spine.atlas.AtlasRegion;
+import spine.atlas.TextureLoader;
 
-	public var ordinal:int;
-	public var name:String;
+public class FlashTextureLoader implements TextureLoader {
+	public var bitmapDatas:Object = {};
+	public var singleBitmapData:BitmapData;
 
-	public function TextureFilter (ordinal:int, name:String) {
-		this.ordinal = ordinal;
-		this.name = name;
+	/** @param bitmaps A Bitmap or BitmapData for an atlas that has only one page, or for a multi page atlas an object where the 
+	 * key is the image path and the value is the Bitmap or BitmapData. */
+	public function FlashTextureLoader (bitmaps:Object) {
+		if (bitmaps is BitmapData) {
+			singleBitmapData = BitmapData(bitmaps);
+			return;
+		}
+		if (bitmaps is Bitmap) {
+			singleBitmapData = Bitmap(bitmaps).bitmapData;
+			return;
+		}
+
+		for (var path:* in bitmaps) {
+			var object:* = bitmaps[path];
+			var bitmapData:BitmapData;
+			if (object is BitmapData)
+				bitmapData = BitmapData(object);
+			else if (object is Bitmap)
+				bitmapData = Bitmap(object).bitmapData;
+			else
+				throw new ArgumentError("Object for path \"" + path + "\" must be a Bitmap or BitmapData: " + object);
+			bitmapDatas[path] = bitmapData;
+		}
+	}
+
+	public function loadPage (page:AtlasPage, path:String) : void {
+		var bitmapData:BitmapData = singleBitmapData || bitmapDatas[path];
+		if (!bitmapData)
+			throw new ArgumentError("BitmapData not found with name: " + path);
+		page.rendererObject = bitmapData;
+		page.width = bitmapData.width;
+		page.height = bitmapData.height;
+	}
+	
+	public function loadRegion (region:AtlasRegion) : void {
+	}
+
+	public function unloadPage (page:AtlasPage) : void {
+		BitmapData(page.rendererObject).dispose();
 	}
 }
 

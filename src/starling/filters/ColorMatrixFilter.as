@@ -17,7 +17,9 @@ package starling.filters
     import flash.display3D.Context3DProgramType;
     import flash.display3D.Program3D;
     
+    import starling.core.Starling;
     import starling.textures.Texture;
+    import starling.utils.Color;
     
     /** The ColorMatrixFilter class lets you apply a 4x5 matrix transformation on the RGBA color 
      *  and alpha values of every pixel in the input image to produce a result with a new set 
@@ -42,10 +44,10 @@ package starling.filters
     public class ColorMatrixFilter extends FragmentFilter
     {
         private var mShaderProgram:Program3D;
-        
         private var mUserMatrix:Vector.<Number>;   // offset in range 0-255
         private var mShaderMatrix:Vector.<Number>; // offset in range 0-1, changed order
         
+        private static const PROGRAM_NAME:String = "CMF";
         private static const MIN_COLOR:Vector.<Number> = new <Number>[0, 0, 0, 0.0001];
         private static const IDENTITY:Array = [1,0,0,0,0,  0,1,0,0,0,  0,0,1,0,0,  0,0,0,1,0];
         private static const LUMA_R:Number = 0.299;
@@ -67,30 +69,33 @@ package starling.filters
             this.matrix = matrix;
         }
         
-        /** @inheritDoc */
-        public override function dispose():void
-        {
-            if (mShaderProgram) mShaderProgram.dispose();
-            super.dispose();
-        }
-        
         /** @private */
         protected override function createPrograms():void
         {
-            // fc0-3: matrix
-            // fc4:   offset
-            // fc5:   minimal allowed color value
+            var target:Starling = Starling.current;
             
-            var fragmentProgramCode:String =
-                "tex ft0, v0,  fs0 <2d, clamp, linear, mipnone>  \n" + // read texture color
-                "max ft0, ft0, fc5              \n" + // avoid division through zero in next step
-                "div ft0.xyz, ft0.xyz, ft0.www  \n" + // restore original (non-PMA) RGB values
-                "m44 ft0, ft0, fc0              \n" + // multiply color with 4x4 matrix
-                "add ft0, ft0, fc4              \n" + // add offset
-                "mul ft0.xyz, ft0.xyz, ft0.www  \n" + // multiply with alpha again (PMA)
-                "mov oc, ft0                    \n";  // copy to output
-            
-            mShaderProgram = assembleAgal(fragmentProgramCode);
+            if (target.hasProgram(PROGRAM_NAME))
+            {
+                mShaderProgram = target.getProgram(PROGRAM_NAME);
+            }
+            else
+            {
+                // fc0-3: matrix
+                // fc4:   offset
+                // fc5:   minimal allowed color value
+                
+                var fragmentShader:String =
+                    "tex ft0, v0,  fs0 <2d, clamp, linear, mipnone>  \n" + // read texture color
+                    "max ft0, ft0, fc5              \n" + // avoid division through zero in next step
+                    "div ft0.xyz, ft0.xyz, ft0.www  \n" + // restore original (non-PMA) RGB values
+                    "m44 ft0, ft0, fc0              \n" + // multiply color with 4x4 matrix
+                    "add ft0, ft0, fc4              \n" + // add offset
+                    "mul ft0.xyz, ft0.xyz, ft0.www  \n" + // multiply with alpha again (PMA)
+                    "mov oc, ft0                    \n";  // copy to output
+                
+                mShaderProgram = target.registerProgramFromSource(PROGRAM_NAME,
+                    STD_VERTEX_SHADER, fragmentShader);
+            }
         }
         
         /** @private */
@@ -170,6 +175,27 @@ package starling.filters
                 0, 0, 0, 1, 0);
         }
         
+        /** Tints the image in a certain color, analog to what can be done in Flash Pro.
+         *  @param color: the RGB color with which the image should be tinted.
+         *  @param amount: the intensity with which tinting should be applied. Range (0, 1). */
+        public function tint(color:uint, amount:Number=1.0):void
+        {
+            var r:Number = Color.getRed(color)   / 255.0;
+            var g:Number = Color.getGreen(color) / 255.0;
+            var b:Number = Color.getBlue(color)  / 255.0;
+            var q:Number = 1 - amount;
+
+            var rA:Number = amount * r;
+            var gA:Number = amount * g;
+            var bA:Number = amount * b;
+
+            concatValues(
+                q + rA * LUMA_R, rA * LUMA_G, rA * LUMA_B, 0, 0,
+                gA * LUMA_R, q + gA * LUMA_G, gA * LUMA_B, 0, 0,
+                bA * LUMA_R, bA * LUMA_G, q + bA * LUMA_B, 0, 0,
+                0, 0, 0, 1, 0);
+        }
+
         // matrix manipulation
         
         /** Changes the filter matrix back to the identity matrix. */

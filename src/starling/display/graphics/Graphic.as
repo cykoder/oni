@@ -32,8 +32,8 @@ package starling.display.graphics
 		protected static var defaultFragmentShaderDictionary	:Dictionary = new Dictionary(true);
 		
 		protected var _material		:IMaterial;
-		private var vertexBuffer	:VertexBuffer3D;
-		private var indexBuffer		:IndexBuffer3D;
+		protected var vertexBuffer	:VertexBuffer3D;
+		protected var indexBuffer		:IndexBuffer3D;
 		protected var vertices		:Vector.<Number>;
 		protected var indices		:Vector.<uint>;
 		protected var _uvMatrix		:Matrix;
@@ -44,6 +44,8 @@ package starling.display.graphics
 				
 		private static var sGraphicHelperRect:Rectangle = new Rectangle();
 		private static var sGraphicHelperPoint:Point = new Point();
+		private static var sGraphicHelperPointTR:Point = new Point();
+		private static var sGraphicHelperPointBL:Point = new Point();
 		
 		// Filled-out with min/max vertex positions
 		// during addVertex(). Used during getBounds().
@@ -94,13 +96,23 @@ package starling.display.graphics
 			isInvalid = true;
 			uvsInvalid = true;
 			_material.restoreOnLostContext();
+			
+			onGraphicLostContext();
+		}
+		
+		protected function onGraphicLostContext() : void
+		{
+			
 		}
 		
 		override public function dispose():void
 		{
-			Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
-			super.dispose();
-			
+			if (Starling.current)
+			{
+				Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+				super.dispose();
+			}
+
 			if ( vertexBuffer )
 			{
 				vertexBuffer.dispose();
@@ -131,6 +143,7 @@ package starling.display.graphics
 		public function set material( value:IMaterial ):void
 		{
 			_material = value;
+			
 		}
 		
 		public function get material():IMaterial
@@ -186,7 +199,8 @@ package starling.display.graphics
         {
             // on a touch test, invisible or untouchable objects cause the test to fail
             if (forTouch && (visible == false || touchable == false )) return null;
-            
+            if ( minBounds == null || maxBounds == null ) return null;
+			
 			// otherwise, check bounding box
 			if (getBounds(this, sGraphicHelperRect).containsPoint(localPoint))
 			{
@@ -205,7 +219,8 @@ package starling.display.graphics
 		
 		override public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle
 		{
-			if (resultRect == null) resultRect = new Rectangle();
+			if (resultRect == null) 
+				resultRect = new Rectangle();
 			
 			if (targetSpace == this) // optimization
 			{
@@ -226,18 +241,34 @@ package starling.display.graphics
 			getTransformationMatrix(targetSpace, sHelperMatrix);
 			var m:Matrix = sHelperMatrix;
 			
-			var tr:Point = new Point( minBounds.x + (maxBounds.x-minBounds.x), minBounds.y )
-			var bl:Point = new Point( minBounds.x, minBounds.y + (maxBounds.y-minBounds.y) )
+			sGraphicHelperPointTR.x = minBounds.x + (maxBounds.x - minBounds.x)
+			sGraphicHelperPointTR.y = minBounds.y;
+			sGraphicHelperPointBL.x = minBounds.x;
+			sGraphicHelperPointBL.y =  minBounds.y + (maxBounds.y - minBounds.y);
+			/*
+			 * Old version, 2 point allocations
+			 * var tr:Point = new Point(minBounds.x + (maxBounds.x - minBounds.x), minBounds.y);
+			 * var bl:Point = new Point(minBounds.x , minBounds.y + (maxBounds.y - minBounds.y));
+			 */ 
 			
-			var TL:Point = sHelperMatrix.transformPoint(minBounds.clone());
-			tr = sHelperMatrix.transformPoint(tr);
-			var BR:Point = sHelperMatrix.transformPoint(maxBounds.clone());
-			bl = sHelperMatrix.transformPoint(bl);
-				
-			resultRect.x = Math.min(TL.x, BR.x, tr.x, bl.x);
-			resultRect.y = Math.min(TL.y, BR.y, tr.y, bl.y);
-			resultRect.right = Math.max(TL.x, BR.x, tr.x, bl.x);
-			resultRect.bottom = Math.max(TL.y, BR.y, tr.y, bl.y);
+			var TL:Point = sHelperMatrix.transformPoint(minBounds);
+			sGraphicHelperPointTR = sHelperMatrix.transformPoint(sGraphicHelperPointTR);
+			var BR:Point = sHelperMatrix.transformPoint(maxBounds);
+			sGraphicHelperPointBL = sHelperMatrix.transformPoint(sGraphicHelperPointBL);
+		
+			/*
+			 * Old version, 2 point allocations through clone
+			 var TL:Point = sHelperMatrix.transformPoint(minBounds.clone());
+			 tr = sHelperMatrix.transformPoint(bl);
+			 var BR:Point = sHelperMatrix.transformPoint(maxBounds.clone());
+			 bl = sHelperMatrix.transformPoint(bl);
+			*/
+			
+			
+			resultRect.x = Math.min(TL.x, BR.x, sGraphicHelperPointTR.x, sGraphicHelperPointBL.x);
+			resultRect.y = Math.min(TL.y, BR.y, sGraphicHelperPointTR.y, sGraphicHelperPointBL.y);
+			resultRect.right = Math.max(TL.x, BR.x, sGraphicHelperPointTR.x, sGraphicHelperPointBL.x);
+			resultRect.bottom = Math.max(TL.y, BR.y, sGraphicHelperPointTR.y, sGraphicHelperPointBL.y);
 			if ( _precisionHitTest )
 			{
 				resultRect.x -= _precisionHitTestDistance;
@@ -303,7 +334,7 @@ package starling.display.graphics
 		{
 			validateNow();
 			
-			if ( indices.length < 3 ) return;
+			if ( indices == null || indices.length < 3 ) return; 
 			
 			if ( isInvalid || uvsInvalid )
 			{

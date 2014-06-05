@@ -31,7 +31,8 @@ package starling.display.graphics
 				indices.push( numVertices-3, numVertices-2, numVertices-1 );
 			}
 			
-			setGeometryInvalid();
+			if ( isInvalid == false )
+				setGeometryInvalid();
 		}
 		
 		public function clear():void
@@ -39,6 +40,7 @@ package starling.display.graphics
 			vertices.length = 0;
 			indices.length = 0;
 			numVertices =  0;
+			setGeometryInvalid();
 		}
 		
 		override protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean

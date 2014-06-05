@@ -1,6 +1,6 @@
 /******************************************************************************
  * Spine Runtimes Software License
- * Version 2
+ * Version 2.1
  * 
  * Copyright (c) 2013, Esoteric Software
  * All rights reserved.
@@ -8,22 +8,24 @@
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to install, execute and perform the Spine Runtimes
  * Software (the "Software") solely for internal use. Without the written
- * permission of Esoteric Software, you may not (a) modify, translate, adapt or
- * otherwise create derivative works, improvements of the Software or develop
- * new applications using the Software or (b) remove, delete, alter or obscure
- * any trademarks or any copyright, trademark, patent or other intellectual
- * property or proprietary rights notices on or in the Software, including
- * any copy thereof. Redistributions in binary or source form must include
- * this license and terms. THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTARE BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * permission of Esoteric Software (typically granted by licensing Spine), you
+ * may not (a) modify, translate, adapt or otherwise create derivative works,
+ * improvements of the Software or develop new applications using the Software
+ * or (b) remove, delete, alter or obscure any trademarks or any copyright,
+ * trademark, patent or other intellectual property or proprietary rights
+ * notices on or in the Software, including any copy thereof. Redistributions
+ * in binary or source form must include this license and terms.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL ESOTERIC SOFTARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 package spine.attachments {
@@ -51,6 +53,7 @@ public dynamic class RegionAttachment extends Attachment {
 	public var b:Number = 1;
 	public var a:Number = 1;
 
+	public var path:String;
 	public var rendererObject:Object;
 	public var regionOffsetX:Number; // Pixels stripped from the bottom left, unrotated.
 	public var regionOffsetY:Number;
@@ -118,7 +121,7 @@ public dynamic class RegionAttachment extends Attachment {
 		offset[Y4] = localYCos + localX2Sin;
 	}
 
-	public function computeWorldVertices (x:Number, y:Number, bone:Bone, vertices:Vector.<Number>) : void {
+	public function computeWorldVertices (x:Number, y:Number, bone:Bone, worldVertices:Vector.<Number>) : void {
 		x += bone.worldX;
 		y += bone.worldY;
 		var m00:Number = bone.m00;
@@ -133,14 +136,14 @@ public dynamic class RegionAttachment extends Attachment {
 		var y3:Number = offset[Y3];
 		var x4:Number = offset[X4];
 		var y4:Number = offset[Y4];
-		vertices[X1] = x1 * m00 + y1 * m01 + x;
-		vertices[Y1] = x1 * m10 + y1 * m11 + y;
-		vertices[X2] = x2 * m00 + y2 * m01 + x;
-		vertices[Y2] = x2 * m10 + y2 * m11 + y;
-		vertices[X3] = x3 * m00 + y3 * m01 + x;
-		vertices[Y3] = x3 * m10 + y3 * m11 + y;
-		vertices[X4] = x4 * m00 + y4 * m01 + x;
-		vertices[Y4] = x4 * m10 + y4 * m11 + y;
+		worldVertices[X1] = x1 * m00 + y1 * m01 + x;
+		worldVertices[Y1] = x1 * m10 + y1 * m11 + y;
+		worldVertices[X2] = x2 * m00 + y2 * m01 + x;
+		worldVertices[Y2] = x2 * m10 + y2 * m11 + y;
+		worldVertices[X3] = x3 * m00 + y3 * m01 + x;
+		worldVertices[Y3] = x3 * m10 + y3 * m11 + y;
+		worldVertices[X4] = x4 * m00 + y4 * m01 + x;
+		worldVertices[Y4] = x4 * m10 + y4 * m11 + y;
 	}
 }
 
