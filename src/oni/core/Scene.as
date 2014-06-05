@@ -76,7 +76,7 @@ package oni.core
 			
 			//Set light quality
 			var lightQuality:Number = 1;
-			if (Platform.isMobile() || Platform.supportsAdvancedFeatures()) //Scale down on mobile devices
+			if (Platform.isMobile() || !Platform.supportsAdvancedFeatures()) //Scale down on mobile devices
 			{
 				lightQuality = 0.5;
 			}
@@ -98,7 +98,7 @@ package oni.core
 				_lightMap = new LightMap();
 				_lightMap.addEventListener(Oni.UPDATE_DATA, _onAmbientLightUpdated);
 				_lightMap.scaleX = _lightMap.scaleY = lightQuality;
-					
+				
 				//Create a composite filter
 				this.filter = new CompositeFilter();
 					
@@ -191,9 +191,8 @@ package oni.core
 		
 		private function _updatePosition(e:Event):void
 		{
-			//Position maps
-			_diffuseMap.reposition(e.data.x, e.data.y, e.data.z);
-			if (_lightMap != null) _lightMap.reposition(e.data.x, e.data.y, e.data.z);
+			if (_diffuseMap != null) _diffuseMap.dispatchEvent(e);
+			if (_lightMap != null) _lightMap.dispatchEvent(e);
 		}
 		
 		public function getContainer(child:DisplayObject):DisplayObjectContainer

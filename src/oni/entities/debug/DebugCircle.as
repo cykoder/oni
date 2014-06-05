@@ -33,13 +33,11 @@ package oni.entities.debug
 		public function DebugCircle(params:Object) 
 		{
 			//Super
+			params.cull = false;
 			super(params);
 			
 			//Set radius
 			_radius = params.radius/2;
-			
-			//No culling
-			this.cull = false;
 			
 			//Create a shape for graphics
 			_shape = new Shape();

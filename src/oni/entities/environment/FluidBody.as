@@ -69,11 +69,8 @@ package oni.entities.environment
 			if (params.bottomColor == null) params.bottomColor = 0x000F28;
 			
 			//Super
+			params.cull = false;
 			super(params);
-			_params = params;
-			
-			//No culling
-			this.cull = false;
 			
 			//Calculate the amount of columns
 			_columnAmount = _params.width / _waveQuality;

@@ -48,11 +48,6 @@ package oni.entities
 						   texturedLight:TexturedLight;
 		
 		/**
-		 * Whether the entity should cull or not
-		 */
-		public var cull:Boolean = true;
-		
-		/**
 		 * The parameters used when the entity is initialised
 		 */
 		protected var _params:Object;
@@ -61,21 +56,6 @@ package oni.entities
 		 * The entity's Z co-ordinate
 		 */
 		private var _z:Number = 1;
-		
-		/**
-		 * Whether the entity should render or not
-		 */
-		private var _shouldRender:Boolean = true;
-		
-		/**
-		 * Whether the entity should parallax scroll along the X axis
-		 */
-		private var _scrollX:Boolean = true;
-		
-		/**
-		 * Whether the entity should parallax scroll along the X axis
-		 */
-		private var _scrollY:Boolean = true;
 		
 		/**
 		 * The culling bounds of the entity
@@ -100,6 +80,7 @@ package oni.entities
 			
 			//Default parameters
 			if (params.serializable == null) params.serializable = true;
+			if (params.cull == null) params.cull = true;
 			
 			//Set startup parameters
 			_params = params;
@@ -190,57 +171,25 @@ package oni.entities
 		}
 		
 		/**
-		 * Whether the entity should parallax scroll along the X axis
-		 */
-		public function get scrollX():Boolean
-		{
-			return (_z < 0 || _scrollX);
-		}
-		
-		/**
-		 * Whether the entity should parallax scroll along the X axis
-		 */
-		public function set scrollX(value:Boolean):void
-		{
-			_scrollX = value;
-		}
-		
-		/**
-		 * Whether the entity should parallax scroll along the Y axis
-		 */
-		public function get scrollY():Boolean
-		{
-			return (_z < 0 || _scrollY);
-		}
-		
-		/**
-		 * Whether the entity should parallax scroll along the Y axis
-		 */
-		public function set scrollY(value:Boolean):void
-		{
-			_scrollY = value;
-		}
-		
-		/**
 		 * Checks if an entity should be culled or not
 		 * @param	nx
 		 * @param	ny
 		 */
-		public function cullCheck(nx:int, ny:int, nz:Number):void
+		public function cullCheck(nx:int, ny:int, nz:Number):Boolean
 		{
-			if (cull && cullBounds != null)
+			if (!_params.cull) return true;
+			
+			if (_params.cull && cullBounds != null)
 			{
-				_shouldRender = !(((x + nx + cullBounds.width) < 0) ||
+				return !(((x + nx + cullBounds.width) < 0) ||
 								((y + ny + cullBounds.height) < 0) ||
 								((x + nx > Platform.STAGE_WIDTH)) ||
 								((y + ny > Platform.STAGE_HEIGHT)));
-				//trace(_shouldRender);
 			}
-		}
-		
-		override public function render(support:RenderSupport, parentAlpha:Number):void 
-		{
-			if (_shouldRender) super.render(support, parentAlpha);
+			else
+			{
+				return false;
+			}
 		}
 		
 		override public function get x():Number 
@@ -291,9 +240,6 @@ package oni.entities
 				scaleY: this.scaleY,
 				rotation: this.rotation,
 				blendMode: this.blendMode,
-				cull: this.cull,
-				scrollX: this.scrollX,
-				scrollY: this.scrollY,
 				width: this.width,
 				height: this.height,
 				params: _params
@@ -334,9 +280,6 @@ package oni.entities
 			if(data.scaleY != null) entity.scaleY = data.scaleY;
 			if(data.rotation != null) entity.rotation = data.rotation;
 			if(data.blendMode != null) entity.blendMode = data.blendMode;
-			if(data.cull != null) entity.cull = data.cull;
-			if(data.scrollX != null) entity.scrollX = data.scrollX;
-			if(data.scrollY != null) entity.scrollY = data.scrollY;
 			
 			if(data.width == "stageWidth") data.width = Starling.current.stage.stageWidth;
 			if(data.height == "stageHeight") data.height = Starling.current.stage.stageHeight;

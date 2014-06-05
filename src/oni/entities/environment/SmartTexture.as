@@ -41,9 +41,6 @@ package oni.entities.environment
 		
 		public function SmartTexture(params:Object)
 		{
-			//Default parameters
-			if (params.reverse == null) params.reverse = false;
-			
 			//Super
 			super(params);
 			
@@ -56,8 +53,6 @@ package oni.entities.environment
 			
 			//Update data
 			dispatchEventWith(Oni.UPDATE_DATA, false, params);
-			
-			touchable = false;
 		}
 		
 		override protected function _onAdded(e:Event):void 
@@ -102,7 +97,7 @@ package oni.entities.environment
 			_shape.graphics.clear();
 			
 			//Fill with the background texture
-			if (backgroundTexture != null) _shape.graphics.beginTextureFill(backgroundTexture);
+			if (backgroundTexture != null && !isLine) _shape.graphics.beginTextureFill(backgroundTexture);
 			
 			//Trace background
 			var i:uint;
@@ -172,7 +167,6 @@ package oni.entities.environment
 			//Edges and detailing
 			if (!_params.backgroundOnly)
 			{
-				if (_params.reversed) _points.reverse();
 				for (i = 0; i < _points.length; ++i)
 				{
 					//Reset line style
@@ -265,11 +259,17 @@ package oni.entities.environment
 						}
 					}
 				}
-				if (_params.reversed) _points.reverse();
 			}
 			
 			//Set cull bounds
-			cullBounds.setTo(0, 0, width, height+16);
+			if (!isLine)
+			{
+				cullBounds.setTo(0, 0, width, height + 16);
+			}
+			else
+			{
+				cullBounds.setTo(0, 0, width, 64);
+			}
 		}
 		
 		override protected function _createBody():void 
@@ -289,7 +289,7 @@ package oni.entities.environment
 			_physicsBody = new Body(BodyType.STATIC, new Vec2(x, y));
 			
 			//Begin drawing the physics shape
-			_physicsShape.graphics.beginFill(0x0, 1);
+			if(!isLine) _physicsShape.graphics.beginFill(0x0, 1);
 			_physicsShape.graphics.lineStyle(8, 0x0);
 			
 			//Loop all points
@@ -394,6 +394,11 @@ package oni.entities.environment
 		public function get texture():String
 		{
 			return _params.texture;
+		}
+		
+		public function get isLine():Boolean
+		{
+			return !(_points[0].x == _points[_points.length - 1].x && _points[0].y == _points[_points.length - 1].y);
 		}
 	}
 }

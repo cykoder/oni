@@ -34,13 +34,11 @@ package oni.entities.debug
 		public function DebugSquare(params:Object) 
 		{
 			//Super
+			params.cull = false;
 			super(params);
 			
 			//Set width and height
 			_wh = params.wh;
-			
-			//No culling
-			this.cull = false;
 			
 			//Set pivot
 			this.pivotX = this.pivotY = _wh / 2;
