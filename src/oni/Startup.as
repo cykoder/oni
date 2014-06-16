@@ -25,10 +25,12 @@ package oni
 	public class Startup extends Sprite
 	{
 		/*
-		 * Startup image
+		 * Startup images
 		 */
-        [Embed(source="../../lib/textures/startup.png")]
-        public static const startup:Class;
+        [Embed(source="../../lib/textures/startup-landscape.png")]
+        public static const startup_landscape:Class;
+        [Embed(source="../../lib/textures/startup-portrait.png")]
+        public static const startup_portrait:Class;
 		
 		/**
 		 * The class we use for the engine
@@ -91,7 +93,15 @@ package oni
 			}
 			
 			//Create a splash bitmap
-            var splash:Bitmap = new startup() as Bitmap;
+            var splash:Bitmap;
+			if (Platform.STAGE_WIDTH > Platform.STAGE_HEIGHT)
+			{
+				splash = new startup_landscape() as Bitmap;
+			}
+			else
+			{
+				splash = new startup_portrait() as Bitmap;
+			}
             splash.x = viewport.x;
             splash.y = viewport.y;
             splash.width  = viewport.width;

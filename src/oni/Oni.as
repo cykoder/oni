@@ -7,10 +7,14 @@ package oni
 	import oni.screens.GameScreen;
 	import oni.screens.Screen;
 	import oni.screens.ScreenManager;
+	import oni.sound.MBG;
+	import oni.sound.MSFX;
+	import oni.sound.MSound;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import starling.core.RenderSupport;
 	import starling.core.Starling;
 	import starling.display.Shape;
 	import starling.display.Sprite;
@@ -122,6 +126,9 @@ package oni
 		 */
 		public function Oni()
 		{
+			//Create a component manager
+			components = new ComponentManager(this);
+			
 			//Listen for added to stage event
 			addEventListener(Event.ADDED_TO_STAGE, _init);
 			
@@ -135,11 +142,12 @@ package oni
 		 */
 		private function _init(e:Event):void
 		{
+			//Initialise the sound system
+			MBG.init();
+			MSFX.init();
+			
 			//Remove initialisation listener
 			removeEventListener(Event.ADDED_TO_STAGE, _init);
-			
-			//Create a component manager
-			components = new ComponentManager(this);
 			
 			//Create a screen manager
 			screens = new ScreenManager(this);
@@ -148,12 +156,12 @@ package oni
 			//Dispatch init event
 			dispatchEventWith(Oni.INIT);
 			
-			//Listen for frame update
-			addEventListener(Event.ENTER_FRAME, _onEnterFrame);
-			
             //Do a quick clean up
             System.pauseForGCIfCollectionImminent(0);
             System.gc();
+			
+			//Listen for frame update
+			addEventListener(Event.ENTER_FRAME, _onEnterFrame);
 		}
 		
 		/**
@@ -164,6 +172,12 @@ package oni
 		{
 			//Dispatch update event
 			dispatchEventWith(Oni.UPDATE, false);
+			
+			//Update current screen
+			if (screens != null && screens.current != null)
+			{
+				screens.current.dispatchEventWith(Oni.UPDATE, false);
+			}
 		}
 	}
 }

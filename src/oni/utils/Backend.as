@@ -11,7 +11,7 @@ package oni.utils
 	 */
 	public class Backend 
 	{
-		public static var logToFlox:Boolean = true;
+		public static var logToFlox:Boolean = false;
 		
 		/**
 		 * Initialises backend services

@@ -238,6 +238,10 @@ package oni.screens
 			}
 		}
 		
+		public function get current():Screen
+		{
+			return _currentScreen;
+		}
 	}
 
 }

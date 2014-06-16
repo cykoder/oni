@@ -1,5 +1,6 @@
 package oni.assets 
 {
+	import oni.sound.MSound;
 	import oni.utils.Backend;
 	import oni.utils.Platform;
     import flash.utils.Dictionary;
@@ -155,16 +156,16 @@ package oni.assets
 		 * @param	name
 		 * @return
 		 */
-		public static function getSound(name:String):Sound
+		public static function getSound(name:String):MSound
 		{
 			//Is it in the dictionary?
 			if (_sounds[name] == undefined)
 			{
 				//Get asset
-				var data:Object = getAsset(name);
+				var data:Object = getAsset("sound_" + name);
 				
 				//Set the sound
-                if (data is Sound) _sounds[name] = data as Sound;
+                if (data is Sound) _sounds[name] = new MSound(data as Sound);
 			}
 			
 			//Return the texture
