@@ -93,15 +93,6 @@ package oni.utils
 		}
 		
 		/**
-		 * Checks if the platform supports lighting
-		 * @return
-		 */
-		public static function supportsLighting():Boolean
-		{
-			return !isMobile();
-		}
-		
-		/**
 		 * Checks if the platform the engine is running is capable of debug mode
 		 * @return
 		 */

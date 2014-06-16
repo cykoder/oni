@@ -70,24 +70,23 @@ package oni.entities.platformer
 		{
 			//Draw floor check ray
 			_floorCheckRay.origin.set(Vec2.weak(this.x+_params.bodyWidth/2, this.y + _params.bodyHeight));
-			
-				var rayResult:RayResult = _physicsBody.space.rayCast(_floorCheckRay);
-				if (rayResult != null)
-				{
-					var collision:Vec2 = _floorCheckRay.at(rayResult.distance);
-					e.data.debug.drawLine(_floorCheckRay.origin, collision, 0xaa00);
-					// Draw circle at collision point, and collision normal.
-					e.data.debug.drawFilledCircle(collision, 3, 0xaa0000);
-					e.data.debug.drawLine(
-						collision,
-						collision.addMul(rayResult.normal, 15, true),
-						0xaa0000
-					);
-					collision.dispose();
-	 
-					// release rayResult object to pool.
-					rayResult.dispose();
-				}
+			var rayResult:RayResult = _physicsBody.space.rayCast(_floorCheckRay);
+			if (rayResult != null)
+			{
+				var collision:Vec2 = _floorCheckRay.at(rayResult.distance);
+				e.data.debug.drawLine(_floorCheckRay.origin, collision, 0xaa00);
+				// Draw circle at collision point, and collision normal.
+				e.data.debug.drawFilledCircle(collision, 3, 0xaa0000);
+				e.data.debug.drawLine(
+					collision,
+					collision.addMul(rayResult.normal, 15, true),
+					0xaa0000
+				);
+				collision.dispose();
+	
+				// release rayResult object to pool.
+				rayResult.dispose();
+			}
 		}
 		
 		override protected function _createBody():void 
@@ -103,10 +102,8 @@ package oni.entities.platformer
 			_physicsBody.shapes.add(new Polygon([new Vec2(0, 0),
 												 new Vec2(_params.bodyWidth, 0),
 												 new Vec2(_params.bodyWidth, _params.bodyHeight-angle),
-												 //new Vec2(_params.bodyWidth-(angle/4), _params.bodyHeight-(angle/2)),
 												 new Vec2(_params.bodyWidth-angle, _params.bodyHeight),
 												 new Vec2(angle, _params.bodyHeight),
-												 //new Vec2((angle/4), _params.bodyHeight-(angle/2)),
 												 new Vec2(0, _params.bodyHeight - angle),
 												 new Vec2(0, 0)], _material));
 			
@@ -151,9 +148,8 @@ package oni.entities.platformer
 				{
 					_isJumping = false;
 					
-					//Set origin
+					//Check if we're on the ground or not
 					_floorCheckRay.origin.set(Vec2.weak(this.x+_params.bodyWidth/2, this.y + _params.bodyHeight));
-				
 					var rayResult:RayResult = _physicsBody.space.rayCast(_floorCheckRay);
 					if (rayResult != null)
 					{
@@ -180,7 +176,7 @@ package oni.entities.platformer
 						}
 					}
 				}
-				else if (state == "idle" || state == "moving") //Check if we are moving or idle
+				else if (state == "idle" || state == "moving" || state == "landing") //Check if we are moving or idle
 				{
 					if (velocity.x > 0.75 || velocity.x < -0.75)
 					{

@@ -4,8 +4,6 @@ package oni.entities
     import flash.utils.getQualifiedClassName;
 	import oni.core.DisplayMap;
 	import oni.core.ISerializable;
-	import oni.entities.debug.DebugCircle;
-	import oni.entities.debug.DebugSquare;
 	import oni.entities.environment.FluidBody;
 	import oni.entities.environment.StaticTexture;
 	import oni.entities.environment.SmartTexture;
@@ -13,6 +11,7 @@ package oni.entities
 	import oni.entities.lights.PointLight;
 	import oni.entities.lights.PolygonLight;
 	import oni.entities.lights.TexturedLight;
+	import oni.entities.particles.ParticleEmitter;
 	import oni.entities.platformer.Character;
 	import oni.entities.scene.Prop;
 	import oni.Oni;
@@ -38,10 +37,9 @@ package oni.entities
 		 */
 		private static var smartTexture:SmartTexture,
 						   prop:Prop,
+						   particleEmitter:ParticleEmitter,
 						   character:Character,
 						   staticTexture:StaticTexture,
-						   debugCircle:DebugCircle,
-						   debugSquare:DebugSquare,
 						   ambientLight:AmbientLight,
 						   polygonLight:PolygonLight,
 						   pointLight:PointLight,
@@ -179,8 +177,10 @@ package oni.entities
 		{
 			if (!_params.cull) return true;
 			
-			if (_params.cull && cullBounds != null)
+			if (cullBounds != null)
 			{
+				//TODO: Fix culling system to incorporate entity z and camera zoom
+				return true;
 				return !(((x + nx + cullBounds.width) < 0) ||
 								((y + ny + cullBounds.height) < 0) ||
 								((x + nx > Platform.STAGE_WIDTH)) ||

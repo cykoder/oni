@@ -17,9 +17,6 @@ package oni.entities.environment
 			//Default
 			if (params.pivot == null) params.pivot = true;
 			
-			//Super
-			super(params);
-			
 			//Create an image
 			if (params.atlas == "" || params.atlas == null)
 			{
@@ -29,6 +26,9 @@ package oni.entities.environment
 			{
 				_image = new Image(AssetManager.getTextureAtlas(params.atlas).getTexture(params.texture));
 			}
+			
+			//Super
+			super(params);
 			addChild(_image);
 			
 			//Readjust

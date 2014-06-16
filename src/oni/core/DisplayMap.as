@@ -1,11 +1,10 @@
 package oni.core 
 {
+	import flash.geom.Matrix;
 	import oni.entities.Entity;
-	import oni.components.Camera;
-	import oni.entities.environment.StaticTexture;
-	import oni.entities.lights.Light;
 	import oni.Oni;
 	import starling.core.RenderSupport;
+	import starling.display.BlendMode;
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Sprite;
@@ -25,21 +24,39 @@ package oni.core
 		{
 			//Listen for events
 			addEventListener(Oni.UPDATE_POSITION, _updatePosition);
+			addEventListener(Oni.DEBUG_DRAW, _onDebugDraw);
 		}
 		
 		private function _updatePosition(e:Event):void
 		{
-			//Set difference
-			_repositonDifferenceX = -e.data.x-this.x;
-			_repositonDifferenceY = -e.data.y-this.y;
+			if (e.data.previous)
+			{
+				_repositonDifferenceX = -e.data.previous.x;
+				_repositonDifferenceY = -e.data.previous.y;
+			}
+		}
+		
+		private function _onDebugDraw(e:Event):void
+		{
+            var entLength:int = numChildren;
+            
+			//Set x/y
+			var nx:int = this.x * -1;
+			var ny:int = this.y * -1;
 			
-			//Set scale
-			this.scaleX = e.data.z;
-			this.scaleY = e.data.z;
-			
-			//Set position
-			this.x = -e.data.x;
-			this.y = -e.data.y;
+			//Loop through all entities
+            for (var i:int=0; i<entLength; ++i)
+            {
+				//Get the entity
+				var entity:Entity = getChildAt(i) as Entity;
+                
+				//Check if the child is even visible
+                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-nx, -ny, 1))
+				{
+					//Relay event
+					entity.dispatchEvent(e);
+				}
+			}
 		}
 		
 		override public function render(support:RenderSupport, parentAlpha:Number):void 
@@ -48,41 +65,48 @@ package oni.core
             var entLength:int = numChildren;
             var blendMode:String = support.blendMode;
 			
+			//Set x/y
 			var nx:int = this.x * -1;
 			var ny:int = this.y * -1;
-			var nz:int = this.scaleX;
             
+			//Loop through all entities
             for (var i:int=0; i<entLength; ++i)
             {
 				//Get the entity
 				var entity:Entity = getChildAt(i) as Entity;
                 
 				//Check if the child is even visible
-                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-nx, -ny, nz))
+                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-nx, -ny, 1))
 				{
 					//Push default matrix
 					support.pushMatrix();
 					support.transformMatrix(entity);
 					var newX:int, newY:int;
 					
-					//Parallax
+					//Parallax scrolling
 					if (entity.z > 0 && entity.z != 1)
 					{
-						newX = _repositonDifferenceX * (1 - entity.z);
-						newY = _repositonDifferenceY * (1 - entity.z);
-						support.translateMatrix(-newX, -newY);
+						support.translateMatrix((nx-_repositonDifferenceX) * (1 - entity.z), (ny-_repositonDifferenceY) * (1 - entity.z));
 					}
 					else if(entity.z == 0) //Static, non-scrolling entities
 					{
-						support.translateMatrix(-entity.x, -entity.y);
-						support.translateMatrix(nx/nz, ny/nz);
+						support.modelViewMatrix.tx = entity.x;
+						support.modelViewMatrix.ty = entity.y;
 					}
 					
+					/*var mtx:Matrix = new Matrix();
+					mtx.b = 100 * Math.PI/180;
+					mtx.c = 0 * Math.PI/180;
+					support.modelViewMatrix.concat(mtx);*/
+					
+					//Set blend mode
 					support.blendMode = entity.blendMode;
 					
+					//Render
 					if (entity.filter) entity.filter.render(entity, support, alpha);
 					else        entity.render(support, alpha);
-							
+					
+					//Reset support
 					support.blendMode = blendMode;
 					support.popMatrix();
 				}

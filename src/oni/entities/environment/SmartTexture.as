@@ -20,6 +20,7 @@ package oni.entities.environment
 	import nape.phys.Material;
 	import nape.shape.Polygon;
 	import nape.space.Space;
+	import starling.core.RenderSupport;
 	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Shape;
@@ -46,7 +47,6 @@ package oni.entities.environment
 			
 			//Create a shape for graphics
 			_shape = new Shape();
-			addChild(_shape);
 			
 			//Listen for collision update
 			addEventListener(Oni.UPDATE_DATA, _onUpdateData);
@@ -399,6 +399,11 @@ package oni.entities.environment
 		public function get isLine():Boolean
 		{
 			return !(_points[0].x == _points[_points.length - 1].x && _points[0].y == _points[_points.length - 1].y);
+		}
+		
+		override public function render(support:RenderSupport, parentAlpha:Number):void 
+		{
+			_shape.render(support, parentAlpha);
 		}
 	}
 }

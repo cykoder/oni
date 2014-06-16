@@ -95,27 +95,11 @@ package oni.entities.environment
 				_renderMatrix = new Matrix();
 				MatrixUtil.prependTranslation(_renderMatrix, 0, 256);
 				
-				//Create an image to render the water
-				_displayObject = new Image(_renderTexture);
-				_displayObject.y = -256;
-				_displayObject.scaleX = _params.width / _columnAmount;
-				addChild(_displayObject);
-				
 				//Listen for update
 				addEventListener(Oni.UPDATE, _onUpdate);
 				
 				//Listen for physics interaction
 				addEventListener(Oni.PHYSICS_INTERACTION, _onPhysicsInteraction);
-				
-				//Reset the column vector and repopulate
-				/*if (_fluidColumns != null)
-				{
-					_fluidColumns.length = 0;
-					for (var i:uint = 0; i < _columnAmount+1; i++)
-					{
-						_fluidColumns.push({ height: 0, targetHeight: 0, speed: 0 });
-					}
-				}*/
 			}
 			else
 			{
@@ -125,11 +109,10 @@ package oni.entities.environment
 				(_displayObject as Fill).addVertex(_params.width, 0, _params.topColor);
 				(_displayObject as Fill).addVertex(_params.width, _params.height,  _params.bottomColor);
 				(_displayObject as Fill).addVertex(0, _params.height,  _params.bottomColor);
-				addChild(_displayObject);
 			}
 			
 			//Set blendmode
-			this.blendMode = BlendMode.MULTIPLY;
+			this.blendMode = BlendMode.NORMAL;
 			
 			//Set cull bounds
 			cullBounds.setTo(0, 0, _params.width, _params.height);
@@ -138,7 +121,7 @@ package oni.entities.environment
 		override public function render(support:RenderSupport, parentAlpha:Number):void 
 		{
 			//Check if we're using a triangle strip
-			if (_triangleStrip != null)
+			if (_displayObject == null)
 			{
 				//Clear the triangle strip
 				_triangleStrip.clear();
@@ -181,11 +164,12 @@ package oni.entities.environment
 				}
 				
 				//Render the triangle strip
-				_renderTexture.draw(_triangleStrip, _renderMatrix);
+				_triangleStrip.render(support, parentAlpha);
 			}
-			
-			//Render this
-			super.render(support, parentAlpha);
+			else //Render a display object
+			{
+				_displayObject.render(support, parentAlpha);
+			}
 		}
 		
 		private function _onPhysicsInteraction(e:Event):void
@@ -198,8 +182,8 @@ package oni.entities.environment
 				if (e.data.a == this) collider = e.data.b;
 				
 				//Get nearest column to the start and the end of the collider
-				var minIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, (collider.x - collider.pivotX - this.x) / _displayObject.scaleX)));
-				var maxIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, ((collider.x + (collider.width-collider.pivotX)) - this.x) / _displayObject.scaleX)));
+				var minIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, (collider.x - collider.pivotX - this.x) / ( _params.width / _columnAmount))));
+				var maxIndex:int = int(Math.max(0, Math.min(_fluidColumns.length - 1, ((collider.x + (collider.width-collider.pivotX)) - this.x) / ( _params.width / _columnAmount))));
 				
 				//Calculate the speed
 				var speed:Number = (collider.body.velocity.y * _splashDampening) * (maxIndex - minIndex) / 1000;

@@ -42,28 +42,8 @@ package oni.screens
 			camera = new Camera();
 			components.add(camera);
 			
-			//Listen for entity added and removed
-			entities.addEventListener(Oni.ENTITY_ADDED, _entityAdded);
-			entities.addEventListener(Oni.ENTITY_REMOVED, _entityRemoved);
-			
 			//Listen for camera position update
 			camera.addEventListener(Oni.UPDATE_POSITION, _updatePosition);
-		}
-		
-		/**
-		 * Whether the game is paused or not
-		 */
-		public function get paused():Boolean
-		{
-			return entities.paused;
-		}
-		
-		/**
-		 * Whether the game is paused or not
-		 */
-		public function set paused(value:Boolean):void
-		{
-			entities.paused = value;
 		}
 		
 		/**
@@ -117,32 +97,6 @@ package oni.screens
 			
 			//Return scene serialized with entities and components
 			return scene.serialize(entities, components);
-		}
-		
-		/**
-		 * Called when an entity needs to be added to the scene
-		 * @param	e
-		 */
-		private function _entityAdded(e:Event):void
-		{
-			//Add to scene
-			if(scene != null) scene.addEntity(e.data.entity);
-			
-			//Relay event
-			dispatchEvent(e);
-		}
-		
-		/**
-		 * Called when an entity needs to be removed from the scene
-		 * @param	e
-		 */
-		private function _entityRemoved(e:Event):void
-		{
-			//Remove from scene
-			if(scene != null) scene.removeEntity(e.data.entity);
-			
-			//Relay event
-			dispatchEvent(e);
 		}
 		
 		/**

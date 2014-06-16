@@ -41,16 +41,6 @@ package oni.entities
 		private var _space:Space;
 		
 		/**
-		 * Whether the entities should update or not
-		 */
-		private var _paused:Boolean;
-		
-		/**
-		 * Nape physics debug display
-		 */
-		private var _napeDebug:ShapeDebug;
-		
-		/**
 		 * Creates an entity manager instance, with physics enabled or not
 		 * @param	physics
 		 * @param	gravity
@@ -99,11 +89,6 @@ package oni.entities
 				//Create sensor interaction listeners
 				_space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
 				_space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbType.ANY_BODY, CbType.ANY_BODY, _onSensorInteraction));
-				
-				//Create a debug display
-				_napeDebug = new ShapeDebug(Starling.current.stage.stageWidth, Starling.current.stage.stageHeight, 0xFFFFFF);
-				_napeDebug.display.scaleX = Starling.current.nativeStage.stageWidth / Starling.current.stage.stageWidth;
-				_napeDebug.display.scaleY = Starling.current.nativeStage.stageHeight / Starling.current.stage.stageHeight;
 			}
 		}
 		
@@ -193,39 +178,18 @@ package oni.entities
 		 */
 		private function _onUpdate(e:Event):void
 		{
-			//Only if not paused
-			if (!_paused)
+			//Fire update event
+			var i:uint;
+			for (i = 0; i < _entities.length; i++) 
 			{
-				//Fire update event
-				var i:uint;
-				for (i = 0; i < _entities.length; i++) 
-				{
-					_entities[i].dispatchEvent(e);
-				}
+				_entities[i].dispatchEvent(e);
+			}
 				
-				//Check if we should update physics
-				if (_space != null) 
-				{
-					//Step physics time
-					_space.step(TIME_STEP);
-					
-					//Debug drawing
-					if (_napeDebug != null && _napeDebug.display.parent != null)
-					{
-						//Redraw debug view
-						_napeDebug.clear();
-						_napeDebug.draw(_space);
-						
-						//Dispatch debug draw event
-						for (i = 0; i < _entities.length; i++) 
-						{
-							_entities[i].dispatchEventWith(Oni.DEBUG_DRAW, false, { debug: _napeDebug });
-						}
-						
-						//Flush the debug
-						_napeDebug.flush();
-					}
-				}
+			//Check if we should update physics
+			if (_space != null) 
+			{
+				//Step physics time
+				_space.step(TIME_STEP);
 			}
 		}
 		
@@ -297,22 +261,6 @@ package oni.entities
 		}
 		
 		/**
-		 * Whether the entities should update or not
-		 */
-		public function get paused():Boolean
-		{
-			return _paused;
-		}
-		
-		/**
-		 * Whether the entities should update or not
-		 */
-		public function set paused(value:Boolean):void
-		{
-			_paused = value;
-		}
-		
-		/**
 		 * The physics space's gravity
 		 */
 		public function get gravity():Point
@@ -338,6 +286,14 @@ package oni.entities
 		}
 		
 		/**
+		 * The amount of entities in the scene
+		 */
+		public function get space():Space
+		{
+			return this._space;
+		}
+		
+		/**
 		 * Serializes data to an object
 		 * @return
 		 */
@@ -349,31 +305,6 @@ package oni.entities
 				if(_entities[i].serializable) data.push(_entities[i].serialize());
 			}
 			return data;
-		}
-		
-		/**Boolean
-		 */
-		public function get debug():Boolean
-		{
-			return _napeDebug != null && _napeDebug.display.parent != null;
-		}
-		
-		/**
-		 * Debug on/off
-		 */
-		public function set debug(value:Boolean):void
-		{
-			if (_napeDebug != null)
-			{
-				if (value)
-				{
-					Starling.current.nativeStage.addChild(_napeDebug.display);
-				}
-				else if (_napeDebug.display.parent != null)
-				{
-					Starling.current.nativeStage.removeChild(_napeDebug.display);
-				}
-			}
 		}
 		
 	}

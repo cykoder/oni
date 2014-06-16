@@ -32,6 +32,8 @@ package oni.components
 		
 		private var _z:Number, _holdZ:Number;
 		
+		private var _previousPosition:Object;
+		
 		public function Camera() 
 		{
 			//Initialise variables
@@ -43,7 +45,7 @@ package oni.components
 			addEventListener(Oni.UPDATE, _onUpdate);
 			
 			//Listen for shake events
-			addEventListener(Camera.SHAKE, _onShake);
+			//addEventListener(Camera.SHAKE, _onShake);
 		}
 		
 		private function _onUpdate(e:Event):void
@@ -113,7 +115,11 @@ package oni.components
 				}
 				
 				//Dispatch event
-				dispatchEventWith(Oni.UPDATE_POSITION, false, { x:_x, y:_y, z:_z } );
+				var position:Object = { x:_x, y:_y, z:_z, previous: _previousPosition };
+				
+				dispatchEventWith(Oni.UPDATE_POSITION, false, position);
+				_previousPosition = position;
+				delete(_previousPosition.previous);
 			}
 		}
 		

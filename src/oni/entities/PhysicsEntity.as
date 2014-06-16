@@ -9,9 +9,11 @@ package oni.entities
 	import nape.phys.Material;
 	import nape.shape.Circle;
 	import nape.shape.Polygon;
+	import nape.shape.Shape;
 	import nape.space.Space;
 	import oni.Oni;
 	import oni.utils.Platform;
+	import starling.display.Graphics;
 	import starling.errors.AbstractClassError;
 	import starling.events.Event;
 	/**

@@ -23,10 +23,16 @@ package oni.components.input
 		
 		public static const JUMP:String = UP;
 		
+		public static const MINUS:String = "minus";
+		
+		public static const PLUS:String = "plus";
+		
 		public static const MAP:Object = { "39": Input.RIGHT,
 										   "37": Input.LEFT,
 										   "38": Input.UP,
-										   "32": Input.JUMP };
+										   "32": Input.JUMP,
+										   "189": Input.MINUS,
+										   "187": Input.PLUS };
 		
 	}
 
