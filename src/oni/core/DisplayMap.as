@@ -16,9 +16,7 @@ package oni.core
 	 */
 	public class DisplayMap extends DisplayObjectContainer
 	{
-		private var _repositonDifferenceX:int;
-		
-		private var _repositonDifferenceY:int;
+		private var _cameraPosition:Object;
 		
 		public function DisplayMap()
 		{
@@ -29,11 +27,7 @@ package oni.core
 		
 		private function _updatePosition(e:Event):void
 		{
-			if (e.data.previous)
-			{
-				_repositonDifferenceX = -e.data.previous.x;
-				_repositonDifferenceY = -e.data.previous.y;
-			}
+			_cameraPosition = e.data;
 		}
 		
 		private function _onDebugDraw(e:Event):void
@@ -65,10 +59,6 @@ package oni.core
             var entLength:int = numChildren;
             var blendMode:String = support.blendMode;
 			
-			//Set x/y
-			var nx:int = this.x * -1;
-			var ny:int = this.y * -1;
-            
 			//Loop through all entities
             for (var i:int=0; i<entLength; ++i)
             {
@@ -76,28 +66,23 @@ package oni.core
 				var entity:Entity = getChildAt(i) as Entity;
                 
 				//Check if the child is even visible
-                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-nx, -ny, 1))
+                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-_cameraPosition.x, -_cameraPosition.y, 1))
 				{
 					//Push default matrix
 					support.pushMatrix();
 					support.transformMatrix(entity);
-					var newX:int, newY:int;
 					
 					//Parallax scrolling
 					if (entity.z > 0 && entity.z != 1)
 					{
-						support.translateMatrix((nx-_repositonDifferenceX) * (1 - entity.z), (ny-_repositonDifferenceY) * (1 - entity.z));
+						support.modelViewMatrix.tx *= entity.z;
+						support.modelViewMatrix.ty *= entity.z;
 					}
 					else if(entity.z == 0) //Static, non-scrolling entities
 					{
 						support.modelViewMatrix.tx = entity.x;
 						support.modelViewMatrix.ty = entity.y;
 					}
-					
-					/*var mtx:Matrix = new Matrix();
-					mtx.b = 100 * Math.PI/180;
-					mtx.c = 0 * Math.PI/180;
-					support.modelViewMatrix.concat(mtx);*/
 					
 					//Set blend mode
 					support.blendMode = entity.blendMode;

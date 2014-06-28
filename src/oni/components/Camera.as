@@ -53,6 +53,9 @@ package oni.components
 			//Check if we should move
 			if (_holdX != -1 || _holdY != -1 || _holdZ != -1 || _shakeIntensity > 0)
 			{
+				var oldX:int = _x;
+				var oldY:int = _y;
+				
 				//Linear interpolate X
 				if (_holdX != -1)
 				{
@@ -115,9 +118,9 @@ package oni.components
 				}
 				
 				//Dispatch event
-				var position:Object = { x:_x, y:_y, z:_z, previous: _previousPosition };
-				
+				var position:Object = { x:_x, y:_y, z:_z, diff: { x: oldX-_x, y: oldY-y } };
 				dispatchEventWith(Oni.UPDATE_POSITION, false, position);
+				
 				_previousPosition = position;
 				delete(_previousPosition.previous);
 			}

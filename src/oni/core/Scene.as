@@ -316,10 +316,17 @@ package oni.core
 					if(parent.contains(_lightMap)) parent.removeChild(_lightMap);
 					parent.addChild(_diffuseMap);
 				}
-				else
+				else 
 				{
 					if(parent.contains(_diffuseMap)) parent.removeChild(_diffuseMap);
-					if(parent.contains(_lightMap)) parent.removeChild(_lightMap);
+					if (parent.contains(_lightMap)) parent.removeChild(_lightMap);
+					
+					//Clear textures for debug only view
+					if (_renderMode == RenderMode.DEBUG_ONLY)
+					{
+						((this.filter as CompositeFilter).lightTexture as RenderTexture).clear();
+						((this.filter as CompositeFilter).diffuseTexture as RenderTexture).clear();
+					}
 				}
 			}
 		}
