@@ -2,7 +2,6 @@ package oni.screens
 {
 	import oni.assets.AssetManager;
 	import oni.components.Camera;
-	import oni.editor.EditorScreen;
 	import oni.core.Scene;
 	import oni.entities.EntityManager;
 	import oni.screens.GameScreen;

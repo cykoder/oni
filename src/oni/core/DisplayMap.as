@@ -66,22 +66,17 @@ package oni.core
 				var entity:Entity = getChildAt(i) as Entity;
                 
 				//Check if the child is even visible
-                if (entity != null && entity.hasVisibleArea && entity.cullCheck(-_cameraPosition.x, -_cameraPosition.y, 1))
+                if (_cameraPosition != null && entity != null && entity.hasVisibleArea && entity.cullCheck(-_cameraPosition.x, -_cameraPosition.y, 1))
 				{
 					//Push default matrix
 					support.pushMatrix();
 					support.transformMatrix(entity);
 					
 					//Parallax scrolling
-					if (entity.z > 0 && entity.z != 1)
+					if (entity.z != 0)
 					{
 						support.modelViewMatrix.tx *= entity.z;
 						support.modelViewMatrix.ty *= entity.z;
-					}
-					else if(entity.z == 0) //Static, non-scrolling entities
-					{
-						support.modelViewMatrix.tx = entity.x;
-						support.modelViewMatrix.ty = entity.y;
 					}
 					
 					//Set blend mode
