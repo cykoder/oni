@@ -1,3 +1,6 @@
+OLD PROJECT, ARCHIVE ONLY
+===
+
 Oni Engine
 ===
 The Oni Engine is a fast, beautiful and scalable Flash/AIR game engine built for top quality games that run across a variety of platforms, such as:
@@ -24,7 +27,3 @@ Features
 Notable games
 ===
 *	[Oni World series](http://www.oniworld.co.uk/)
-
-Contact
-===
-Any issues or queries, the best way to contact me is to email me at [sshellawell@gmail.com](mailto:sshellawell@gmail.com), tweet me [@Beckiwoosh](http://twitter.com/Beckiwoosh) or add me on Skype: *becki.ness*
